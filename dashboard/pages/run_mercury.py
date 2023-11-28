@@ -6,7 +6,7 @@ from Mercury.libs.input_manager import Input_manager
 from Mercury import Mercury, ParametriserSelector, ResultsAggregatorSelector, read_scenario_config, read_mercury_config
 import pandas as pd
 import os
-
+from pathlib import Path
 import dash
 from dash.exceptions import PreventUpdate
 
@@ -15,16 +15,20 @@ dash.register_page(__name__)
 
 
 input_man = Input_manager()
-input_man.read_scenario('scenario=0')
+#input_man.read_scenario('scenario=0')
 
-
+scenarios = input_man.scenarios
+dropdown_scenarios=dcc.Dropdown(id='dropdown_run_scenarios',options=[{'label': i, 'value': i} for i in scenarios],multi=False,value=scenarios[0])
+dropdown_case_studies=dcc.Dropdown(id='dropdown_run_case_studies',options=[{'label': i, 'value': i} for i in input_man.case_studies]+[{'label': 'None', 'value': 'none'}],multi=True,value='none',placeholder="Select case study")
 
 layout = html.Div([
         html.Div([
                 html.Div(
                     [
                         html.P(" ", className="control_label"),
-
+                        html.P("Select scenario and case_study to simulate:", className="control_label"),
+                        dropdown_scenarios,
+                        dropdown_case_studies,
                         html.Div([html.Button('Run', id='run_button', n_clicks=0)])
 
                     ],
@@ -33,10 +37,12 @@ layout = html.Div([
                 html.Div(
                     [
 
-                        #html.Div(
-                            #[html.P('Progress',id='status'),dcc.Interval(id="progress-interval", n_intervals=0, interval=1000),dbc.Progress(id="progress",color='#1eaedb'),],
-                            #className="pretty_container",
-                        #),
+                        html.Div(
+                            [html.P('Click Run to run the simulation.',id='status_text')
+                            #html.P('Progress',id='status'),dcc.Interval(id="progress-interval", n_intervals=0, interval=1000),dbc.Progress(id="progress",color='#1eaedb'),
+                            ],
+                            className="pretty_container",
+                        ),
                     ],
                     id="right-column",
                     className="eight columns",
@@ -95,17 +101,35 @@ layout = html.Div([
         #return 0, "",0,status
 
 @callback(
-    [Output("run_button", "title"),],
+    [Output("status_text", "children"),],
     [Input("run_button", "n_clicks")],
+    [State('dropdown_run_scenarios', 'value'),State('dropdown_run_case_studies', 'value')],
     prevent_initial_call=True,
 )
-def run_fn(n_clicks):
-    scenarios = [-4]
-    sys.path.insert(1, '../.')
-    paras_simulation = read_mercury_config(config_file='config/mercury_config.toml')
+def run_fn(n_clicks,sc,cs):
+    scenarios = [sc.split('=')[1]]
+    # Choose case studies to simulate
+    case_studies = [c.split('=')[1] for c in cs if '=' in c]
+    #print(sc,cs,sc.split('=')[1],[c.split('=')[1] for c in cs if c '=' in c])
+    print('scenarios',scenarios,case_studies)
+    paras_simulation = read_mercury_config(config_file='../config/mercury_config.toml')
+    paras_simulation['read_profile']['path'] = Path('../') / Path(paras_simulation['read_profile']['path'])#'../../input/'
+
     # Initialise simulation
-    mercury = Mercury()
+    mercury = Mercury(paras_simulation=paras_simulation)
 
     # Run and get results
-    results, results_seq = mercury.run(scenarios=scenarios)
-    return ['Run']
+    results, results_seq = mercury.run(scenarios=scenarios,paras_simulation=paras_simulation)
+    print('run end')
+    return ['Run has finished.']
+
+@callback(
+    [Output('dropdown_run_case_studies', 'options')],
+    [Input("dropdown_run_scenarios", "value"),],
+    prevent_initial_call=False,
+)
+def update_case_studies(scenario):
+
+    input_man.read_scenario(scenario)
+
+    return [input_man.case_studies]
