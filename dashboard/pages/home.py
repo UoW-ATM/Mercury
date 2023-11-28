@@ -138,29 +138,22 @@ def stats_regulations(regulations):
 
 def stats_fp(fp):
 
-    route_pool,route_pool_has_airspace,airspace_static = fp['routes']
-    trajectory_pool,trajectory_segment = fp['trajectories']
 
     fp_pool_m,fp_pool_point_m = fp['flight_plans_pool']
     flight_uncertainties,extra_cruise_if_dci = fp['flight_uncertainties']
     fp_pool_point_m = fp_pool_point_m[['fp_pool_id','sequence','name']]
     #print(fp_pool_m)
-    dropdown_icao_orig = dcc.Dropdown(id='dropdown_icao_orig',options=route_pool['icao_orig'].unique(),multi=False,value='')
-    dropdown_icao_dest = dcc.Dropdown(id='dropdown_icao_dest',options=route_pool['icao_dest'].unique(),multi=False,value='')
-    dropdown_route_pool_id = dcc.Dropdown(id='dropdown_route_pool_id',options=route_pool.head()['id'].unique(),multi=False,value='')
+    dropdown_icao_orig = dcc.Dropdown(id='dropdown_icao_orig',options=fp_pool_m['icao_orig'].unique(),multi=False,value='')
+    dropdown_icao_dest = dcc.Dropdown(id='dropdown_icao_dest',options=fp_pool_m['icao_dest'].unique(),multi=False,value='')
+    #dropdown_route_pool_id = dcc.Dropdown(id='dropdown_route_pool_id',options=fp_pool_m.head()['route_pool_id'].unique(),multi=False,value='')
 
     fp_pool_m_table = dash_table.DataTable(fp_pool_m.head().to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_m.columns],id='fp_pool_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
     dropdown_fp_pool_id = dcc.Dropdown(id='dropdown_fp_pool_id',options=fp_pool_m.head()['id'].unique(),multi=False,value='')
 
     fp_pool_point_m_table = dash_table.DataTable(fp_pool_point_m.head().to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_point_m.columns],id='fp_pool_point_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
 
-    trajectory_pool_table = dash_table.DataTable(trajectory_pool.head().to_dict(orient='records'),[{'name': i, 'id': i} for i in trajectory_pool.columns],id='trajectory_pool_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
-    dropdown_trajectory_pool_id = dcc.Dropdown(id='dropdown_trajectory_pool_id',options=trajectory_pool.head()['id'].unique(),multi=False,value='')
 
-    trajectory_segment_table = dash_table.DataTable(trajectory_segment.head().to_dict(orient='records'),[{'name': i, 'id': i} for i in trajectory_segment.columns],id='trajectory_segment_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
-
-    #fig = px.bar(x=[0], y=[0], title='Hourly traffic')
-    fig = plot_routes(pd.DataFrame(columns=route_pool_has_airspace.columns))
+    fig = plot_fps(pd.DataFrame(columns=fp_pool_point_m.columns))
 
     #flight_uncertainties_table = dash_table.DataTable(flight_uncertainties.to_dict(orient='records'),[{'name': i, 'id': i} for i in flight_uncertainties.columns],id='flight_uncertainties_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
     #extra_cruise_if_dci_table = dash_table.DataTable(extra_cruise_if_dci.to_dict(orient='records'),[{'name': i, 'id': i} for i in extra_cruise_if_dci.columns],id='extra_cruise_if_dci_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
@@ -170,7 +163,7 @@ def stats_fp(fp):
 
     paras_table = dash_table.DataTable(paras,[{'name': 'parameter_name', 'id': 'parameter_name'},{'name': 'value', 'id': 'value'}],id='fp_paras_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.P('Select origin'),dropdown_icao_orig,html.P('Select destination'),dropdown_icao_dest,dcc.Graph(figure=fig,id='route_pool_plot'),html.P('Select route'),dropdown_route_pool_id,html.P('fp_pool_m'),html.Div(fp_pool_m_table,id='fp_pool_m_table'),html.P('Select flight plan'),dropdown_fp_pool_id,html.P('fp_pool_point_m'),html.Div(fp_pool_point_m_table,id='fp_pool_point_m_table'),html.P('trajectory_pool'),html.Div(trajectory_pool_table,id='trajectory_pool_table'),html.P('Select trajectory'),dropdown_trajectory_pool_id,html.P('trajectory_segment'),html.Div(trajectory_segment_table,id='trajectory_segment_table'),dcc.Graph(figure=fig2),html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
+    return html.Div([html.P('Select origin'),dropdown_icao_orig,html.P('Select destination'),dropdown_icao_dest,dcc.Graph(figure=fig,id='route_pool_plot'),html.P('fp_pool_m'),html.Div(fp_pool_m_table,id='fp_pool_m_table'),html.P('Select flight plan'),dropdown_fp_pool_id,html.P('fp_pool_point_m'),html.Div(fp_pool_point_m_table,id='fp_pool_point_m_table'),dcc.Graph(figure=fig2),html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
 
 def stats_airports(airports):
 
@@ -801,47 +794,28 @@ def add_row_manual_regulations(n_clicks, rows, columns):
     return rows
 
 @callback(
-    [Output('dropdown_route_pool_id', 'options'),Output('route_pool_plot','figure')],
+    [Output('fp_pool_m_table', 'children'),Output('route_pool_plot','figure'),Output('dropdown_fp_pool_id', 'options')],
     [Input("dropdown_icao_orig", "value"),Input("dropdown_icao_dest", "value")],
     prevent_initial_call=True,
 )
 def fp_func(icao_orig,icao_dest):
     ##print('icao',icao_orig,icao_dest)
-    rp = input_man.filter_route_pool(which='base',icao_orig=icao_orig,icao_dest=icao_dest)
-    routes_ids = rp['id'].unique()
 
     fp=input_man.get_case_study_fp()
-    _,route_pool_has_airspace,airspace_static = fp['routes']
     fp_pool, fp_pool_point = fp['flight_plans_pool']
 
-    route_pool_has_airspace = route_pool_has_airspace[route_pool_has_airspace['route_pool_id'].isin(routes_ids)]
-    df_fp = route_pool_has_airspace.merge(rp,how='left',left_on='route_pool_id', right_on='id')
-    df_fp = df_fp.merge(airspace_static,how='left',left_on='airspace_id', right_on='id')
-    ##print(df_fp[['route_pool_id','icao_orig','icao_dest','name']])
-    #print(df_fp[(df_fp['icao_orig']==icao_orig) & (df_fp['icao_dest']==icao_dest)])
 
     df_fp2 = fp_pool_point.merge(fp_pool,how='left',left_on='fp_pool_id', right_on='id')
     #print(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
     #fig = plot_routes(df_fp[(df_fp['icao_orig']==icao_orig) & (df_fp['icao_dest']==icao_dest)])
     fig = plot_fps(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
 
-    return [routes_ids,fig]
-
-@callback(
-    [Output('dropdown_fp_pool_id', 'options'),Output('dropdown_trajectory_pool_id', 'options'),Output('fp_pool_m_table', 'children'),Output('trajectory_pool_table', 'children')],
-    [Input("dropdown_route_pool_id", "value")],
-    prevent_initial_call=True,
-)
-def fp2_func(route_pool_id):
-
-    fp_pool_m,trajectory_pool = input_man.filter_fps(which='base',route_pool_id=route_pool_id)
-    fp_pool_ids = fp_pool_m['id'].unique()
-    trajectory_pool_ids = trajectory_pool['id'].unique()
-
+    fp_pool_m = fp_pool[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)]
     fp_pool_m_table = dash_table.DataTable(fp_pool_m.to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_m.columns],id='fp_pool_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
-    trajectory_pool_table = dash_table.DataTable(trajectory_pool.to_dict(orient='records'),[{'name': i, 'id': i} for i in trajectory_pool.columns],id='trajectory_pool_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
+    fp_pool_ids = fp_pool_m['id'].unique()
 
-    return [fp_pool_ids,trajectory_pool_ids,fp_pool_m_table,trajectory_pool_table]
+    return [fp_pool_m_table,fig,fp_pool_ids]
+
 
 @callback(
     [Output('fp_pool_point_m_table', 'children')],
@@ -859,19 +833,6 @@ def fp3_func(fp_pool_id):
 
     return [fp_pool_point_m_table]
 
-@callback(
-    [Output('trajectory_segment_table', 'children')],
-    [Input("dropdown_trajectory_pool_id", "value")],
-    prevent_initial_call=True,
-)
-def fp4_func(trajectory_pool_id):
-
-    trajectory_segment = input_man.filter_trajectory_segment(which='base',trajectory_pool_id=trajectory_pool_id)
-
-    trajectory_segment_table = dash_table.DataTable(trajectory_segment.to_dict(orient='records'),[{'name': i, 'id': i} for i in trajectory_segment.columns],id='trajectory_segment_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
-
-
-    return [trajectory_segment_table]
 
 @callback(
     [Output('flights_paras_datatable', 'page_size')],
