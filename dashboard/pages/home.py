@@ -407,7 +407,9 @@ mapbox_access_token='pk.eyJ1IjoibTIwMDEiLCJhIjoiY2p3ODFlNnlyMDRpZDQ5czJuODc5NHly
 input_man = Input_manager()
 #input_path = input_man.read_mercury_config()['read_profile']['path']
 ##print('input_path','../' / Path(input_path)/'scenario=0')
-input_man.read_scenario('scenario=0')
+#input_man.read_scenario('scenario=0')
+#input_man.read_scenario('scenario=0')
+input_man.read_scenario('scenario=-1')
 input_man.read_scenario_data(names=['schedules','pax','airports','delay','eaman','airlines','network_manager','flight_plans', 'costs'])
 
 schedules = input_man.get_schedules()
@@ -607,7 +609,7 @@ def load(n_clicks,case_study):
 def func(n_clicks,case_study_id):
 
     #return dcc.send_file("../../input/scenario_test/scenario_config_template.toml")
-    input_man.save_case_study(case_study_id=case_study_id,description='test',case_study_name='case_study_'+case_study_id)
+    input_man.save_case_study(case_study_id=case_study_id,description='test',case_study_name='case_study='+case_study_id)
     return 'save_button'
 
 @callback(Output('tabs_content', 'children'),

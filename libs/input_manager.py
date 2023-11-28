@@ -592,7 +592,10 @@ class Input_manager:
         if not (self.scenario_path / 'case_studies' / case_study_name / 'data' / 'schedules').exists():
             os.mkdir(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'schedules')
 
-        self.case_study_data_dict['schedules']['input_schedules'][['nid']].to_parquet(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'schedules' / str('flight_subset'+'.parquet'))
+        df = self.case_study_data_dict['schedules']['input_schedules'][['nid']]
+        df['flight_id'] = df['nid']
+        df['subset'] = 4
+        df.to_parquet(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'schedules' / str('flight_subset'+'.parquet'))
         self.case_study_config['data']['schedules'] = {'input_subset':'flight_subset'}
 
         if self.uptake == 'CS':
@@ -609,8 +612,8 @@ class Input_manager:
             self.case_study_data_dict['delay']['input_delay_paras'].astype({'value': 'float64'}).to_parquet(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'delay' / str('delay_parameters'+'.parquet'))
             self.case_study_config['data']['delay'] = {'input_delay_paras':'delay_parameters'}
 
-        self.case_study_config['case_study']['case_study'] = case_study_id
-        self.case_study_config['case_study']['description'] = description
+        self.case_study_config['info']['case_study_id'] = case_study_id
+        self.case_study_config['info']['description'] = description
         self.save_case_study_config(case_study_name)
 
     def save_case_study_config(self,case_study_name):
