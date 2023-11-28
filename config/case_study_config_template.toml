@@ -1,0 +1,11 @@
+[case_study]
+case_study = 0
+description = "Small test"
+
+[data]
+flight_filtering = 'flight_subset'
+
+[parameters]
+cost_fuel = 0.5
+
+[agents_configuration]

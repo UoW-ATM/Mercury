@@ -1,0 +1,7 @@
+[submodule "libs/uow_tool_belt"]
+	path = libs/uow_tool_belt
+	url = https://github.com/UoW-ATM/uow_tool_belt
+
+[submodule "libs/Hotspot"]
+	path = libs/Hotspot
+	url = https://github.com/andygaspar/Hotspot

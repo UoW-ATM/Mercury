@@ -1,0 +1,9 @@
+paras = {}
+paras['initial_credits'] = 200.
+paras['n_iter_reboot'] = 200
+paras['price_jump'] = 0.01
+paras['price_margin'] = 1.
+paras['credit_file'] = 'credits.csv'
+paras['default_margin'] = 15.
+paras['default_jump'] = 3000 #'auto' #3000.
+paras['reinjection'] = 0.1

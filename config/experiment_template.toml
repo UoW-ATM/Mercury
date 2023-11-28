@@ -1,0 +1,9 @@
+description = "scan of fuel cost 0.5 to 1.5 every 0.1"
+
+[fuel]
+min= 0.5
+max = 0.7
+every = 0.1
+
+[network]
+atfm = ['L','M']

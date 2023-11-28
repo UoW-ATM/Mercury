@@ -1,0 +1,10 @@
+[paras]
+initial_credits = 200.0
+n_iter_reboot = 200
+credit_file = 'credits.csv'
+default_margin = 15.0
+default_jump = 3000 #'auto' #3000.
+reinjection = 0.0
+	[paras.prices]
+	jump = 0.01
+	margin = 1.0

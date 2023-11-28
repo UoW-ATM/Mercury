@@ -1,0 +1,4 @@
+[paras]
+initial_credits = 0.0
+n_iter_reboot = 5
+credit_file = 'credits_auction.csv'

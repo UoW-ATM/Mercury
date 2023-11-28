@@ -1,0 +1,3 @@
+[paras]
+type_interface = 'remote_hmi'
+port = 5555

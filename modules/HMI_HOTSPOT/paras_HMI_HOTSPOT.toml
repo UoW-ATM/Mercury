@@ -1,0 +1,4 @@
+[paras]
+port = 5555
+player = 'AFR'
+save_results = true

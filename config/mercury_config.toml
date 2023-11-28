@@ -1,0 +1,101 @@
+[read_profile]
+type = "parquet"#file"
+fmt = "parquet"#"csv"
+connection = "local"
+scenario_loader = "ScenarioLoaderStandardLocal" #ScenarioLoaderStandard"#"ScenarioLoaderSimple"
+path = "../input/"
+
+
+[write_profile]
+type = "file" # 'file' or 'mysql'. Put "None" if you don't want a raw output (note: independent of aggregator)
+fmt = "csv" # csv or pickle
+connection = "local" # None if creds are included in read. 'local' for local saving of files.
+mode = "replace" # can be update or replace
+path = "../results" # path folder where to save results.
+				  # relative path are relative to base_path from profile file.
+				  # Otherwise you can put absolute paths, it will override base_path.
+prefix = "model_scenario_cs_it" # Destination folder for output files
+
+[computation]
+parallel = false
+pc = 1 #Parallel computing when possible -- number of parallel processes (i.e., 1=no parallel)
+num_iter = 1
+first_iter = 0 # iteration number to start from.
+deep_clean_each_iteration = true
+verbose = false
+batch_size = 0 # Put a positive number N to have a deep memory clean every N iterations (batches)
+
+
+[logging]
+# Logging
+# Only local logging supported for now.
+# Path is relative to main mercury folder (not paras or script)
+# Log file names will be automatically modified when there are several iterations.
+# Put None in log_file if you don't want logs.
+log_directory = "/home/xxx/Documents/xxx/logs"
+add_model_version = true #Add Mercury version in the path of log_directory
+# log_file = None # 'log.txt' # None # 'log_test.txt'
+
+
+[notification]
+# Desktop notifications
+notifications = false
+
+# Email notifications
+email = false
+
+
+[modules]
+path = 'agents/modules'
+
+
+[hmi]
+# If hmi, can be server or client. If no hmi, can keep None
+hmi = "none" # "client" # 'server' # None
+port_hmi = 5555 # that's for the server
+port_hmi_client = 5556 # that's for the client
+
+
+[print_colors]
+# Color for prints
+alert = "red"
+aoc = "green"
+nm = "yellow"
+flight = "blue"
+airport = "magenta"
+eaman = "cyan"
+dman = "cyan"
+radar = "yellow"
+ip = "green" # itinerary provider
+fs = "yellow" # flight swapper
+info = "white"
+
+
+[outputs_handling]
+outputs = ['output_RNG', 'output_general_simulation', 'output_flights', 'output_pax',
+			'output_hotspot', 'output_eaman', 'output_dci', 'output_wfp', 'output_messages',
+			'output_events']
+
+insert_time_stamp = false
+
+save_all_hotspot_data = false
+hotspot_save_folder = "../results" # Save all regulation information
+
+skip_results = false # will skip computation of the results at the end. Good for testing quickly
+
+# If True, this will skip an iteration with same folder path if it already exists
+# on the disk. Note 1: this has no effect if the results are saved in DB.
+# Note 2: the program checks for folder path, which means that, since default parameters
+# are not included in the folder path unless they are explicitly iterated upon by the
+# simulation manager/parametriser, then two folders may have different names but have
+# the same configuration from the parameter point of view.
+# TODO: merge with mode? update -> True, replace -> False?
+# To check if this actually works...
+skip_computation_if_results_exists = false
+
+
+[debug]
+seed_table = "output_RNG"#If using seed from which table to read it
+count_messages = true # Count messages
+count_events = true # Count events
+# paras_to_keep_in_output =

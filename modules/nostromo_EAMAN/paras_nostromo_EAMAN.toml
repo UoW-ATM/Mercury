@@ -1,0 +1,6 @@
+[paras]
+optimiser = 'advanced'
+data_horizon = 800
+command_horizon = 500
+tactical_horizon = 100
+ratio_flight_optimised = 0.75

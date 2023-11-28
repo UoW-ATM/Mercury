@@ -1,0 +1,168 @@
+[scenario]
+scenario_id = 0
+description = "Test"
+
+[data]
+	[data.scenario]
+	input_scenario = 'scenario'
+
+	[data.delay]
+	input_delay_paras = 'delay_parameters'
+
+	[data.network_manager]
+	input_atfm_delay = 'iedf_atfm_static_old1409'
+	input_atfm_prob = 'prob_atfm_static_old1409'
+
+	input_regulation_at_airport_days = 'regulation_at_airport_days_static_old1409'
+	input_atfm_regulation_at_airport = 'regulation_at_airport_static_old1409'
+	input_atfm_regulation_at_airport_manual = 'regulation_at_airport_manual_old1409'
+
+	[data.costs]
+	input_soft_cost = 'soft_cost_delay_static_old1409'
+	input_compensation = 'passenger_compensation_static_old1409'
+	input_doc = 'duty_of_care_static_old1409'
+	input_non_pax_cost = 'non_pax_delay_static_old1409'
+	input_non_pax_cost_fit = 'non_pax_delay_fit_static_old1409'
+	input_cost_curfews = 'curfew_non_pax_costs_old1409'
+	input_estimated_cost_curfews = 'curfew_costs_estimated_old1409'
+
+	[data.pax]
+	input_itinerary = 'pax_itineraries_old1409'
+
+	[data.airports]
+	input_airport = 'airport_info_static_old1409'
+	input_mtt = 'mtt_static_old1409'
+	input_airport_modif = 'airport_modif_cap_old1409'
+
+		[data.airports.curfew]
+		icao_airport_name = 'icao'
+		curfew_airport_name = 'arrival_curfew_start'
+		input_airport_curfew = 'airports_curfews_ectl_old1409'
+		input_curfew_extra_time = 'airports_extra_time_curfews_ectl_old1409'
+		input_airports_with_curfews = 'airports_with_curfews_old1409'
+		input_airports_curfew2 = 'airport_curfew_old1409'
+
+		[data.airports.taxi]
+		input_taxi_in = 'taxi_in_static_old1409'
+		input_taxi_out = 'taxi_out_static_old1409'
+
+
+	[data.eaman]
+	input_eaman = 'eaman_definition_old1409' # table name
+
+	[data.airlines]
+	input_airline = 'airline_static_old1409' # table name
+
+	[data.schedules]
+	input_schedules = 'flight_schedule_old1409' # table name
+	input_subset = 'flight_subset'
+
+	[data.ac_performance]
+		[data.ac_performance.bada]
+			#CR
+		#BADA performances databases
+		db_bada3 = "bada3"
+		db_bada4 = "bada4_2"
+		input_aircraft_eq_badacomputed = 'ac_eq_badacomputed_static_old1409'
+
+	[data.flight_plans]
+		[data.flight_plans.crco]
+		#CRCO if computing FPs
+		input_crco_charges = 'crco_charges_static_old1409'
+		input_crco_vat = 'crco_vat_static_old1409'
+		input_crco_fix = 'crco_fix_static_old1409'
+		input_overfly = 'crco_overfly_static_old1409'
+		input_crco_weight = 'crco_weight_static_old1409'
+
+		[data.flight_plans.routes]
+		input_route_pool = 'route_pool_old1409'
+		input_route_pool_has_airspace = 'route_pool_has_airspace_static_old1409'
+		input_airspace = 'airspace_static_old1409'
+
+		[data.flight_plans.trajectories]
+		input_trajectory_pool = 'trajectory_pool_old1409'
+		input_trajectory_segments = 'trajectory_segment_old1409'
+
+		[data.flight_plans.flight_plans_pool]
+		input_fp_pool = 'fp_pool_m_old1409'
+		input_fp_pool_point = 'fp_pool_point_m_old1409'
+
+		[data.flight_plans.flight_uncertainties]
+		input_flight_uncertainties = 'flight_uncertainties_static_old1409'
+		input_extra_cruise_if_dci = 'increment_cruise_dci_static_old1409'
+
+		[data.flight_plans.en_route_wind]
+		input_iedf_wind_static = 'iedf_wind_static_old1409'
+		wind_type = 'LIKE \"%%segment%%\"'
+
+
+[paras]
+	[paras.general]
+	first_datetime_shift = -360
+
+	[paras.modules]
+	modules = []
+
+	[paras.airlines]
+	non_ATFM_delay_loc =  0.0
+	compensation_uptake = 0.11
+	delay_estimation_lag = 60
+	threshold_swap = 100.0
+	heuristic_knock_on_factor = 1.8
+	smoothness_fp = 200.0
+	fp_anchor = 0.3
+	#extra_climb_tweak = 2.
+	cancel_cascade_curfew = false
+	slow_down_th =  30 #slowing down at L2
+	max_extra_fuel_used =  0.7 # maximum percentage of extra fuel available used for speeding up @L0
+	remove_shorter_route_calibration =  true # Dont consider shorter route available if more than one for calibration to increase FP distance
+	dci_min_delay = 15.0
+	dci_max_delay = 60.0
+	dci_p_bias = 0.2
+	wait_for_passenger_thr = 15.0
+	min_time_for_FP_recomputation = 0.0
+	p_cancellation = 0.02
+	fuel_price = 0.5
+
+	[paras.eaman]
+	default_horizon = 100.0
+	solver = 'google_or' #pyomo (gurobi)
+	max_holding_minutes =  100.0
+	eaman_slot_planning_oversubscription = 0
+
+	[paras.airports]
+	mct_q = 0.95
+	sig_ct = 15.0
+	taxi_estimation_scale = 2.0
+	minimum_taxi_time = 0.5
+	cap_ratio_mix_use_departure_reduction = 0.5
+	cap_ratio_mix_use_arrival_reduction = 0.5
+	#curfews
+	icao_airport_name = 'icao'
+	curfew_airport_name = 'arrival_curfew_start'
+
+	[paras.network_manager]
+	# Time before the begining of the regulation at which the hotspot is solved
+	hotspot_time_before_resolution = 120.0
+	# Minimum size of a hotspot (inclusive) for which it will be solved
+	hostpot_minimum_resolution_size = 5
+
+	[paras.flights]
+	default_holding_altitude = 200 #FL,
+	default_holding_ff = 20 #kg/min
+	use_trajectory_uncertainty = true
+	use_wind_uncertainty = true
+
+	[paras.flight_plans]
+	trajectories_version = 0
+	compute_fp_using_pool = 1 #0 - route_pool, 1 - fp_pool
+	compute_missing_flight_plans = false
+	number_trajectories_batch_computation = 'None' #A number of trajectories to compute them in batches e.g., 700
+	min_trajectory_compute = 'None'
+	max_trajectory_compute = 'None'
+	scenario_in_schedules = false
+
+
+
+
+
