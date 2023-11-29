@@ -434,7 +434,7 @@ airline_types=[{'label': 'All', 'value': 'all'}]+airline_types
 #dash section
 #scenarios = sorted([f.name for f in os.scandir('../../input/') if f.is_dir() and 'scenario' in f.name])
 scenarios = input_man.scenarios
-dropdown_scenarios=dcc.Dropdown(id='dropdown_scenarios',options=[{'label': i, 'value': i} for i in scenarios],multi=False,value='scenario=0')
+dropdown_scenarios=dcc.Dropdown(id='dropdown_scenarios',options=[{'label': i, 'value': i} for i in scenarios],multi=False,value='scenario=-1')
 dropdown_case_studies=dcc.Dropdown(id='dropdown_case_studies',options=[{'label': i, 'value': i} for i in input_man.case_studies]+[{'label': 'None', 'value': 'none'}],multi=False,value='none')
 #dropdown_experiments=dcc.Dropdown(id='dropdown_experiments',options=[{'label': i, 'value': i} for i in input_man.experiments]+[{'label': 'None', 'value': 'none'}],multi=False,value='none')
 
