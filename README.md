@@ -13,6 +13,7 @@ git clone https://github.com/UoW-ATM/Mercury
 
 - Use this to download the third party libraries:
 ```commandline
+cd Mercury
 git submodule update --recursive --remote --init
 ```
 

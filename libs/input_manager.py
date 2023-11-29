@@ -92,6 +92,7 @@ class Input_manager:
         if (scenario_path.parents[0] / 'experiments').exists():
             experiments = [f.name for f in os.scandir(scenario_path.parents[0] / 'experiments')]
         else:
+            experiments = []
             print('experiments folder does not exists')
 
         print('Case studies available: ',case_studies)

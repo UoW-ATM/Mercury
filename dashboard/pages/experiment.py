@@ -42,7 +42,7 @@ dash.register_page(__name__)
 
 
 input_man = Input_manager()
-input_man.read_scenario('scenario=0')
+input_man.read_scenario('scenario=-1')
 
 template = {'info': {'description': 'template'}, 'fuel': {'min': '0.5', 'max': '0.7', 'every': '0.1'}, 'network': {'atfm': "['L', 'M']"}}
 
