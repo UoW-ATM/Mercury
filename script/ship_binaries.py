@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-NOTE: NOT COMPATIBLE WITH WINDOWS. TODO!!!!
+NOTE: to be updated for version 3.
+NOTE: the file was moved from the root folder in version 3.
+NOTE: NOT COMPATIBLE WITH WINDOWS.
 Note: after executing this script, one can use docker like this:
 docker build -t mercury .
 

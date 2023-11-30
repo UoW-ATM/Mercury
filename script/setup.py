@@ -1,4 +1,6 @@
 """
+NOTE: this file should be updated for version 3.
+NOTE: this file was moved from root folder in version 3.
 How to use:
 to compile binaries:
 python3 setup.py build_ext 

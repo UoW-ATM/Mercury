@@ -1,4 +1,4 @@
-![mercury_logo.png](mercury_logo.png)
+![mercury_logo.png](mercury_logo_small.png)
 
 
 Mercury is a research-oriented air transportation mobility simulator with a strong agent-based paradigm.

@@ -22,7 +22,7 @@
   <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
 </svg>                &nbsp;Mercury.libs</a>
 
-            <img src="Mercury/mercury_logo.png" class="logo" alt="project logo"/>
+            <img src="https://github.com/UoW-ATM/Mercury/blob/master/mercury_logo_small.png" class="logo" alt="project logo"/>
 
             <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
                    pattern=".+" required>
@@ -397,7 +397,7 @@
 </span><span id="L-91"><a href="#L-91"><span class="linenos">  91</span></a><span class="s2">					WHERE s.id = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">subset_table</span><span class="p">,</span> <span class="n">scenario_table</span><span class="p">,</span> <span class="n">scenario</span><span class="p">)</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos">  92</span></a>		<span class="k">else</span><span class="p">:</span>
 </span><span id="L-93"><a href="#L-93"><span class="linenos">  93</span></a>			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Subset of flight is null&#39;</span><span class="p">)</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos">  94</span></a>	
+</span><span id="L-94"><a href="#L-94"><span class="linenos">  94</span></a>
 </span><span id="L-95"><a href="#L-95"><span class="linenos">  95</span></a>	<span class="n">d_schedules</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">sql</span><span class="p">,</span> <span class="n">scenario</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos">  96</span></a>
 </span><span id="L-97"><a href="#L-97"><span class="linenos">  97</span></a>	<span class="k">return</span> <span class="n">d_schedules</span>
@@ -2195,7 +2195,7 @@
 </span><span id="read_schedules-92"><a href="#read_schedules-92"><span class="linenos">92</span></a><span class="s2">					WHERE s.id = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">subset_table</span><span class="p">,</span> <span class="n">scenario_table</span><span class="p">,</span> <span class="n">scenario</span><span class="p">)</span>
 </span><span id="read_schedules-93"><a href="#read_schedules-93"><span class="linenos">93</span></a>		<span class="k">else</span><span class="p">:</span>
 </span><span id="read_schedules-94"><a href="#read_schedules-94"><span class="linenos">94</span></a>			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Subset of flight is null&#39;</span><span class="p">)</span>
-</span><span id="read_schedules-95"><a href="#read_schedules-95"><span class="linenos">95</span></a>	
+</span><span id="read_schedules-95"><a href="#read_schedules-95"><span class="linenos">95</span></a>
 </span><span id="read_schedules-96"><a href="#read_schedules-96"><span class="linenos">96</span></a>	<span class="n">d_schedules</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">sql</span><span class="p">,</span> <span class="n">scenario</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
 </span><span id="read_schedules-97"><a href="#read_schedules-97"><span class="linenos">97</span></a>
 </span><span id="read_schedules-98"><a href="#read_schedules-98"><span class="linenos">98</span></a>	<span class="k">return</span> <span class="n">d_schedules</span>
