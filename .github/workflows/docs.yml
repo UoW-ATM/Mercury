@@ -26,7 +26,7 @@ jobs:
           python-version: '3.10'
 
       # ADJUST THIS: install all dependencies (including pdoc)
-      - run: sudo apt-get libproj-dev, libgeos-dev, build-essential, and python3-dev, proj-data proj-bin
+      - run: sudo apt-get libproj-dev libgeos-dev build-essential python3-dev proj-data proj-bin
       - run: python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
       - run: pip install -r requirements.txt
       # ADJUST THIS: build your documentation into docs/.
