@@ -47,9 +47,6 @@ def filter_sql(df,sql_query=''):
 def write_toml(toml_dict,path,filename):
     import tomli_w
 
-
-
-
     with open(path / filename, "wb") as f:
         tomli_w.dump(toml_dict, f)
 
@@ -127,33 +124,33 @@ class Input_manager:
         self.case_study_data_dict = deepcopy(data_dict)
         self.base_data_dict = deepcopy(data_dict)
 
-    def read_case_study(self,name='',read_data=True):
+    def read_case_study(self, name='', read_data=True):
 
         print('Reading case study', name, self.scenario_path)
         case_study_path = self.scenario_path / 'case_studies' / name
 
-        if read_data == False:
-            if name !='none':
+        if not read_data:
+            if name != 'none':
                 case_study_config = read_toml(case_study_path / 'case_study_config.toml')
-                #print(case_study_config)
+                # print(case_study_config)
                 self.case_study_config = case_study_config
                 return None
 
         df_schedules = self.data_dict['schedules']['input_schedules']
+
         flight_schedules = df_schedules
 
-        if name !='none':
+        if name != 'none':
             case_study_config = read_toml(case_study_path / 'case_study_config.toml')
-            #print(case_study_config)
+            # print(case_study_config)
             self.case_study_config = case_study_config
-
 
             if 'schedules' in case_study_config['data']:
                 if 'input_subset' in case_study_config['data']['schedules']:
 
                     df_flight_subset = pd.read_parquet(case_study_path / 'data' / 'schedules' / 'flight_subset.parquet')
                     #print(df_flight_subset,df_schedules)
-                    flight_schedules = df_schedules[df_schedules['nid'].isin(list(df_flight_subset['nid']))]
+                    flight_schedules = df_schedules[df_schedules['nid'].isin(list(df_flight_subset['flight_nid']))]
 
                     #print('flight_schedules',flight_schedules)
                 else:
@@ -175,11 +172,11 @@ class Input_manager:
         df_pax_itineraries = self.data_dict['pax']['input_itinerary']
 
         pax_itineraries = df_pax_itineraries[(df_pax_itineraries['leg1'].isin(flight_list[1:-1])) & ((df_pax_itineraries['leg2'].isin(flight_list[1:-1])) | (pd.isna(df_pax_itineraries['leg2']))) & ((df_pax_itineraries['leg3'].isin(flight_list[1:-1])) | (pd.isna(df_pax_itineraries['leg3'])))]
-        #print(len(pax_itineraries))
+        # print(len(pax_itineraries))
 
         self.case_study_data_dict['pax']['input_itinerary'] = pax_itineraries
         self.base_data_dict['pax']['input_itinerary'] = pax_itineraries
-        ##print(df_schedules.query('nid in [38858]'))
+        # print(df_schedules.query('nid in [38858]'))
 
     def filter_schedules(self,which='scenario',query_type='',query=''):
 
@@ -193,11 +190,11 @@ class Input_manager:
         #print('schedules',which,len(df_schedules))
 
         if query_type == 'python':
-            df= filter_df(df_schedules,query)
+            df= filter_df(df_schedules, query)
 
         elif query_type == 'sql':
 
-            df = filter_sql(df_schedules,sql_query=query)
+            df = filter_sql(df_schedules, sql_query=query)
         else:
             print('Unknown query_type', query_type)
 
@@ -213,7 +210,7 @@ class Input_manager:
 
         return df
 
-    def filter_delay(self,which='scenario',delay_level='D'):
+    def filter_delay(self, which='scenario', delay_level='D'):
 
         if which == 'scenario':
             df_delay = self.data_dict['delay']['input_delay_paras']
@@ -222,11 +219,9 @@ class Input_manager:
         elif which == 'base':
             df_delay = self.base_data_dict['delay']['input_delay_paras']
 
-
         df = df_delay[df_delay['delay_level']==delay_level]
 
         self.case_study_data_dict['delay']['input_delay_paras'] = df
-
 
         return df
 
@@ -239,12 +234,10 @@ class Input_manager:
         elif which == 'base':
             df_eaman = self.base_data_dict['eaman']['input_eaman']
 
-
         df = df_eaman[df_eaman['uptake']==uptake]
 
         self.case_study_data_dict['eaman']['input_eaman'] = df
         self.uptake = uptake
-
 
         return df
 
@@ -257,11 +250,9 @@ class Input_manager:
         elif which == 'base':
             df_non_pax_cost = self.base_data_dict['costs']['input_non_pax_cost']
 
-
         df = df_non_pax_cost[df_non_pax_cost['scenario_id']==scenario]
 
         self.case_study_data_dict['costs']['input_non_pax_cost'] = df
-
 
         return df
 
@@ -274,11 +265,9 @@ class Input_manager:
         elif which == 'base':
             df_non_pax_cost_fit = self.base_data_dict['costs']['input_non_pax_cost_fit']
 
-
         df = df_non_pax_cost_fit[df_non_pax_cost_fit['scenario_id']==scenario]
 
         self.case_study_data_dict['costs']['input_non_pax_cost_fit'] = df
-
 
         return df
 
@@ -303,12 +292,10 @@ class Input_manager:
 
         df1 = atfm_delay[(atfm_delay['scenario_id']==scenario) & (atfm_delay['atfm_type'].isin(atfm_types))]
         df2 = atfm_prob[(atfm_prob['scenario_id']==scenario) & (atfm_prob['atfm_type'].isin(atfm_types))]
-        ##print(df1,atfm_types)
+        ## print(df1,atfm_types)
         self.case_study_data_dict['network_manager']['input_atfm_delay'] = df1
         self.case_study_data_dict['network_manager']['input_atfm_prob'] = df2
-
-
-        return df1,df2
+        return df1, df2
 
     def filter_route_pool(self,which='scenario',icao_orig='',icao_dest=''):
 
@@ -319,11 +306,7 @@ class Input_manager:
         elif which == 'base':
             route_pool = self.base_data_dict['flight_plans']['routes']['input_route_pool']
 
-
         df1 = route_pool[(route_pool['icao_orig']==icao_orig) & (route_pool['icao_dest']==icao_dest)]
-
-
-
 
         return df1
 
@@ -339,12 +322,8 @@ class Input_manager:
             fp_pool_m = self.base_data_dict['flight_plans']['flight_plans_pool']['input_fp_pool']
             trajectory_pool = self.base_data_dict['flight_plans']['trajectories']['input_trajectory_pool']
 
-
         df1 = fp_pool_m[fp_pool_m['route_pool_id']==route_pool_id]
         df2 = trajectory_pool[trajectory_pool['route_pool_id']==route_pool_id]
-
-
-
 
         return df1,df2
 
@@ -583,9 +562,9 @@ class Input_manager:
 
                 self.case_study_config['parameters'][subcat][row['parameter_name']] = row['value']
 
-    def save_case_study(self,case_study_id='',description='',case_study_name=''):
+    def save_case_study(self, case_study_id='', description='', case_study_name=''):
 
-        #print('Saving case study', case_study_name, 'with ', len(self.case_study_data_dict['schedules']['input_schedules'][['nid']]), ' flights')
+        # print('Saving case study', case_study_name, 'with ', len(self.case_study_data_dict['schedules']['input_schedules'][['nid']]), ' flights')
         if not (self.scenario_path / 'case_studies' / case_study_name).exists():
             os.mkdir(self.scenario_path / 'case_studies' / case_study_name)
             os.mkdir(self.scenario_path / 'case_studies' / case_study_name / 'data')
@@ -594,9 +573,8 @@ class Input_manager:
             os.mkdir(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'schedules')
 
         df = self.case_study_data_dict['schedules']['input_schedules'][['nid']]
-        df['flight_id'] = df['nid']
-        df['subset'] = 4
-        df.to_parquet(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'schedules' / str('flight_subset'+'.parquet'))
+        df.rename(columns={'nid':'flight_nid'}, inplace=True)
+        df.to_parquet(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'schedules' / str('flight_subset' + '.parquet'))
         self.case_study_config['data']['schedules'] = {'input_subset':'flight_subset'}
 
         if self.uptake == 'CS':
@@ -617,12 +595,12 @@ class Input_manager:
         self.case_study_config['info']['description'] = description
         self.save_case_study_config(case_study_name)
 
-    def save_case_study_config(self,case_study_name):
+    def save_case_study_config(self, case_study_name):
 
-        write_toml(self.case_study_config,self.scenario_path / 'case_studies' / case_study_name,'case_study_config.toml')
+        write_toml(self.case_study_config, self.scenario_path / 'case_studies' / case_study_name, 'case_study_config.toml')
 
 
-    def read_experiment(self,name):
+    def read_experiment(self, name):
 
         experiment_config = read_toml(self.scenario_path / 'experiments' / name)
         #print(experiment_config)
@@ -659,7 +637,6 @@ class Input_manager:
         #print('Saving experiment', experiment_id)
         if not (self.scenario_path / 'experiments').exists():
             os.mkdir(self.scenario_path / 'experiments')
-
 
         write_toml(self.experiment_config,self.scenario_path / 'experiments','experiment_'+str(experiment_id)+'.toml')
 
