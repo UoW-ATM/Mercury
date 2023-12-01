@@ -8,4 +8,4 @@ from Mercury.core.parametriser import ParametriserSelector
 from Mercury.core.results_aggregator import ResultsAggregatorSelector
 from Mercury.libs.uow_tool_belt.connection_tools import mysql_connection, read_data, write_data, file_connection, generic_connection
 
-__all__ = ['core', 'agents', 'dashboard', 'modules', 'mercury']
+__all__ = ['core', 'agents', 'dashboard', 'modules', 'mercury', 'libs']
