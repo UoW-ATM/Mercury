@@ -22,10 +22,12 @@ git submodule update --recursive --remote --init
 pip install -r requirements.txt
 ```
 
-- Download the sample data here: https://zenodo.org/doi/10.5281/zenodo.10211704. By default, Mercury will look for them just outside the root directory in a folder
-named "input".
-
-- To run Mercury, you need to use bada 3 or bada 4 (not supported for now). You can request a licence from EUROCONTROL,
+- Download the sample data:
+  - By default, Mercury will look for them just outside the root directory in a folder named "input".
+  - The most up-to-date dataset (to be used with the current code version) is at https://zenodo.org/doi/10.5281/zenodo.10211704.
+  - The dataset to be used with release V3.0 is at: https://zenodo.org/records/10222526
+  
+- To run Mercury, you need to use BADA 3 or BADA 4 (not supported for now). You can request a licence from EUROCONTROL,
 then use the script generate_bada3_input.py to transform the AFP, OFP and PTD files from BADA into tables (parquet files) that Mercury will read. The script has a help function.
 ```commandline
 ./generate_bada3_input.py -s path_to/bada3_files -d path_to/processed_bada3_files
