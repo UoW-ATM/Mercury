@@ -410,11 +410,9 @@ class ScenarioLoaderStandard(ScenarioLoader):
 														trajectory_pool_table=self.paras['input_trajectory_pool'],
 														scenario=self.paras['scenario'],
 														flight_schedule_table=self.paras['input_schedules'],
-														flight_subset_table=self.paras['input_subset'],
+														flight_subset_table=self.paras.get('input_subset'),
 														trajectories_version=self.paras['trajectories_version'],
-														read_speeds=read_speeds,
-														scenario_table=self.paras['input_scenario'],
-														scenario_in_schedules=self.paras['scenario_in_schedules'])
+														read_speeds=read_speeds)
 				reading=False
 			except Exception as err:
 				if (("fpp.planned_avg_speed_kt" in str(err)) or ("fpp.min_speed_kt" in str(err)) or
@@ -516,9 +514,7 @@ class ScenarioLoaderStandard(ScenarioLoader):
 		self.df_schedules = read_schedules(connection,
 										scenario=self.paras['scenario'],
 										table=self.paras['input_schedules'],
-										subset_table=self.paras['input_subset'],
-										scenario_table=self.paras['input_scenario'],
-										scenario_in_schedules=self.paras['scenario_in_schedules'])
+										subset_table=self.paras.get('input_subset'))
 
 		if len(self.df_schedules)==0:
 			raise Exception("No schedule for this scenario and these airports!")
@@ -660,8 +656,8 @@ class ScenarioLoaderStandard(ScenarioLoader):
 			if np.isnan(self.manual_airport_regulations):
 				self.manual_airport_regulations=None
 		if self.manual_airport_regulations is not None:
-			#We have regulations at airports manually defined
-			#mmprint("Reading ATFM reg. in DB for manually defined", self.manual_airport_regulations)
+			# We have regulations at airports manually defined
+			# mmprint("Reading ATFM reg. in DB for manually defined", self.manual_airport_regulations)
 
 			self.df_dregs_airports_manual = read_ATFM_at_airports_manual(connection,
 														regulation_at_airport_table=self.paras['input_atfm_regulation_at_airport_manual'],
@@ -846,8 +842,8 @@ class ScenarioLoaderStandardLocal(ScenarioLoaderStandard):
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
 	def load_flight_plan_pool(self, connection=None):
-		reading=True
-		read_speeds=True
+		reading = True
+		read_speeds = True
 		while reading:
 			try:
 				self.df_flight_plan_pool = read_fp_pool(connection,
@@ -856,12 +852,10 @@ class ScenarioLoaderStandardLocal(ScenarioLoaderStandard):
 														trajectory_pool_table=self.paras_paths['input_trajectory_pool'],
 														scenario=self.scenario,
 														flight_schedule_table=self.paras_paths['input_schedules'],
-														flight_subset_table=self.paras_paths['input_subset'],
+														flight_subset_table=self.paras_paths.get('input_subset'),
 														trajectories_version=self.paras['flight_plans__trajectories_version'],
-														read_speeds=read_speeds,
-														scenario_table=self.paras_paths['input_scenario'],
-														scenario_in_schedules=self.paras['flight_plans__scenario_in_schedules'])
-				reading=False
+														read_speeds=read_speeds)
+				reading = False
 			except Exception as err:
 				if (("fpp.planned_avg_speed_kt" in str(err)) or ("fpp.min_speed_kt" in str(err)) or
 				   ("fpp.max_speed_kt" in str(err)) or ("fpp.mrc_speed_kt" in str(err))):
@@ -952,12 +946,16 @@ class ScenarioLoaderStandardLocal(ScenarioLoaderStandard):
 									scenario=self.scenario)
 
 	def load_schedules(self, connection=None):
+		"""
+		Load schedules from parquet files.
+		If the input_subset path has been defined the subset flights will be filtered
+		if not the whole flight schedule table will be read.
+		"""
+
 		self.df_schedules = read_schedules(connection,
-										scenario=self.scenario,
-										table=self.paras_paths['input_schedules'],
-										subset_table=self.paras_paths['input_subset'],
-										scenario_table=self.paras_paths['input_scenario'],
-										scenario_in_schedules=self.paras['flight_plans__scenario_in_schedules'])
+										  scenario=self.scenario,
+										  table=self.paras_paths['input_schedules'],
+										 subset_table=self.paras_paths.get('input_subset'))
 			
 		if len(self.df_schedules) == 0:
 			raise Exception("No schedule for this scenario and these airports!")

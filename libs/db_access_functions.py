@@ -56,41 +56,12 @@ def read_scenario_paras(connection, scenario_table="scenario",
 
 
 #Schedules
-def read_schedules(connection, table="flight_schedule", subset_table="flight_subset",
-	scenario_table="scenario", scenario=0, scenario_in_schedules=False):
-	# Not: I am not using a "SELECT *" because there are several fields called
-	# 'id', which need to be renamed
-	# sql = "SELECt fs.nid as flight_id, fs.max_seats as max_seats, fs.aircraft_type as aircraft_type, \
-	# 	fs.registration as registration, fs.sobt as sobt, fs.sibt as sibt, fs.origin as origin,\
-	# 	fs.destination as destination, fs.\
+def read_schedules(connection, scenario, table='flight_schedule', subset_table=None):
 
-	if scenario_in_schedules:
-		sql = "SELECt fs.*\
-			FROM {} fs \
-			WHERE fs.scenario_id = {}".format(table, scenario)
-		
+	if subset_table is not None:
+		sql = "SELECT fs.* FROM {} fs JOIN {} fsb ON fs.nid = fsb.flight_nid".format(table, subset_table)
 	else:
-		sql = "SELECT IF( \
-					(SELECt s.flight_set \
-					FROM {} s \
-					WHERE s.id = {}) IS NULL, \
-					'YES', \
-					'NO' \
-					) as answer;".format(scenario_table, scenario)
-
-		subset_is_null = read_data(connection=connection, query=sql, scenario=scenario)['answer'].iloc[0]
-
-		if subset_is_null == 'YES':
-			sql = """SELECt fs.*
-					FROM flight_schedule_old1409 fs"""
-		elif subset_is_null=='NO':
-			sql = "SELECt fs.* \
-					FROM {} fs \
-					JOIN {} fsb ON fsb.flight_id = fs.nid \
-					JOIN {} s ON s.flight_set = fsb.subset \
-					WHERE s.id = {}".format(table, subset_table, scenario_table, scenario)
-		else:
-			raise Exception('Subset of flight is null')
+		sql = "SELECT fs.* FROM {} fs".format(table)
 
 	d_schedules = read_data(connection=connection, query=sql, scenario=scenario)
 
@@ -358,7 +329,7 @@ def read_airports_curfew_data(connection, airport_table='airport_curfew', icao_a
 		d_curfew['curfew']=pd.to_timedelta(d_curfew['curfew'])
 
 		d_curfew.loc[np.isnat(d_curfew['curfew']),'curfew'] = -1
-		d_curfew['curfew'] = d_curfew['curfew'].apply(lambda x: (dt.datetime.min + x).time() if not x is -1 else None)
+		d_curfew['curfew'] = d_curfew['curfew'].apply(lambda x: (dt.datetime.min + x).time() if x != -1 else None)
 
 		def ceil_dt(t, res):
 			# how many secs have passed this day
@@ -455,6 +426,7 @@ def read_doc_data(connection, table='duty_of_care_static', scenario=None):
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
+
 
 def read_itineraries_data(connection, table='pax_itineraries', flights=None, scenario=None):
 	sql = """SELECT * FROM {}""".format(table)
@@ -614,26 +586,17 @@ def read_trajectories_missing(connection, flight_schedule_table="flight_schedule
 	return df_traj
 
 def read_fp_pool_missing(connection, flight_schedule_table="flight_schedule", subset_table="flight_subset", 
-	route_pool_table="route_pool",trajectory_pool_table="trajectory_pool",
-	fp_pool_table="fp_pool", scenario=0, trajectories_version=1, scenario_in_schedules=False):
+	route_pool_table="route_pool", trajectory_pool_table="trajectory_pool",
+	fp_pool_table="fp_pool", scenario=0, trajectories_version=1):
 
-	if scenario_in_schedules:
-		sql = "SELECt DISTINCT fs.origin, fs.destination, tp.bada_code_ac_model \
-				FROM flight_schedule fs \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				JOIN "+trajectory_pool_table+" tp on tp.route_pool_id=rp.id \
-	 			LEFT JOIN "+fp_pool_table+" fp on fp.trajectory_pool_id=tp.id \
-				WHERE fs.scenario_id = "+str(scenario)+" and tp.version="+str(trajectories_version)+" and fp.id IS NULL"
-
-	else:
-		sql = "SELECt DISTINCT fs.origin, fs.destination, tp.bada_code_ac_model \
-				FROM scenario s \
-				JOIN "+subset_table+" fsb ON fsb.subset = s.flight_set \
-				JOIN "+flight_schedule_table+" fs ON fs.nid=fsb.flight_id \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				JOIN "+trajectory_pool_table+" tp on tp.route_pool_id=rp.id \
-				LEFT JOIN "+fp_pool_table+" fp on fp.trajectory_pool_id=tp.id \
-				WHERE s.id = "+str(scenario)+" and tp.version="+str(trajectories_version)+" and fp.id IS NULL"
+	sql = "SELECt DISTINCT fs.origin, fs.destination, tp.bada_code_ac_model \
+			FROM scenario s \
+			JOIN "+subset_table+" fsb ON fsb.subset = s.flight_set \
+			JOIN "+flight_schedule_table+" fs ON fs.nid=fsb.flight_id \
+			JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
+			JOIN "+trajectory_pool_table+" tp on tp.route_pool_id=rp.id \
+			LEFT JOIN "+fp_pool_table+" fp on fp.trajectory_pool_id=tp.id \
+			WHERE s.id = "+str(scenario)+" and tp.version="+str(trajectories_version)+" and fp.id IS NULL"
 
 	df = read_data(connection=connection, query=sql)
 
@@ -740,10 +703,9 @@ def read_trajectories_pool(connection, scenario, trajectories_version, trajector
 
 def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_pool_table',
 	fp_pool_point_table='fp_pool_point_table', trajectory_pool_table="trajectory_pool",
-	route_pool_table="route_pool", flight_schedule_table="flight_schedule", 
-	flight_subset_table='flight_subset', scenario_table='scenario',read_speeds=True,
-	scenario_in_schedules=False):
+	flight_schedule_table="flight_schedule", flight_subset_table='flight_subset', read_speeds=True):
 	'''
+	Full query in SQL MYSQL database, simplified in parquet structure (no flight subset, no routes)
 	sql = "SELECt fp.trajectory_pool_id, fp.route_pool_id, fp.icao_orig, fp.icao_dest, fp.bada_code_ac_model, fp.fp_distance_nm, \
 				fpp.sequence, fpp.name, ST_X(fpp.coords) as lat, ST_Y(fpp.coords) as lon, \
 				fpp.alt_ft, fpp.time_min, fpp.dist_from_orig_nm, fpp.dist_to_dest_nm, fpp.wind, fpp.ansp, \
@@ -767,37 +729,35 @@ def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_p
 	if read_speeds:
 		sql += ", fpp.planned_avg_speed_kt, fpp.min_speed_kt, fpp.max_speed_kt, fpp.mrc_speed_kt "
 
-
-	if scenario_in_schedules:
-		sql += "FROM "+fp_pool_table+" fp \
-				JOIN "+fp_pool_point_table+" fpp on fpp.fp_pool_id=fp.id \
-				JOIN "+trajectory_pool_table+" tp on tp.id = fp.trajectory_pool_id \
-				JOIN (select distinct fs.origin, fs.destination \
-				FROM "+flight_schedule_table+" fs \
-				WHERE fs.scenario_id = "+str(scenario)+") as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
-				WHERE tp.version = "+str(trajectories_version)+" \
-				ORDER BY fp.id, fpp.sequence;"
-
+	if flight_subset_table is None:
+		sql += "FROM {} fp \
+						JOIN {} fpp on fpp.fp_pool_id=fp.id \
+						JOIN {} tp on tp.id = fp.trajectory_pool_id \
+						JOIN (select distinct fs.origin, fs.destination \
+						FROM {} fs \
+						) as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
+						WHERE tp.version = {} \
+						ORDER BY fp.id, fpp.sequence;".format(fp_pool_table,
+															  fp_pool_point_table,
+															  trajectory_pool_table,
+															  flight_schedule_table,
+															  trajectories_version)
 	else:
-
 		sql += "FROM {} fp \
 				JOIN {} fpp on fpp.fp_pool_id=fp.id \
 				JOIN {} tp on tp.id = fp.trajectory_pool_id \
 				JOIN (select distinct fs.origin, fs.destination \
 				FROM {} fs \
-				JOIN {} fsb ON fsb.flight_id = fs.nid \
-				JOIN {} s ON s.flight_set = fsb.subset \
-				WHERE s.id = {}) as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
+				JOIN {} fsb ON fsb.flight_nid = fs.nid \
+				) as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
 				WHERE tp.version = {} \
 				ORDER BY fp.id, fpp.sequence;".format(fp_pool_table,
 													  fp_pool_point_table,
 													  trajectory_pool_table,
 													  flight_schedule_table,
 													  flight_subset_table,
-													  scenario_table,
-													  scenario,
 													  trajectories_version)
-		
+
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	columns = set(df.columns)
@@ -806,7 +766,7 @@ def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_p
 	columns.add("max_speed_kt")
 	columns.add("mrc_speed_kt")
 
-	df = df.reindex(columns = list(columns))      
+	df = df.reindex(columns=list(columns))
 
 	df = df.replace({np.nan: None})
 
@@ -838,7 +798,7 @@ def read_dict_ac_type_wtc(connection, table='ac_eq_badacomputed_static'):
 	return df.set_index('ac_icao').to_dict()['wake']
 
 
-class DataAccessPerformance():
+class DataAccessPerformance:
 
 	def __init__(self, db="bada3"):
 		self.db = db
@@ -948,7 +908,7 @@ class DataAccessPerformance():
 
 		for i in d.index.unique():
 			cdp = d.loc[i,['fl','climb_f_nom','descent_f_nom']].values
-			dict_perf.get(i).set_climb_descent_fuel_flow_performances(cdp[:,0],cdp[:,1],cdp[:,2])
+			dict_perf.get(i).set_climb_descent_fuel_flow_performances(cdp[:,0], cdp[:,1], cdp[:,2])
 
 
 
@@ -1004,322 +964,6 @@ class DataAccessPerformance():
 
 		d_mach_selected = read_data(connection=connection, query=sql, scenario=scenario)
 		d_mach_selected['m'] = d_mach_selected[['TAS','fl']].apply(lambda x: uc.kt2m(x['TAS'],x['fl']), axis=1)
-		dms = d_mach_selected.set_index(dict_key)
-
-		for i in dms.index.unique():
-			cms = dms.loc[i,['fl','mass','m']].values
-			dict_perf.get(i).set_detailled_mach_nominal(cms[:,0],cms[:,1],cms[:,2])
-
-		return dict_perf
-
-class DataAccessBADA4():
-
-	def __init__(self,db="bada4_2"):
-		self.db = db
-
-		self.db_in_parquet = type(self.db) == type(Path())
-
-	def combine_db_table(self, table_name):
-		if self.db_in_parquet:
-			return self.db / Path(table_name)
-		else:
-			return '{}.{}'.format(self.db, Path(table_name))
-
-	def read_dict_wtc_engine_model(self, engine):
-		"""
-		Reads BADA4 list of ac types and create a dictionary with synonims ac according to BADA3
-		and which is their wake and engine type.
-
-		In BADA4 aircraft are identified by ac_model.
-
-		"""
-		sql = "SELECt ams.ICAO_model as icao_code, ac.ac_model, \
-			  ac.WTC as wake, \
-			  ac.EngineType as engine_type \
-			  FROM "+self.db+".ac_models_selected ams \
-			  JOIN "+self.db+".ac_characteristics ac on ac.ac_model=ams.ac_model"
-
-		bada4_ac_types=read_data(connection=connection, query=sql)
-
-		dict_wtc_engine_model_b4 = bada4_ac_types.set_index('icao_code').T.to_dict()
-
-		return dict_wtc_engine_model_b4
-
-	def read_ac_performances(self,connection, scenario=None, dict_key="ICAO_model"):
-
-		sql = "SELECt ams.ICAO_model as icao_model, ams.ac_model, ac.EngineType, ac.WTC as wtc, af.S as s, \
-			  ptfinfo.mass_nom as wref, ptfinfo.cruise_M as mnom, \
-			  d.MTOW as mtow, d.OEW as oew, d.MPL as mpl,\
-			  g.hmo as hmo, \
-			  cc.vfe, cc.Mmax as m_max, \
-			  p.Mref as w_ref_prop, p.LHV as lhv, \
-			  cc.scalar as cd_scalar, cc.d1, cc.d2, cc.d3, \
-			  cc.d4, cc.d5, cc.d6, cc.d7, cc.d8, cc.d9, \
-			  cc.d10, cc.d11, cc.d12, cc.d13, cc.d14, cc.d15, \
-			  tfmcf.f1, tfmcf.f2, tfmcf.f3, tfmcf.f4, tfmcf.f5, tfmcf.f6, \
-			  tfmcf.f7, tfmcf.f8, tfmcf.f9, tfmcf.f10, tfmcf.f11, tfmcf.f12, \
-			  tfmcf.f13, tfmcf.f14, tfmcf.f15, tfmcf.f16, tfmcf.f17, tfmcf.f18, \
-			  tfmcf.f19, tfmcf.f20, tfmcf.f21, tfmcf.f22, tfmcf.f23, tfmcf.f24, \
-			  tfmcf.f25, \
-			  tfmct.a1, tfmct.a2, tfmct.a3, tfmct.a4, tfmct.a5, tfmct.a6, tfmct.a7, \
-			  tfmct.a8, tfmct.a9, tfmct.a10, tfmct.a11, tfmct.a12, tfmct.a13, tfmct.a14, \
-			  tfmct.a15, tfmct.a16, tfmct.a17, tfmct.a18, tfmct.a19, tfmct.a20, \
-			  tfmct.a21, tfmct.a22, tfmct.a23, tfmct.a24, tfmct.a25, tfmct.a26, \
-			  tfmct.a27, tfmct.a28, tfmct.a29, tfmct.a30, tfmct.a31, tfmct.a32, \
-			  tfmct.a33, tfmct.a34, tfmct.a35, tfmct.a36, \
-			  tfmfr.b1, tfmfr.b2, tfmfr.b3, tfmfr.b4, tfmfr.b5, tfmfr.b6, tfmfr.b7, \
-			  tfmfr.b8, tfmfr.b9, tfmfr.b10, tfmfr.b11, tfmfr.b12, tfmfr.b13, tfmfr.b14, \
-			  tfmfr.b15, tfmfr.b16, tfmfr.b17, tfmfr.b18, tfmfr.b19, tfmfr.b20, tfmfr.b21, \
-			  tfmfr.b22, tfmfr.b23, tfmfr.b24, tfmfr.b25, tfmfr.b26, tfmfr.b27, tfmfr.b28, \
-			  tfmfr.b29, tfmfr.b30, tfmfr.b31, tfmfr.b32, tfmfr.b33, tfmfr.b34, tfmfr.b35, \
-			  tfmfr.b36, \
-			  bc.Min as blc_mmin, bc.Mmax as blc_mmax, bc.CL_M0 as blc_cl_m0, \
-			  bc.bf1, bc.bf2, bc.bf3, bc.bf4, bc.bf5 \
-			  FROM {} ams \
-			  JOIN {} ac ON ac.ac_model=ams.ac_model \
-			  JOIN {} af ON af.ac_model=ams.ac_model \
-			  JOIN {} cc ON cc.ac_model=ams.ac_model \
-			  JOIN {} d ON d.ac_model=ams.ac_model \
-			  JOIN {} ptfinfo ON ptfinfo.ac_model=ams.ac_model \
-			  JOIN {} tfmcf ON tfmcf.ac_model=ams.ac_model \
-			  JOIN {} tfmct ON tfmct.ac_model=ams.ac_model \
-			  JOIN {} tfmfr ON tfmfr.ac_model=ams.ac_model \
-			  LEFT JOIN {} bc ON bc.ac_model=ams.ac_model \
-			  JOIN {} p ON p.ac_model=ams.ac_model \
-			  JOIN {} g on g.ac_model=ams.ac_model \
-			  WHERE ptfinfo.ISA=0 and ac.EngineType=\'JET\'".format(self.combine_db_table('ac_models_selected'),
-																	self.combine_db_table('ac_characteristics'),
-																	self.combine_db_table('afcm'),
-																	self.combine_db_table('conf_clean'),
-																	self.combine_db_table('dlm'),
-																	self.combine_db_table('ptf_ac_info'),
-																	self.combine_db_table('tfm_cf'),
-																	self.combine_db_table('tfm_ct'),
-																	self.combine_db_table('tfm_mcmb_flat_rating'),
-																	self.combine_db_table('blm_clean'),
-																	self.combine_db_table('pfm'),
-																	self.combine_db_table('glm'))
-
-		#The left JOIN "+self.db+".of blm_clean is because some aircraft do not have the blm performance data (F100 and F70)
-
-		d_performance=read_data(connection=connection, query=sql, scenario=scenario)
-
-		d_performance['d']=d_performance.apply(lambda x: [x['d1'], x['d2'], x['d3'], x['d4'], x['d5'],
-														 x['d6'], x['d7'], x['d8'], x['d9'], x['d10'],
-														 x['d11'], x['d12'], x['d13'], x['d14'], x['d15']], axis =1)
-
-
-		d_performance['f']=d_performance.apply(lambda x: [x['f1'], x['f2'], x['f3'], x['f4'], x['f5'],
-														 x['f6'], x['f7'], x['f8'], x['f9'], x['f10'],
-														 x['f11'], x['f12'], x['f13'], x['f14'], x['f15'],
-														 x['f16'], x['f17'], x['f18'], x['f19'], x['f20'],
-														 x['f21'], x['f22'], x['f23'], x['f24'], x['f25']], axis =1)
-
-		d_performance['a']=d_performance.apply(lambda x: [x['a1'], x['a2'], x['a3'], x['a4'], x['a5'],
-														 x['a6'], x['a7'], x['a8'], x['a9'], x['a10'],
-														 x['a11'], x['a12'], x['a13'], x['a14'], x['a15'],
-														 x['a16'], x['a17'], x['a18'], x['a19'], x['a20'],
-														 x['a21'], x['a22'], x['a23'], x['a24'], x['a25'],
-														 x['a26'], x['a27'], x['a28'], x['a29'], x['a30'],
-														 x['a31'], x['a32'], x['a33'], x['a34'], x['a35'],
-														 x['a36']], axis =1)
-
-		d_performance['b']=d_performance.apply(lambda x: [x['b1'], x['b2'], x['b3'], x['b4'], x['b5'],
-														 x['b6'], x['b7'], x['b8'], x['b9'], x['b10'],
-														 x['b11'], x['b12'], x['b13'], x['b14'], x['b15'],
-														 x['b16'], x['b17'], x['b18'], x['b19'], x['b20'],
-														 x['b21'], x['b22'], x['b23'], x['b24'], x['b25'],
-														 x['b26'], x['b27'], x['b28'], x['b29'], x['b30'],
-														 x['b31'], x['b32'], x['b33'], x['b34'], x['b35'],
-														 x['b36']], axis =1)
-
-		d_performance['bf']=d_performance.apply(lambda x: [x['bf1'], x['bf2'], x['bf3'], x['bf4'], x['bf5']], axis =1)
-
-
-		d_performance['ac_perf']=d_performance.apply(lambda x: bap.AircraftPerformanceBada4Jet(x['icao_model'],x['ac_model'],
-																  x['wtc'],x['s'],x['wref'],x['mnom'],x['mtow'],
-																  x['oew'],x['mpl'],x['hmo'],x['vfe'],
-																  x['m_max'],x['w_ref_prop'],x['lhv'],x['cd_scalar'],
-																  x['d'],x['f'],x['a'],x['b'],x['blc_mmin'],x['blc_mmax'],
-																  x['blc_cl_m0'],x['bf']), axis=1)
-
-
-		dict_perf = d_performance.set_index(dict_key).to_dict()['ac_perf']
-
-
-
-		sql = "select ams.ICAO_model as icao_model, ams.ac_model, ac.EngineType, ac.WTC as wtc, \
-			af.S as s, ptfinfo.mass_nom as wref, ptfinfo.cruise_M as mnom, \
-			d.MTOW as mtow, d.OEW as oew, d.MPL as mpl, \
-			cc.vfe, cc.Mmax as m_max, \
-			g.hmo as hmo, \
-			p.Mref as w_ref_prop, p.LHV as lhv, \
-			cc.scalar as cd_scalar, cc.d1, cc.d2, cc.d3, \
-			cc.d4, cc.d5, cc.d6, cc.d7, cc.d8, cc.d9, \
-			cc.d10, cc.d11, cc.d12, cc.d13, cc.d14, cc.d15, \
-			tpmcp.a1, tpmcp.a2, tpmcp.a3, tpmcp.a4, tpmcp.a5, tpmcp.a6, tpmcp.a7, \
-			tpmcp.a8, tpmcp.a9, tpmcp.a10, tpmcp.a11, tpmcp.a12, tpmcp.a13, tpmcp.a14, \
-			tpmcp.a15, tpmcp.a16, tpmcp.a17, tpmcp.a18, tpmcp.a19, tpmcp.a20, \
-			tpmcp.a21, tpmcp.a22, tpmcp.a23, tpmcp.a24, tpmcp.a25, tpmcp.a26, \
-			tpmcp.a27, tpmcp.a28, tpmcp.a29, tpmcp.a30, tpmcp.a31, tpmcp.a32, \
-			tpmcp.a33, tpmcp.a34, tpmcp.a35, tpmcp.a36, \
-			tpm_cf.f1, tpm_cf.f2, tpm_cf.f3, tpm_cf.f4, tpm_cf.f5, tpm_cf.f6, \
-			tpm_cf.f7, tpm_cf.f8, tpm_cf.f9, tpm_cf.f10, tpm_cf.f11, tpm_cf.f12, \
-			tpm_cf.f13, tpm_cf.f14, tpm_cf.f15, tpm_cf.f16, tpm_cf.f17, tpm_cf.f18, \
-			tpm_cf.f19, tpm_cf.f20, tpm_cf.f21, tpm_cf.f22, tpm_cf.f23, tpm_cf.f24, \
-			tpm_cf.f25, \
-			tpmcrz.p1 as b1, tpmcrz.p2 as b2, tpmcrz.p3 as b3, tpmcrz.p4  as b4, tpmcrz.p5  as b5, \
-			tpmcrz.p6 as b6, tpmcrz.p7 as b7, tpmcrz.p8 as b8, tpmcrz.p9 as b9, tpmcrz.p10 as b10, \
-			tpmcrz.p11 as b11, tpmcrz.p12 as b12, tpmcrz.p13 as b13, tpmcrz.p14 as b14, \
-			tpmcrz.p15 as b15, tpmcrz.p16 as b16, tpmcrz.p17 as b17, tpmcrz.p18 as b18, \
-			tpmcrz.p19 as b19, tpmcrz.p20 as b20, tpmcrz.p21 as b21, tpmcrz.p22 as b22, \
-			tpmcrz.p23 as b23, tpmcrz.p24 as b24, tpmcrz.p25 as b25, tpmcrz.p26 as b26, \
-			tpmcrz.p27 as b27, tpmcrz.p28 as b28, tpmcrz.p29 as b29, tpmcrz.p30 as b30, \
-			tpmcrz.p31 as b31, tpmcrz.p32 as b32, tpmcrz.p33 as b33, tpmcrz.p34 as b34, \
-			tpmcrz.p35 as b35, tpmcrz.p36 as b36 \
-			FROM {} ams \
-			JOIN {} ac on ac.ac_model=ams.ac_model \
-			JOIN {} af on af.ac_model=ams.ac_model \
-			JOIN {} cc on cc.ac_model=ams.ac_model \
-			JOIN {} d on d.ac_model=ams.ac_model \
-			JOIN {} ptfinfo on ptfinfo.ac_model=ams.ac_model \
-			JOIN {} p on p.ac_model=ams.ac_model \
-			JOIN {} g on g.ac_model=ams.ac_model \
-			JOIN {} tpm_cf on tpm_cf.ac_model=ams.ac_model \
-			JOIN {} tpmcp on tpmcp.TPM_ac_model=ams.ac_model \
-			JOIN {} tpmcrz on tpmcrz.ac_model=ams.ac_model \
-			JOIN {} tpm on tpm.ac_model=ams.ac_model \
-			wHERE ptfinfo.ISA=0 and ac.EngineType=\'TURBOPROP\'".format(self.combine_db_table('ac_models_selected'),
-																		self.combine_db_table('ac_characteristics'),
-																		self.combine_db_table('afcm'),
-																		self.combine_db_table('conf_clean'),
-																		self.combine_db_table('dlm'),
-																		self.combine_db_table('ptf_ac_info'),
-																		self.combine_db_table('pfm'),
-																		self.combine_db_table('glm'),
-																		self.combine_db_table('tpm_cf'),
-																		self.combine_db_table('tpm_cp'),
-																		self.combine_db_table('tpm_mcrz_rating'),
-																		self.combine_db_table('tpm_mcrz'),)
-
-		d_performance = read_data(connection=connection, query=sql, scenario=scenario)
-
-		d_performance['d']=d_performance.apply(lambda x: [x['d1'], x['d2'], x['d3'], x['d4'], x['d5'],
-														 x['d6'], x['d7'], x['d8'], x['d9'], x['d10'],
-														 x['d11'], x['d12'], x['d13'], x['d14'], x['d15']], axis =1)
-
-
-		d_performance['f']=d_performance.apply(lambda x: [x['f1'], x['f2'], x['f3'], x['f4'], x['f5'],
-														 x['f6'], x['f7'], x['f8'], x['f9'], x['f10'],
-														 x['f11'], x['f12'], x['f13'], x['f14'], x['f15'],
-														 x['f16'], x['f17'], x['f18'], x['f19'], x['f20'],
-														 x['f21'], x['f22'], x['f23'], x['f24'], x['f25']], axis =1)
-
-		d_performance['a']=d_performance.apply(lambda x: [x['a1'], x['a2'], x['a3'], x['a4'], x['a5'],
-														 x['a6'], x['a7'], x['a8'], x['a9'], x['a10'],
-														 x['a11'], x['a12'], x['a13'], x['a14'], x['a15'],
-														 x['a16'], x['a17'], x['a18'], x['a19'], x['a20'],
-														 x['a21'], x['a22'], x['a23'], x['a24'], x['a25'],
-														 x['a26'], x['a27'], x['a28'], x['a29'], x['a30'],
-														 x['a31'], x['a32'], x['a33'], x['a34'], x['a35'],
-														 x['a36']], axis =1)
-
-		d_performance['b']=d_performance.apply(lambda x: [x['b1'], x['b2'], x['b3'], x['b4'], x['b5'],
-														 x['b6'], x['b7'], x['b8'], x['b9'], x['b10'],
-														 x['b11'], x['b12'], x['b13'], x['b14'], x['b15'],
-														 x['b16'], x['b17'], x['b18'], x['b19'], x['b20'],
-														 x['b21'], x['b22'], x['b23'], x['b24'], x['b25'],
-														 x['b26'], x['b27'], x['b28'], x['b29'], x['b30'],
-														 x['b31'], x['b32'], x['b33'], x['b34'], x['b35'],
-														 x['b36']], axis =1)
-
-
-
-		d_performance['ac_perf']=d_performance.apply(lambda x: bap.AircraftPerformanceBada4TP(x['icao_model'],x['ac_model'],
-																  x['wtc'],x['s'],x['wref'],x['mnom'],x['mtow'],
-																  x['oew'],x['mpl'],x['hmo'],x['vfe'],
-																  x['m_max'],x['w_ref_prop'],x['lhv'],x['cd_scalar'],
-																  x['d'],x['f'],x['a'],x['b']), axis=1)
-
-
-
-		dict_perf_tp = d_performance.set_index(dict_key).to_dict()['ac_perf']
-
-		dict_perf.update(dict_perf_tp)
-
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, ptf.FL as fl, \
-			   ptf.Climb_fuel_nom as climb_f_nom, \
-			   ptf.Descent_fuel_nom as descent_f_nom \
-			   FROM {} ptf \
-			   JOIN {} ams ON ams.ac_model=ptf.ac_model \
-			   JOIN {} ac ON ac.ac_model=ams.ac_model \
-			   WHERE ptf.ISA=0 and \
-			   (ac.EngineType=\'JET\' or ac.EngineType=\'TURBOPROP\') \
-			   ORDER BY ams.ICAO_model, ptf.FL;".format(self.combine_db_table('ptf_operations'),
-														self.combine_db_table('ac_models_selected'),
-														self.combine_db_table('ac_characteristics'))
-
-		d_perf_climb_descent = read_data(connection=connection, query=sql, scenario=scenario)
-		d = d_perf_climb_descent.set_index(dict_key)
-
-		for i in d.index.unique():
-			cdp = d.loc[i,['fl','climb_f_nom','descent_f_nom']].values
-			dict_perf.get(i).set_climb_descent_fuel_flow_performances(cdp[:,0],cdp[:,1],cdp[:,2])
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, fl, mass, Fuel as fuel, ROCD as rocd, gamma, TAS as tas \
-			   FROM {} ptd \
-			   JOIN {} ams ON ams.ac_model=ptd.ac_model \
-			   JOIN {} ac ON ac.ac_model=ams.ac_model \
-			   WHERE ptd.ISA=0 and \
-			   (ac.EngineType=\'JET\' or ac.EngineType=\'TURBOPROP\') \
-			   and ptd.phase=\'CLIMB\' \
-			   and ptd.lim =\'\' AND ptd.rocd>=0\
-			   ORDER BY ams.ICAO_model, ptd.FL;".format(self.combine_db_table('ptd'),
-														self.combine_db_table('ac_models_selected'),
-														self.combine_db_table('ac_characteristics'))
-
-
-		d_perf_climb_decnt_detailled = read_data(connection=connection, query=sql, scenario=scenario)
-		dd = d_perf_climb_decnt_detailled.set_index(dict_key)
-
-		for i in dd.index.unique():
-			cdp = dd.loc[i,['fl','mass','fuel','rocd','gamma','tas']].values
-			dict_perf.get(i).set_climb_fuel_flow_detailled_rate_performances(cdp[:,0],cdp[:,1],cdp[:,2],
-																			cdp[:,3],cdp[:,4],cdp[:,5])
-
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, fl, mass, Fuel as fuel, ROCD as rocd, gamma, TAS as tas \
-				FROM {} ptd \
-				JOIN {} ams ON ams.ac_model=ptd.ac_model \
-				JOIN {} ac ON ac.ac_model=ams.ac_model \
-				WHERE ptd.ISA=0 and \
-				(ac.EngineType=\'JET\' or ac.EngineType=\'TURBOPROP\') \
-				and ptd.phase=\'DESCENT\' \
-				and ptd.lim =\'\' \
-				ORDER BY ams.ICAO_model, ptd.FL;".format(self.combine_db_table('ptd'),
-														self.combine_db_table('ac_models_selected'),
-														self.combine_db_table('ac_characteristics'))
-
-
-		d_perf_climb_decnt_detailled = read_data(connection=connection, query=sql, scenario=scenario)
-		dd = d_perf_climb_decnt_detailled.set_index(dict_key)
-
-		for i in dd.index.unique():
-			cdp = dd.loc[i,['fl','mass','fuel','rocd','gamma','tas']].values
-			dict_perf.get(i).set_descent_fuel_flow_detailled_rate_performances(cdp[:,0],cdp[:,1],cdp[:,2],
-																			  cdp[:,3],cdp[:,4],cdp[:,5])
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, ptd.FL as fl, ptd.M as m, ptd.mass as mass \
-				FROM {} AS ptd \
-				JOIN {} ams ON ams.ac_model=ptd.ac_model \
-				JOIN {} ac ON ac.ac_model=ams.ac_model \
-				WHERE ptd.ISA=0 AND ptd.phase=\'CRUISE\' AND \
-				(ac.EngineType=\'JET\' OR ac.EngineType=\'TURBOPROP\')".format(self.combine_db_table('ptd'),
-																				self.combine_db_table('ac_models_selected'),
-																				self.combine_db_table('ac_characteristics'))
-
-		d_mach_selected = read_data(connection=connection, query=sql, scenario=scenario)
 		dms = d_mach_selected.set_index(dict_key)
 
 		for i in dms.index.unique():

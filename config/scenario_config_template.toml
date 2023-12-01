@@ -160,9 +160,3 @@ description = "Test"
 	number_trajectories_batch_computation = 'None' #A number of trajectories to compute them in batches e.g., 700
 	min_trajectory_compute = 'None'
 	max_trajectory_compute = 'None'
-	scenario_in_schedules = false
-
-
-
-
-
