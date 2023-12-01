@@ -26,7 +26,7 @@ pip install -r requirements.txt
 named "input".
 
 - To run Mercury, you need to use bada 3 or bada 4 (not supported for now). You can request a licence from EUROCONTROL,
-then use the script generate_bada3_input.py to transform the AFP, OFP and PTD files from BADA into tables (parquet files) that will be read by Mercury. The script has a help function.
+then use the script generate_bada3_input.py to transform the AFP, OFP and PTD files from BADA into tables (parquet files) that Mercury will read. The script has a help function.
 ```commandline
 ./generate_bada3_input.py -s path_to/bada3_files -d path_to/processed_bada3_files
 ```
@@ -51,9 +51,9 @@ dashbaord/mercury_gui.py
 
 # Programmatic use of Mercury
 
-Mercury can be used as an object. An example of its use and some examples to run can be found in 
+Mercury can be used as an object. An example of its use and some examples of how to run it can be found in 
 the Mercury.ipynb Jupyter notebook. The notebook shows the possible uses of Mercury in terms of parameter setting, 
-scenarios, case study, etc.
+scenarios, case studies, etc.
 
 # Manual and documentation
 A more complete manual is in construction. An automatically generated documentation for the repository can be found in 
@@ -61,18 +61,19 @@ doc/.
 
 The following articles can also be consulted to learn more about Mercury:
 - the one included in doc/SIDs_2023_OpenMercury.pdf, presenting the general approach to Mercury.
-- the one available at this address https://www.sciencedirect.com/science/article/abs/pii/S0968090X21003600, showing 
-some details of Mercury and some examples of its uses, from a few years back.
+- the one available at this address https://www.sciencedirect.com/science/article/abs/pii/S0968090X21003600, shows 
+some details of Mercury and some examples of its uses from a few years back.
+- Deliverable 4.1-Initial model design from Domino project, where Mercury was reimplemented as an ABM system, describes the main design approaches and the initial version of the roles/agents considered: https://ec.europa.eu/research/participants/documents/downloadPublic?documentIds=080166e5bf17614a&appId=PPGMS
 
 
 # Authorship
 
-Up to the open source release, all Mercury code has been written by Gérald Gurtner and Luis Delgado, to the exception of:
+Up to the open source release, all Mercury code has been written by Gérald Gurtner and Luis Delgado, with the exception of:
 
 - The Dynamic Cost Indexing module, written by Damir Valput
 - The GUI, written by Michal Weiszer
 
-We thank also Tanja Bolic for many waves of testing.
+We also thank Tanja Bolic for many waves of testing.
 
 # Licence and copyright
 
