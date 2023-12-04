@@ -190,7 +190,7 @@ class World:
 		This method does not need to be called at every iteration.
 		"""
 		sl = ScenarioLoaderSelector().select(self.paras['read_profile']['scenario_loader'])
-		
+
 		self.sc = sl(info_scenario=info_scenario,
 					 case_study_conf=case_study_conf,
 					 data_scenario=data_scenario,
@@ -924,7 +924,7 @@ class World:
 				aircraft = Aircraft(self.env,
 										idd=i,
 										uid=self.uid,
-										registration = row['registration'],
+										registration=row['registration'],
 										seats=row['max_seats'],
 										ac_type=row['aircraft_type'],
 										bada_code_ac_model=self.sc.dict_ac_bada_code_ac_model[row['aircraft_type']],
@@ -934,16 +934,15 @@ class World:
 					aprint("Aircraft performances missing for ", row['aircraft_type'])
 					raise Exception()
 
+				aircraft.performances = self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model,
+																		self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model,
+																	    self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model_ac_eq)))
 
-				aircraft.bada_performances = self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model,
-																				self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model,
-																													 self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model_ac_eq)))
-
-				if aircraft.bada_performances is None:
+				if aircraft.performances is None:
 					aprint("Aircraft BADA performances missing for ", aircraft.bada_code_ac_model)
 					raise Exception()
 
-				aircraft.wtc = aircraft.bada_performances.wtc
+				aircraft.wtc = aircraft.performances.wtc
 
 				self.aircraft[row['registration']] = aircraft
 				self.uid += 1
