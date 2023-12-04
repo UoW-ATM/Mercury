@@ -61,3 +61,4 @@ Werkzeug==3.0.1
 zipp==3.17.0
 zmq==0.0.0
 tomli_w==1.0.0
+pdoc==14.1.0
