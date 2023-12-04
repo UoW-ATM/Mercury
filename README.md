@@ -1,7 +1,8 @@
-![mercury_logo.png](mercury_logo_small.png)
+![mercury_logo_small.png](mercury_logo_small.png)
 
 
-Mercury is a research-oriented air transportation mobility simulator with a strong agent-based paradigm.
+Mercury is a research-oriented air transportation mobility simulator with a strong agent-based paradigm. Follow the
+steps below to install Mercury on a debian-based distribution.
 
 # Quick Setup
 
@@ -19,6 +20,8 @@ git submodule update --recursive --remote --init
 
 - In a fresh python environment, install all the required packages:
 ```commandline
+sudo apt-get install libproj-dev libgeos-dev build-essential python3-dev proj-data proj-bin
+python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
 pip install -r requirements.txt
 ```
 
@@ -48,7 +51,7 @@ Or using the jupyter notebook "Mercury.ipynb", see below.
 You can use a GUI to explore the data input and output structure, create new scenarios, case studies, etc. Use the 
 following command to start it:
 ```commandline
-dashbaord/mercury_gui.py
+dashboard/mercury_gui.py
 ```
 
 # Programmatic use of Mercury
