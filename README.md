@@ -49,7 +49,7 @@ Or using the jupyter notebook "Mercury.ipynb", see below.
 You can use a GUI to explore the data input and output structure, create new scenarios, case studies, etc. Use the 
 following command to start it:
 ```commandline
-dashbaoard/mercury_gui.py
+dashboard/mercury_gui.py
 ```
 
 # Programmatic use of Mercury
