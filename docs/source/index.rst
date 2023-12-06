@@ -17,6 +17,7 @@ If you need information, you can check the readme file or contact the University
    Quickstart.rst
    Manual.rst
    api.rst
+   about.rst
 
 
 
