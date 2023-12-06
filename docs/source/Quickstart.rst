@@ -1,8 +1,8 @@
 Quickstart
 ===========
 
-Mercury has been tested on ubuntu-like machines and Windows using anaconda. Python 3.10 is recommended. Python 3.12
-will raise issues (to be solved in the future).
+Mercury has been tested on ubuntu-like machines and to a lesser extent Windows, using anaconda. Python 3.10 is
+recommended, Python 3.12 will raise issues.
 
 Installation
 ------------
@@ -22,31 +22,36 @@ Installation
 
 -  In a fresh python environment, install all the required packages:
 
+In linux, use:
+
 .. code:: bash
 
    sudo apt-get install libproj-dev libgeos-dev build-essential python3-dev proj-data proj-bin
    python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
    pip install -r requirements.txt
 
--  Download the sample data here:
-   https://zenodo.org/doi/10.5281/zenodo.10211704. By default, Mercury
-   will look for them just outside the root directory in a folder named
-   “input”.
+In Windows, you probably just need to install the requirements:
 
--  To run Mercury, you need to use bada 3 or bada 4 (not supported for
-   now). You can request a licence from EUROCONTROL, then use the script
-   generate_bada3_input.py to transform the AFP, OFP and PTD files from
-   BADA into tables (parquet files) that will be read by Mercury. The
-   script has a help function.
+.. code-block:: bash
+
+    pip install -r requirements.txt
+
+You may also need to install Visual studio C++ built tools if it's not the case already.
+
+-  Download the sample data here:
+   https://zenodo.org/doi/10.5281/zenodo.10211704. Extract the data. Put the results "input" folder outside of the main
+Mercury root folder (side by side).
+
+-  Mercury requires aircraft performance models developed by EUROCONTROL, at least BADA3, (and is compatible with BADA4).
+You can request a licence from EUROCONTROL, then use the script ``generate_bada3_input.py`` to transform the AFP, OFP
+and PTD files from BADA into tables (parquet files) that will be read by Mercury. The script has a help function.
 
 .. code:: bash
 
    ./generate_bada3_input.py -s path_to/bada3_files -d path_to/processed_bada3_files
 
--  Ensure you copy the generated parquet files into the
-   data/ac_performance/bada/bada3/ of your input folder (per scenario).
-   The location of the performance files might be modified in the
-   future.
+Ensure you copy the generated parquet files into the data/ac_performance/bada/bada3/ of your input folder (per scenario).
+The location of the performance files might be modified in the future.
 
 -  Note: support for OpenAP, an open alternative to BADA, is under
    development.
