@@ -3,6 +3,8 @@
 \
 \
 
+https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/badge.svg
+
 Mercury is a research-oriented air transportation mobility simulator
 with a strong agent-based paradigm. Follow the steps below to install
 Mercury on a debian-based distribution.
