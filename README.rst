@@ -9,16 +9,14 @@ Mercury on a debian-based distribution.
 
 .. inclusion-marker-do-not-remove
 
-##########
 Quickstart
-##########
+==========
 
 Mercury has been tested on ubuntu-like machines and to a lesser extent Windows, using anaconda. Python 3.10 is
 recommended, Python 3.12 will raise issues.
 
-************
 Installation
-************
+------------
 
 -  Start by cloning the repository, for instance:
 
