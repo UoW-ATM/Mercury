@@ -15,6 +15,7 @@ If you need information, you can check the readme file or contact the University
    :caption: Contents:
 
    Quickstart.rst
+   Manual.rst
    api.rst
 
 
