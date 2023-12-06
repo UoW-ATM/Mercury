@@ -1,6 +1,0 @@
-libs.result\_tools.find\_destination\_generic
-=============================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: find_destination_generic

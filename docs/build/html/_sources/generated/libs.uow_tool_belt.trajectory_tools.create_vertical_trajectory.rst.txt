@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.trajectory\_tools.create\_vertical\_trajectory
-===================================================================
-
-.. currentmodule:: libs.uow_tool_belt.trajectory_tools
-
-.. autofunction:: create_vertical_trajectory

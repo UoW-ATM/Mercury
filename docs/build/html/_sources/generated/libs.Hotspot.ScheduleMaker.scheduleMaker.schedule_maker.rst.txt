@@ -1,6 +1,0 @@
-libs.Hotspot.ScheduleMaker.scheduleMaker.schedule\_maker
-========================================================
-
-.. currentmodule:: libs.Hotspot.ScheduleMaker.scheduleMaker
-
-.. autofunction:: schedule_maker

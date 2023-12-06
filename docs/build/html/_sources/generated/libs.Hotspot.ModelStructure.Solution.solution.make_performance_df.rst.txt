@@ -1,6 +1,0 @@
-libs.Hotspot.ModelStructure.Solution.solution.make\_performance\_df
-===================================================================
-
-.. currentmodule:: libs.Hotspot.ModelStructure.Solution.solution
-
-.. autofunction:: make_performance_df

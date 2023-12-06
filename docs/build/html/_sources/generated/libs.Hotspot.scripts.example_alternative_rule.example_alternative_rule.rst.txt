@@ -1,6 +1,0 @@
-libs.Hotspot.scripts.example\_alternative\_rule.example\_alternative\_rule
-==========================================================================
-
-.. currentmodule:: libs.Hotspot.scripts.example_alternative_rule
-
-.. autofunction:: example_alternative_rule

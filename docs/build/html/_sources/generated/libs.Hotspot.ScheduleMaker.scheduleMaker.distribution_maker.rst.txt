@@ -1,6 +1,0 @@
-libs.Hotspot.ScheduleMaker.scheduleMaker.distribution\_maker
-============================================================
-
-.. currentmodule:: libs.Hotspot.ScheduleMaker.scheduleMaker
-
-.. autofunction:: distribution_maker

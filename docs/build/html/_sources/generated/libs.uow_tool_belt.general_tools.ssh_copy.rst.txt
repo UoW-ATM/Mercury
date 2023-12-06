@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.ssh\_copy
-=============================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: ssh_copy

@@ -1,6 +1,0 @@
-libs.airspace\_particularities.is\_ECAC
-=======================================
-
-.. currentmodule:: libs.airspace_particularities
-
-.. autofunction:: is_ECAC

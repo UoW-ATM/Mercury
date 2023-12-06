@@ -1,6 +1,0 @@
-libs.result\_tools.compute\_derived\_metrics\_simulations
-=========================================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: compute_derived_metrics_simulations

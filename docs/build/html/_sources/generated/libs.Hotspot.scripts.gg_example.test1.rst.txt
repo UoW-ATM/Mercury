@@ -1,6 +1,0 @@
-libs.Hotspot.scripts.gg\_example.test1
-======================================
-
-.. currentmodule:: libs.Hotspot.scripts.gg_example
-
-.. autofunction:: test1

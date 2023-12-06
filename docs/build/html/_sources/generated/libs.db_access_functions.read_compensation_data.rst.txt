@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_compensation\_data
-===================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_compensation_data

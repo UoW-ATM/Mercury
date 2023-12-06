@@ -1,6 +1,0 @@
-libs.Hotspot.scripts.david\_example.test6
-=========================================
-
-.. currentmodule:: libs.Hotspot.scripts.david_example
-
-.. autofunction:: test6

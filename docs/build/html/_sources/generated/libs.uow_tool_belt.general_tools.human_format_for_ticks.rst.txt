@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.human\_format\_for\_ticks
-=============================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: human_format_for_ticks

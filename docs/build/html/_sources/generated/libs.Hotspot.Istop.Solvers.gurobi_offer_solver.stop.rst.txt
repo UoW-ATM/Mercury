@@ -1,6 +1,0 @@
-libs.Hotspot.Istop.Solvers.gurobi\_offer\_solver.stop
-=====================================================
-
-.. currentmodule:: libs.Hotspot.Istop.Solvers.gurobi_offer_solver
-
-.. autofunction:: stop

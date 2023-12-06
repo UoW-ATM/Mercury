@@ -1,6 +1,0 @@
-libs.Hotspot.UDPP.functionApproxCost.make\_preference\_fun
-==========================================================
-
-.. currentmodule:: libs.Hotspot.UDPP.functionApproxCost
-
-.. autofunction:: make_preference_fun

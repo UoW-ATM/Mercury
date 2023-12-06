@@ -1,6 +1,0 @@
-libs.Hotspot.scripts.new\_examples.create\_original\_flights
-============================================================
-
-.. currentmodule:: libs.Hotspot.scripts.new_examples
-
-.. autofunction:: create_original_flights

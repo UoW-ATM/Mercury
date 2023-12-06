@@ -1,6 +1,0 @@
-libs.Hotspot.ModelStructure.Flight.flightList.get\_flight
-=========================================================
-
-.. currentmodule:: libs.Hotspot.ModelStructure.Flight.flightList
-
-.. autofunction:: get_flight

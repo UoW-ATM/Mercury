@@ -1,6 +1,0 @@
-libs.Hotspot.libs.other\_tools.compute\_cost
-============================================
-
-.. currentmodule:: libs.Hotspot.libs.other_tools
-
-.. autofunction:: compute_cost

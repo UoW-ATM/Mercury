@@ -1,6 +1,0 @@
-libs.result\_tools.produce\_hist\_sim\_df
-=========================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: produce_hist_sim_df

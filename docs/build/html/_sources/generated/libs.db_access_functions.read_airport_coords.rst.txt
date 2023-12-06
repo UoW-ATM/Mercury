@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_airport\_coords
-================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_airport_coords

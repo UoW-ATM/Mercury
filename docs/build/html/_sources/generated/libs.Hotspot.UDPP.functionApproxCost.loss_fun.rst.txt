@@ -1,6 +1,0 @@
-libs.Hotspot.UDPP.functionApproxCost.loss\_fun
-==============================================
-
-.. currentmodule:: libs.Hotspot.UDPP.functionApproxCost
-
-.. autofunction:: loss_fun

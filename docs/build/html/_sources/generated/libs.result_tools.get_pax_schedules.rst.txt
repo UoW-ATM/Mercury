@@ -1,6 +1,0 @@
-libs.result\_tools.get\_pax\_schedules
-======================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: get_pax_schedules

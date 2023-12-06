@@ -1,6 +1,0 @@
-libs.airspace\_particularities.get\_nas\_airport
-================================================
-
-.. currentmodule:: libs.airspace_particularities
-
-.. autofunction:: get_nas_airport

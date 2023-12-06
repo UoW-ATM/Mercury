@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.inv\_mu\_sig\_lognorm
-=========================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: inv_mu_sig_lognorm

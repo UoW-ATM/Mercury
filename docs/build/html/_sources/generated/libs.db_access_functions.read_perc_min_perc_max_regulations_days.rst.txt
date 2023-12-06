@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_perc\_min\_perc\_max\_regulations\_days
-========================================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_perc_min_perc_max_regulations_days

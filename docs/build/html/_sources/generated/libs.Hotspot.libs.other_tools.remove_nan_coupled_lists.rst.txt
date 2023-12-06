@@ -1,6 +1,0 @@
-libs.Hotspot.libs.other\_tools.remove\_nan\_coupled\_lists
-==========================================================
-
-.. currentmodule:: libs.Hotspot.libs.other_tools
-
-.. autofunction:: remove_nan_coupled_lists

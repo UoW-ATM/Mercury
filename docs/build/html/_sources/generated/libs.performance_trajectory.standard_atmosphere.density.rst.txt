@@ -1,6 +1,0 @@
-libs.performance\_trajectory.standard\_atmosphere.density
-=========================================================
-
-.. currentmodule:: libs.performance_trajectory.standard_atmosphere
-
-.. autofunction:: density

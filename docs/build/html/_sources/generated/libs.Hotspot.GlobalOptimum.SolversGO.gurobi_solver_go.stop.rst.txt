@@ -1,6 +1,0 @@
-libs.Hotspot.GlobalOptimum.SolversGO.gurobi\_solver\_go.stop
-============================================================
-
-.. currentmodule:: libs.Hotspot.GlobalOptimum.SolversGO.gurobi_solver_go
-
-.. autofunction:: stop

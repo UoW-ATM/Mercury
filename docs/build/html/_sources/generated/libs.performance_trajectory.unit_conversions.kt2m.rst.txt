@@ -1,6 +1,0 @@
-libs.performance\_trajectory.unit\_conversions.kt2m
-===================================================
-
-.. currentmodule:: libs.performance_trajectory.unit_conversions
-
-.. autofunction:: kt2m

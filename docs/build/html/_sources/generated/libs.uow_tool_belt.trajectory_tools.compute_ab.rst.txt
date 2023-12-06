@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.trajectory\_tools.compute\_ab
-==================================================
-
-.. currentmodule:: libs.uow_tool_belt.trajectory_tools
-
-.. autofunction:: compute_ab

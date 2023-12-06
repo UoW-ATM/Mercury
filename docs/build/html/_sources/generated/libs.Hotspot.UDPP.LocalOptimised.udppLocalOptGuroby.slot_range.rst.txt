@@ -1,6 +1,0 @@
-libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby.slot\_range
-===============================================================
-
-.. currentmodule:: libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby
-
-.. autofunction:: slot_range

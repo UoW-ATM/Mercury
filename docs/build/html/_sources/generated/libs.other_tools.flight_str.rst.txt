@@ -1,6 +1,0 @@
-libs.other\_tools.flight\_str
-=============================
-
-.. currentmodule:: libs.other_tools
-
-.. autofunction:: flight_str

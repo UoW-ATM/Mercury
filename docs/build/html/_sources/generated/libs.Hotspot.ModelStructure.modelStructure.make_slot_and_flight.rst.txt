@@ -1,6 +1,0 @@
-libs.Hotspot.ModelStructure.modelStructure.make\_slot\_and\_flight
-==================================================================
-
-.. currentmodule:: libs.Hotspot.ModelStructure.modelStructure
-
-.. autofunction:: make_slot_and_flight

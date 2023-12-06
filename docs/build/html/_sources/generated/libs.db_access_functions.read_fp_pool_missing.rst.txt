@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_fp\_pool\_missing
-==================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_fp_pool_missing

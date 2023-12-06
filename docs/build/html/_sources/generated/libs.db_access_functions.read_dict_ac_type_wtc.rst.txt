@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_dict\_ac\_type\_wtc
-====================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_dict_ac_type_wtc

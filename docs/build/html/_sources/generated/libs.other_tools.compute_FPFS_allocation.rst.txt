@@ -1,6 +1,0 @@
-libs.other\_tools.compute\_FPFS\_allocation
-===========================================
-
-.. currentmodule:: libs.other_tools
-
-.. autofunction:: compute_FPFS_allocation

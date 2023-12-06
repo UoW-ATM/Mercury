@@ -1,6 +1,0 @@
-libs.Hotspot.ScheduleMaker.scheduleMaker.fill\_missing\_flights
-===============================================================
-
-.. currentmodule:: libs.Hotspot.ScheduleMaker.scheduleMaker
-
-.. autofunction:: fill_missing_flights

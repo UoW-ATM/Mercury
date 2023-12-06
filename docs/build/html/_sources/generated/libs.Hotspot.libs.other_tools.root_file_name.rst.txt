@@ -1,6 +1,0 @@
-libs.Hotspot.libs.other\_tools.root\_file\_name
-===============================================
-
-.. currentmodule:: libs.Hotspot.libs.other_tools
-
-.. autofunction:: root_file_name

@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_all\_regulation\_days
-======================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_all_regulation_days

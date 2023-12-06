@@ -1,6 +1,0 @@
-libs.result\_tools.binarise
-===========================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: binarise

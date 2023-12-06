@@ -1,6 +1,0 @@
-libs.Hotspot.UDPP.udppMerge.udpp\_merge
-=======================================
-
-.. currentmodule:: libs.Hotspot.UDPP.udppMerge
-
-.. autofunction:: udpp_merge

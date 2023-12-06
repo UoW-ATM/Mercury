@@ -1,6 +1,0 @@
-libs.input\_manager.filter\_sql
-===============================
-
-.. currentmodule:: libs.input_manager
-
-.. autofunction:: filter_sql

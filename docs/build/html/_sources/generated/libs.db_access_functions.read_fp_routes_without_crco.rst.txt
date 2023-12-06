@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_fp\_routes\_without\_crco
-==========================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_fp_routes_without_crco

@@ -1,6 +1,0 @@
-libs.other\_tools.allocation\_from\_flights
-===========================================
-
-.. currentmodule:: libs.other_tools
-
-.. autofunction:: allocation_from_flights

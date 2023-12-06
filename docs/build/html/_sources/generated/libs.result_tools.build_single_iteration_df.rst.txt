@@ -1,6 +1,0 @@
-libs.result\_tools.build\_single\_iteration\_df
-===============================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: build_single_iteration_df

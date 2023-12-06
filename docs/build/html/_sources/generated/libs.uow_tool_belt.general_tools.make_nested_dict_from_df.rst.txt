@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.make\_nested\_dict\_from\_df
-================================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: make_nested_dict_from_df

@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_non\_pax\_cost\_data
-=====================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_non_pax_cost_data

@@ -1,6 +1,0 @@
-libs.result\_tools.clone\_pax
-=============================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: clone_pax

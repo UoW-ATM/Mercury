@@ -1,6 +1,0 @@
-libs.Hotspot.Istop.istop.wrap\_flight\_istop
-============================================
-
-.. currentmodule:: libs.Hotspot.Istop.istop
-
-.. autofunction:: wrap_flight_istop

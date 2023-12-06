@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.add\_dicts
-==============================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: add_dicts

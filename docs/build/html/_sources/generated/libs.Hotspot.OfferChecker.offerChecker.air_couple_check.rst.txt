@@ -1,6 +1,0 @@
-libs.Hotspot.OfferChecker.offerChecker.air\_couple\_check
-=========================================================
-
-.. currentmodule:: libs.Hotspot.OfferChecker.offerChecker
-
-.. autofunction:: air_couple_check

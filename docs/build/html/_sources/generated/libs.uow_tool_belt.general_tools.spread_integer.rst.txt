@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.spread\_integer
-===================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: spread_integer

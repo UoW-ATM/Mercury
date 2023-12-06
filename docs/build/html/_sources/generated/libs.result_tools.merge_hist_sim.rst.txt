@@ -1,6 +1,0 @@
-libs.result\_tools.merge\_hist\_sim
-===================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: merge_hist_sim

@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_ATFM\_at\_airports\_manual
-===========================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_ATFM_at_airports_manual

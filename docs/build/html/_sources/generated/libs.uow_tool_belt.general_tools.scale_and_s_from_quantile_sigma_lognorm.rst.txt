@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.scale\_and\_s\_from\_quantile\_sigma\_lognorm
-=================================================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: scale_and_s_from_quantile_sigma_lognorm

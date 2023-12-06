@@ -1,6 +1,0 @@
-libs.Hotspot.combined\_models.init\_and\_run
-============================================
-
-.. currentmodule:: libs.Hotspot.combined_models
-
-.. autofunction:: init_and_run

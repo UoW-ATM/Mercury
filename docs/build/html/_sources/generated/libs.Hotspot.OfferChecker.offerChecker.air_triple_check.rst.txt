@@ -1,6 +1,0 @@
-libs.Hotspot.OfferChecker.offerChecker.air\_triple\_check
-=========================================================
-
-.. currentmodule:: libs.Hotspot.OfferChecker.offerChecker
-
-.. autofunction:: air_triple_check

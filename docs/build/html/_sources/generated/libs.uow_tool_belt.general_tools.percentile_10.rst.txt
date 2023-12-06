@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.percentile\_10
-==================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: percentile_10

@@ -1,6 +1,0 @@
-libs.Hotspot.UDPP.functionApprox.make\_preference\_fun
-======================================================
-
-.. currentmodule:: libs.Hotspot.UDPP.functionApprox
-
-.. autofunction:: make_preference_fun

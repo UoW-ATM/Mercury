@@ -1,6 +1,0 @@
-libs.result\_tools.merge\_pax\_flights
-======================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: merge_pax_flights

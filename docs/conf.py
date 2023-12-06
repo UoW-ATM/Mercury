@@ -31,5 +31,14 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+html_theme = 'alabaster' # 'nature'
 html_static_path = ['_static']
+
+html_theme_options = {
+    'logo': 'mercury_logo_small.png',
+    'github_user': 'UoW-ATM',
+    'github_repo': 'Mercury',
+	'description': 'An open source mobility simulator',
+	'github_banner': True,
+}
+

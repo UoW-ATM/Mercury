@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.remove\_nan\_coupled\_lists
-===============================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: remove_nan_coupled_lists

@@ -1,6 +1,0 @@
-libs.Hotspot.NNBound.SolversNNB.gurobi\_solver\_NNB.stop
-========================================================
-
-.. currentmodule:: libs.Hotspot.NNBound.SolversNNB.gurobi_solver_NNB
-
-.. autofunction:: stop

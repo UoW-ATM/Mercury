@@ -1,6 +1,0 @@
-libs.db\_access\_functions.save\_trajectories\_segments
-=======================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: save_trajectories_segments

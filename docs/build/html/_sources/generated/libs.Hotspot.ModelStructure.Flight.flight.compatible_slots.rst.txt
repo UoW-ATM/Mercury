@@ -1,6 +1,0 @@
-libs.Hotspot.ModelStructure.Flight.flight.compatible\_slots
-===========================================================
-
-.. currentmodule:: libs.Hotspot.ModelStructure.Flight.flight
-
-.. autofunction:: compatible_slots

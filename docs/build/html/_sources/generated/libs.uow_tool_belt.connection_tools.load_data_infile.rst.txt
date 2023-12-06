@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.connection\_tools.load\_data\_infile
-=========================================================
-
-.. currentmodule:: libs.uow_tool_belt.connection_tools
-
-.. autofunction:: load_data_infile

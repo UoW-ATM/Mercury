@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.simple\_color\_map\_function
-================================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: simple_color_map_function

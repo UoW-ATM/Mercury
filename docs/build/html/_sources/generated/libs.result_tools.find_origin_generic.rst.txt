@@ -1,6 +1,0 @@
-libs.result\_tools.find\_origin\_generic
-========================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: find_origin_generic

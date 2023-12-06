@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.starmap\_with\_kwargs
-=========================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: starmap_with_kwargs

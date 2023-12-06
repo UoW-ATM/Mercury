@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.connection\_tools.read\_pickle
-===================================================
-
-.. currentmodule:: libs.uow_tool_belt.connection_tools
-
-.. autofunction:: read_pickle

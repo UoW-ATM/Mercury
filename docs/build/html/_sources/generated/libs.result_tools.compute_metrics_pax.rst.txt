@@ -1,6 +1,0 @@
-libs.result\_tools.compute\_metrics\_pax
-========================================
-
-.. currentmodule:: libs.result_tools
-
-.. autofunction:: compute_metrics_pax

@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_regulation\_days\_at\_an\_airport
-==================================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_regulation_days_at_an_airport

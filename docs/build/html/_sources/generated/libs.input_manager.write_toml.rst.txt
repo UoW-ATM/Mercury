@@ -1,6 +1,0 @@
-libs.input\_manager.write\_toml
-===============================
-
-.. currentmodule:: libs.input_manager
-
-.. autofunction:: write_toml

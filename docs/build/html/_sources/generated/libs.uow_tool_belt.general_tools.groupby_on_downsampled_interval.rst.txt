@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.groupby\_on\_downsampled\_interval
-======================================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: groupby_on_downsampled_interval

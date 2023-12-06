@@ -1,6 +1,0 @@
-libs.Hotspot.scripts.new\_examples.example\_mercury\_test\_case
-===============================================================
-
-.. currentmodule:: libs.Hotspot.scripts.new_examples
-
-.. autofunction:: example_mercury_test_case

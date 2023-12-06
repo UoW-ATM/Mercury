@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.airspace\_particularities.is\_ECAC
-=======================================================
-
-.. currentmodule:: libs.uow_tool_belt.airspace_particularities
-
-.. autofunction:: is_ECAC

@@ -1,6 +1,0 @@
-libs.Hotspot.libs.other\_tools.compare\_allocations
-===================================================
-
-.. currentmodule:: libs.Hotspot.libs.other_tools
-
-.. autofunction:: compare_allocations

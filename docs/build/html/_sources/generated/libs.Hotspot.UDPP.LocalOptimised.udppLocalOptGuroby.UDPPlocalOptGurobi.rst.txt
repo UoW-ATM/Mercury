@@ -1,6 +1,0 @@
-libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby.UDPPlocalOptGurobi
-======================================================================
-
-.. currentmodule:: libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby
-
-.. autofunction:: UDPPlocalOptGurobi

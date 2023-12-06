@@ -1,6 +1,0 @@
-libs.Hotspot.ScheduleMaker.scheduleMaker.slots\_flights\_maker
-==============================================================
-
-.. currentmodule:: libs.Hotspot.ScheduleMaker.scheduleMaker
-
-.. autofunction:: slots_flights_maker

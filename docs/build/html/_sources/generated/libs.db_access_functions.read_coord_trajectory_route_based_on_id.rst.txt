@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_coord\_trajectory\_route\_based\_on\_id
-========================================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_coord_trajectory_route_based_on_id

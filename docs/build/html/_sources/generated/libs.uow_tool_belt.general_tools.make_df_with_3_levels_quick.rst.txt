@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.general\_tools.make\_df\_with\_3\_levels\_quick
-====================================================================
-
-.. currentmodule:: libs.uow_tool_belt.general_tools
-
-.. autofunction:: make_df_with_3_levels_quick

@@ -1,6 +1,0 @@
-libs.uow\_tool\_belt.trajectory\_tools.detect\_toc\_tod
-=======================================================
-
-.. currentmodule:: libs.uow_tool_belt.trajectory_tools
-
-.. autofunction:: detect_toc_tod

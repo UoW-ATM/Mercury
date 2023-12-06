@@ -1,6 +1,0 @@
-libs.other\_tools.distance\_func
-================================
-
-.. currentmodule:: libs.other_tools
-
-.. autofunction:: distance_func

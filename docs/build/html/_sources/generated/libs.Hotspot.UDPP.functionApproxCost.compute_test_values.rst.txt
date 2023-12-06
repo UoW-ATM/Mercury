@@ -1,6 +1,0 @@
-libs.Hotspot.UDPP.functionApproxCost.compute\_test\_values
-==========================================================
-
-.. currentmodule:: libs.Hotspot.UDPP.functionApproxCost
-
-.. autofunction:: compute_test_values

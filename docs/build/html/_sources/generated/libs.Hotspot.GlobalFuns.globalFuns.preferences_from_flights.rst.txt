@@ -1,6 +1,0 @@
-libs.Hotspot.GlobalFuns.globalFuns.preferences\_from\_flights
-=============================================================
-
-.. currentmodule:: libs.Hotspot.GlobalFuns.globalFuns
-
-.. autofunction:: preferences_from_flights

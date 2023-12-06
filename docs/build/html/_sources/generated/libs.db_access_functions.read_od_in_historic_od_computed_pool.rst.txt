@@ -1,6 +1,0 @@
-libs.db\_access\_functions.read\_od\_in\_historic\_od\_computed\_pool
-=====================================================================
-
-.. currentmodule:: libs.db_access_functions
-
-.. autofunction:: read_od_in_historic_od_computed_pool

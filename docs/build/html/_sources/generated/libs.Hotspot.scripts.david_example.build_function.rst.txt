@@ -1,6 +1,0 @@
-libs.Hotspot.scripts.david\_example.build\_function
-===================================================
-
-.. currentmodule:: libs.Hotspot.scripts.david_example
-
-.. autofunction:: build_function
