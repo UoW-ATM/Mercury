@@ -1,0 +1,6 @@
+libs.Hotspot.scripts.new\_examples.other\_examples8
+===================================================
+
+.. currentmodule:: libs.Hotspot.scripts.new_examples
+
+.. autofunction:: other_examples8

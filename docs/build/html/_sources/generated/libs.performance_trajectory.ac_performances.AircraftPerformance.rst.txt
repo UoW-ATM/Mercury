@@ -1,0 +1,58 @@
+libs.performance\_trajectory.ac\_performances.AircraftPerformance
+=================================================================
+
+.. currentmodule:: libs.performance_trajectory.ac_performances
+
+.. autoclass:: AircraftPerformance
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AircraftPerformance.__init__
+      ~AircraftPerformance.apu_fuel_flow
+      ~AircraftPerformance.arrival_costs_per_minute
+      ~AircraftPerformance.at_gate_costs_per_minute
+      ~AircraftPerformance.avg_climb_descent_ff
+      ~AircraftPerformance.compute_fuel_flow
+      ~AircraftPerformance.compute_sr
+      ~AircraftPerformance.en_route_costs_per_minute
+      ~AircraftPerformance.error_climb_weight_from_toc
+      ~AircraftPerformance.error_extra_cruise
+      ~AircraftPerformance.estimate_avg_cruise_weight
+      ~AircraftPerformance.estimate_climb_fuel_flow
+      ~AircraftPerformance.estimate_descent_fuel_flow
+      ~AircraftPerformance.estimate_holding_fuel_flow
+      ~AircraftPerformance.estimate_trajectory
+      ~AircraftPerformance.interpolate_climb_performances
+      ~AircraftPerformance.interpolate_cruise_nominal_mach
+      ~AircraftPerformance.interpolate_descent_performances
+      ~AircraftPerformance.set_climb_descent_fuel_flow_performances
+      ~AircraftPerformance.set_climb_fuel_flow_detailled_rate_performances
+      ~AircraftPerformance.set_descent_fuel_flow_detailled_rate_performances
+      ~AircraftPerformance.set_detailled_mach_nominal
+      ~AircraftPerformance.trajectory_cruise_estimation_with_fl_change
+      ~AircraftPerformance.trajectory_segment_climb_estimation_from_to
+      ~AircraftPerformance.trajectory_segment_climb_estimation_from_toc
+      ~AircraftPerformance.trajectory_segment_cruise_estimation
+      ~AircraftPerformance.trajectory_segment_descent_estimation_from_lnd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AircraftPerformance.bada_version
+      ~AircraftPerformance.engine_type
+   
+   

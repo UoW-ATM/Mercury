@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.Local.local.get\_slot\_from\_time
+===================================================
+
+.. currentmodule:: libs.Hotspot.UDPP.Local.local
+
+.. autofunction:: get_slot_from_time

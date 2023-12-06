@@ -1,0 +1,32 @@
+libs.Hotspot.Istop.Solvers.gurobi\_offer\_solver.GurobiOfferSolver
+==================================================================
+
+.. currentmodule:: libs.Hotspot.Istop.Solvers.gurobi_offer_solver
+
+.. autoclass:: GurobiOfferSolver
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GurobiOfferSolver.__init__
+      ~GurobiOfferSolver.get_solution_offers
+      ~GurobiOfferSolver.run
+      ~GurobiOfferSolver.set_constraints
+      ~GurobiOfferSolver.set_match_for_flight
+      ~GurobiOfferSolver.set_objective
+      ~GurobiOfferSolver.set_priority
+      ~GurobiOfferSolver.set_variables
+   
+   
+
+   
+   
+   

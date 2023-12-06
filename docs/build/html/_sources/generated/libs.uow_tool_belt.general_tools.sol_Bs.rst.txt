@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.general\_tools.sol\_Bs
+===========================================
+
+.. currentmodule:: libs.uow_tool_belt.general_tools
+
+.. autofunction:: sol_Bs

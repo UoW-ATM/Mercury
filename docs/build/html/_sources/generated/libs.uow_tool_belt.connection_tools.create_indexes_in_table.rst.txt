@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.connection\_tools.create\_indexes\_in\_table
+=================================================================
+
+.. currentmodule:: libs.uow_tool_belt.connection_tools
+
+.. autofunction:: create_indexes_in_table

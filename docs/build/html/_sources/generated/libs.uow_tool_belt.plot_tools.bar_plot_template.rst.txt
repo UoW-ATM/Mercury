@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.plot\_tools.bar\_plot\_template
+====================================================
+
+.. currentmodule:: libs.uow_tool_belt.plot_tools
+
+.. autofunction:: bar_plot_template

@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_orig\_destination\_via\_intermediate\_shortest
+===============================================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_orig_destination_via_intermediate_shortest

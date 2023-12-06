@@ -1,0 +1,6 @@
+libs.performance\_trajectory.standard\_atmosphere.sound\_speed
+==============================================================
+
+.. currentmodule:: libs.performance_trajectory.standard_atmosphere
+
+.. autofunction:: sound_speed

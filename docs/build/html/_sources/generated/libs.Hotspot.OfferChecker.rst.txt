@@ -1,0 +1,32 @@
+libs.Hotspot.OfferChecker
+=========================
+
+.. automodule:: libs.Hotspot.OfferChecker
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.OfferChecker.offerChecker
+

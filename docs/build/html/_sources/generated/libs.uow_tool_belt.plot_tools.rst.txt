@@ -1,0 +1,31 @@
+libs.uow\_tool\_belt.plot\_tools
+================================
+
+.. automodule:: libs.uow_tool_belt.plot_tools
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      bar_plot_template
+      savefig
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

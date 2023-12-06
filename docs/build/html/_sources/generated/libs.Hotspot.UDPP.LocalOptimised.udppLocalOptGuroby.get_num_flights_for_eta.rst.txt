@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby.get\_num\_flights\_for\_eta
+===============================================================================
+
+.. currentmodule:: libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby
+
+.. autofunction:: get_num_flights_for_eta

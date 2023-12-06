@@ -1,0 +1,41 @@
+libs.input\_manager
+===================
+
+.. automodule:: libs.input_manager
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      filter_df
+      filter_sql
+      read_data_from_dict
+      write_toml
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      Input_manager
+   
+   
+
+   
+   
+   
+
+
+

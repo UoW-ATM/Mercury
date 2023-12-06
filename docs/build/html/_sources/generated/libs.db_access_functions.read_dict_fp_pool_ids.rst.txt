@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_dict\_fp\_pool\_ids
+====================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_dict_fp_pool_ids

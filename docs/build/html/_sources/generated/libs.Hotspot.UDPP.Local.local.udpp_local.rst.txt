@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.Local.local.udpp\_local
+=========================================
+
+.. currentmodule:: libs.Hotspot.UDPP.Local.local
+
+.. autofunction:: udpp_local

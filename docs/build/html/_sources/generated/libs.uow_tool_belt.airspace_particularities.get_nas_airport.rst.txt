@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.airspace\_particularities.get\_nas\_airport
+================================================================
+
+.. currentmodule:: libs.uow_tool_belt.airspace_particularities
+
+.. autofunction:: get_nas_airport

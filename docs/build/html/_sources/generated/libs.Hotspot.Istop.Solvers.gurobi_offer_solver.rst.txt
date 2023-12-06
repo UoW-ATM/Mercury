@@ -1,0 +1,39 @@
+libs.Hotspot.Istop.Solvers.gurobi\_offer\_solver
+================================================
+
+.. automodule:: libs.Hotspot.Istop.Solvers.gurobi_offer_solver
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      stop
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      GurobiOfferSolver
+      Offer
+   
+   
+
+   
+   
+   
+
+
+

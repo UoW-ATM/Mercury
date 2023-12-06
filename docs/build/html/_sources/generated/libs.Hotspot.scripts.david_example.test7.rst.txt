@@ -1,0 +1,6 @@
+libs.Hotspot.scripts.david\_example.test7
+=========================================
+
+.. currentmodule:: libs.Hotspot.scripts.david_example
+
+.. autofunction:: test7

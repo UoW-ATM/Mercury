@@ -1,0 +1,31 @@
+libs.Hotspot.NNBound.SolversNNB.gurobi\_solver\_NNB.NNBoundGurobi
+=================================================================
+
+.. currentmodule:: libs.Hotspot.NNBound.SolversNNB.gurobi_solver_NNB
+
+.. autoclass:: NNBoundGurobi
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NNBoundGurobi.__init__
+      ~NNBoundGurobi.assign_flights
+      ~NNBoundGurobi.get_sol_array
+      ~NNBoundGurobi.run
+      ~NNBoundGurobi.set_constraints
+      ~NNBoundGurobi.set_objective
+      ~NNBoundGurobi.set_variables
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_route\_pool\_o\_d\_generated
+=============================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_route_pool_o_d_generated

@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.udppMerge.get\_first\_compatible\_flight
+==========================================================
+
+.. currentmodule:: libs.Hotspot.UDPP.udppMerge
+
+.. autofunction:: get_first_compatible_flight

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>agents.flight.FlightPlanUpdater &#8212; Mercury  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="agents-flight-flightplanupdater">
+<h1>agents.flight.FlightPlanUpdater<a class="headerlink" href="#agents-flight-flightplanupdater" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.flight.</span></span><span class="sig-name descname"><span class="pre">FlightPlanUpdater</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Role</span></code></p>
+<p>FPU: Flight Plan Updater</p>
+<p>Description: When the flight plan is changed the information is updated for the flight.
+1. Wait for request of update flight plan
+2. Update information on flight plan including when to report
+3. If the flight is airborne then request a flight parameters recomputation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.__init__" title="agents.flight.FlightPlanUpdater.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(agent)</p></td>
+<td><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.assing_FP_no_compute" title="agents.flight.FlightPlanUpdater.assing_FP_no_compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assing_FP_no_compute</span></code></a>(FP)</p></td>
+<td><p>Just assign a FP to the flight.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.send" title="agents.flight.FlightPlanUpdater.send"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send</span></code></a>(msg)</p></td>
+<td><p>Function to send messages to its own agent</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.update_FP_information" title="agents.flight.FlightPlanUpdater.update_FP_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_FP_information</span></code></a>(FP)</p></td>
+<td><p>Update FP of a flight.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.update_eobt" title="agents.flight.FlightPlanUpdater.update_eobt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_eobt</span></code></a>(eobt, push_back_ready_event)</p></td>
+<td><p>Update the EOBT and save the pusbh_back_ready_event to wait for it to be triggered Input: eobt: EOBT of the flight push_bac_ready_event: Event of push_back so that flight can wait for it by the DSR role in the check_push_back_ready</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.update_speed" title="agents.flight.FlightPlanUpdater.update_speed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_speed</span></code></a>(perc_selected[, change_tod_dci])</p></td>
+<td><p>Update the flight plan modifying the speed by a given percentage Input: perc_selected: Percentage of speed to use between MRC and MMO change_tod_dci: Update the descent assuming that it's modified due to change of whole trajectory with DCI,                                 i.e., the descent would be 'steeper' and the cruise a bit longer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.wait_for_FP_assigment_no_compute" title="agents.flight.FlightPlanUpdater.wait_for_FP_assigment_no_compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_FP_assigment_no_compute</span></code></a>(msg)</p></td>
+<td><p>Wait for a message to assign a FP without computing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.wait_for_FP_update" title="agents.flight.FlightPlanUpdater.wait_for_FP_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_FP_update</span></code></a>(msg)</p></td>
+<td><p>Wait for an update of FP (in general, i.e., to be executed)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.wait_for_eobt_update" title="agents.flight.FlightPlanUpdater.wait_for_eobt_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_eobt_update</span></code></a>(msg)</p></td>
+<td><p>Wait for an update on the EOBT</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.flight.FlightPlanUpdater.wait_for_speed_update" title="agents.flight.FlightPlanUpdater.wait_for_speed_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_speed_update</span></code></a>(msg)</p></td>
+<td><p>Wait for an update on the cruise speed with percentage of speed selected and if TOD is to be changed considering DCI.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.assing_FP_no_compute">
+<span class="sig-name descname"><span class="pre">assing_FP_no_compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FP</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.assing_FP_no_compute" title="Link to this definition">¶</a></dt>
+<dd><p>Just assign a FP to the flight. Note that the ‘execution’ of the flight plan information is saved within
+the FP. So this assigment would only have the FP overriding any computation stored on it.
+This needed so that if for example flight is cancel, the flight has info of the last flight plan</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.send" title="Link to this definition">¶</a></dt>
+<dd><p>Function to send messages to its own agent</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.update_FP_information">
+<span class="sig-name descname"><span class="pre">update_FP_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FP</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.update_FP_information" title="Link to this definition">¶</a></dt>
+<dd><p>Update FP of a flight. But in this case compute the DCI extension if not provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.update_eobt">
+<span class="sig-name descname"><span class="pre">update_eobt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eobt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">push_back_ready_event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.update_eobt" title="Link to this definition">¶</a></dt>
+<dd><p>Update the EOBT and save the pusbh_back_ready_event to wait for it to be triggered
+Input:
+eobt: EOBT of the flight
+push_bac_ready_event: Event of push_back so that flight can wait for it by the DSR role in the check_push_back_ready</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.update_speed">
+<span class="sig-name descname"><span class="pre">update_speed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perc_selected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_tod_dci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.update_speed" title="Link to this definition">¶</a></dt>
+<dd><p>Update the flight plan modifying the speed by a given percentage
+Input:
+perc_selected: Percentage of speed to use between MRC and MMO
+change_tod_dci: Update the descent assuming that it’s modified due to change of whole trajectory with DCI,</p>
+<blockquote>
+<div><p>i.e., the descent would be ‘steeper’ and the cruise a bit longer.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.wait_for_FP_assigment_no_compute">
+<span class="sig-name descname"><span class="pre">wait_for_FP_assigment_no_compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.wait_for_FP_assigment_no_compute" title="Link to this definition">¶</a></dt>
+<dd><p>Wait for a message to assign a FP without computing</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.wait_for_FP_update">
+<span class="sig-name descname"><span class="pre">wait_for_FP_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.wait_for_FP_update" title="Link to this definition">¶</a></dt>
+<dd><p>Wait for an update of FP (in general, i.e., to be executed)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.wait_for_eobt_update">
+<span class="sig-name descname"><span class="pre">wait_for_eobt_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.wait_for_eobt_update" title="Link to this definition">¶</a></dt>
+<dd><p>Wait for an update on the EOBT</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.flight.FlightPlanUpdater.wait_for_speed_update">
+<span class="sig-name descname"><span class="pre">wait_for_speed_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.flight.FlightPlanUpdater.wait_for_speed_update" title="Link to this definition">¶</a></dt>
+<dd><p>Wait for an update on the cruise speed with percentage of speed selected and if TOD is to be changed considering
+DCI.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Mercury</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, University of Westminster, Innaxis, Luis Delgado, Gerald Gurtner.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/generated/agents.flight.FlightPlanUpdater.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

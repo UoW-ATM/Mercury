@@ -1,0 +1,6 @@
+libs.Hotspot.ModelStructure.Costs.costFunctionDict.get\_interval
+================================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Costs.costFunctionDict
+
+.. autofunction:: get_interval

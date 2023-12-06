@@ -1,0 +1,33 @@
+libs.Hotspot.Istop.Solvers
+==========================
+
+.. automodule:: libs.Hotspot.Istop.Solvers
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.Istop.Solvers.gurobi_offer_solver
+   libs.Hotspot.Istop.Solvers.gurobi_solver
+

@@ -1,0 +1,60 @@
+libs.performance\_trajectory.ac\_performances.AircraftPerformanceBada3Jet
+=========================================================================
+
+.. currentmodule:: libs.performance_trajectory.ac_performances
+
+.. autoclass:: AircraftPerformanceBada3Jet
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AircraftPerformanceBada3Jet.__init__
+      ~AircraftPerformanceBada3Jet.apu_fuel_flow
+      ~AircraftPerformanceBada3Jet.arrival_costs_per_minute
+      ~AircraftPerformanceBada3Jet.at_gate_costs_per_minute
+      ~AircraftPerformanceBada3Jet.avg_climb_descent_ff
+      ~AircraftPerformanceBada3Jet.compute_drag
+      ~AircraftPerformanceBada3Jet.compute_fuel_flow
+      ~AircraftPerformanceBada3Jet.compute_sr
+      ~AircraftPerformanceBada3Jet.compute_tsfc
+      ~AircraftPerformanceBada3Jet.en_route_costs_per_minute
+      ~AircraftPerformanceBada3Jet.error_climb_weight_from_toc
+      ~AircraftPerformanceBada3Jet.error_extra_cruise
+      ~AircraftPerformanceBada3Jet.estimate_avg_cruise_weight
+      ~AircraftPerformanceBada3Jet.estimate_climb_fuel_flow
+      ~AircraftPerformanceBada3Jet.estimate_descent_fuel_flow
+      ~AircraftPerformanceBada3Jet.estimate_holding_fuel_flow
+      ~AircraftPerformanceBada3Jet.estimate_trajectory
+      ~AircraftPerformanceBada3Jet.interpolate_climb_performances
+      ~AircraftPerformanceBada3Jet.interpolate_cruise_nominal_mach
+      ~AircraftPerformanceBada3Jet.interpolate_descent_performances
+      ~AircraftPerformanceBada3Jet.set_climb_descent_fuel_flow_performances
+      ~AircraftPerformanceBada3Jet.set_climb_fuel_flow_detailled_rate_performances
+      ~AircraftPerformanceBada3Jet.set_descent_fuel_flow_detailled_rate_performances
+      ~AircraftPerformanceBada3Jet.set_detailled_mach_nominal
+      ~AircraftPerformanceBada3Jet.trajectory_cruise_estimation_with_fl_change
+      ~AircraftPerformanceBada3Jet.trajectory_segment_climb_estimation_from_to
+      ~AircraftPerformanceBada3Jet.trajectory_segment_climb_estimation_from_toc
+      ~AircraftPerformanceBada3Jet.trajectory_segment_cruise_estimation
+      ~AircraftPerformanceBada3Jet.trajectory_segment_descent_estimation_from_lnd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AircraftPerformanceBada3Jet.bada_version
+      ~AircraftPerformanceBada3Jet.engine_type
+   
+   

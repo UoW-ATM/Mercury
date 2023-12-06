@@ -1,0 +1,6 @@
+libs.Hotspot.libs.other\_tools.agent\_file\_name
+================================================
+
+.. currentmodule:: libs.Hotspot.libs.other_tools
+
+.. autofunction:: agent_file_name

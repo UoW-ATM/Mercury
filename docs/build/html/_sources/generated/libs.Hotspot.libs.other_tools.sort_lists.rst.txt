@@ -1,0 +1,6 @@
+libs.Hotspot.libs.other\_tools.sort\_lists
+==========================================
+
+.. currentmodule:: libs.Hotspot.libs.other_tools
+
+.. autofunction:: sort_lists

@@ -1,0 +1,27 @@
+libs.uow\_tool\_belt.general\_tools.DummyFile
+=============================================
+
+.. currentmodule:: libs.uow_tool_belt.general_tools
+
+.. autoclass:: DummyFile
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DummyFile.__init__
+      ~DummyFile.flush
+      ~DummyFile.write
+   
+   
+
+   
+   
+   

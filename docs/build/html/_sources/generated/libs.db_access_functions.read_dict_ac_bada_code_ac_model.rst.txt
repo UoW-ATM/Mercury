@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_dict\_ac\_bada\_code\_ac\_model
+================================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_dict_ac_bada_code_ac_model

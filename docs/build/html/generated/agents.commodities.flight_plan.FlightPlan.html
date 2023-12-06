@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>agents.commodities.flight_plan.FlightPlan &#8212; Mercury  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="agents-commodities-flight-plan-flightplan">
+<h1>agents.commodities.flight_plan.FlightPlan<a class="headerlink" href="#agents-commodities-flight-plan-flightplan" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.commodities.flight_plan.</span></span><span class="sig-name descname"><span class="pre">FlightPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp_pool_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crco_cost_EUR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_airport_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin_airport_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eobt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sobt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sibt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'non-submitted'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin_icao</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_icao</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>FlighPlan object.
+A flight plan does generally composed by a list of FlightPoints, but it’s not only that.
+It contains the information of the planned flight plan and also of the realisation of the flight.
+So, in reality it keeps track of both, of the plan (which can be updated), the trajectory ahead (which could
+contain uncertainty), and the realisation of the flight trajectory (once flown and during the flight).
+We could consider in the future to disentangle some of this in different objects/elements.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp_pool_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crco_cost_EUR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_airport_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin_airport_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eobt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sobt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sibt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'non-submitted'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin_icao</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_icao</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.__init__" title="agents.commodities.flight_plan.FlightPlan.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([fp_pool_id, crco_cost_EUR, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_event_to_point</span></code>(event, point_name)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_initial_points</span></code>(fp_points)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.add_point_original_planned" title="agents.commodities.flight_plan.FlightPlan.add_point_original_planned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_point_original_planned</span></code></a>([name])</p></td>
+<td><p>Used to add a point to the flight plan.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_eibt</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_max_min_mrc_speed_cruise</span></code>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_speeds_original_planned</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_point_from_planned</span></code>(number)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_plot_trajectory</span></code>([fig_name, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.find_intersecting_point" title="agents.commodities.flight_plan.FlightPlan.find_intersecting_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_intersecting_point</span></code></a>([typ, geom])</p></td>
+<td><p>Note: coordinates are lat/lon in the objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_uncertainty</span></code>(uncertainty_climb_min, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_atfm_delay</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_atfm_reason</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_copy_points_from_tod_planned</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_current_eibt</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_current_point</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dist_to_dest</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.get_estimated_fuel_consumption" title="agents.commodities.flight_plan.FlightPlan.get_estimated_fuel_consumption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_estimated_fuel_consumption</span></code></a>()</p></td>
+<td><p>Assumes first and last are takeoff and landing and that they have been named already.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_estimated_landing_time</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_estimated_takeoff_time</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.get_eta_wo_atfm" title="agents.commodities.flight_plan.FlightPlan.get_eta_wo_atfm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_eta_wo_atfm</span></code></a>()</p></td>
+<td><p>Estimated time of arrival without ATFM delay</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ibt</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_list_points_missing</span></code>(from_number[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_named_points</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_obt</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.get_planned_flying_time_to_landing" title="agents.commodities.flight_plan.FlightPlan.get_planned_flying_time_to_landing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_planned_flying_time_to_landing</span></code></a>()</p></td>
+<td><p>Length of trajectory in minute, up to landing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_planned_landing_time</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_point</span></code>(number)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_point_names</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_point_times</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_points_planned</span></code>([dci_landing])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_status</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_total_planned_distance</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unique_id</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xit</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xot</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_atfm_delay</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.name_point" title="agents.commodities.flight_plan.FlightPlan.name_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name_point</span></code></a>(idx, name)</p></td>
+<td><p>need to sort the point after that TODO: deletion should be done before adding the new one to avoid removing the new point.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_points</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_accepted_fp</span></code>([extra_cruise])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_all_points_info</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_coordinates</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_full</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_full_planned_executed</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_delay</span></code>(delay)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.commodities.flight_plan.FlightPlan.recompute_speeds_new_point" title="agents.commodities.flight_plan.FlightPlan.recompute_speeds_new_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recompute_speeds_new_point</span></code></a>(name[, points])</p></td>
+<td><p>This recomputes the speed of the point &quot;name&quot; and the next one.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_atfm_delay</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_atfm_delay</span></code>(atfm_delay)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_extra_cruise_dci</span></code>(extra_cruise_dci)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_status</span></code>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_points</span></code>([compute_eibt])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_uncertainty_min</span></code>(points, min_uncertainty)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_uncertainty_nm</span></code>(points, nm_uncertainty)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_eobt</span></code>(new_eobt)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_speed_percentage</span></code>(perc_selected[, ...])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.add_point_original_planned">
+<span class="sig-name descname"><span class="pre">add_point_original_planned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.add_point_original_planned" title="Link to this definition">¶</a></dt>
+<dd><p>Used to add a point to the flight plan.
+If the point is not supposed to be at end, one needs to call sort_points
+after that.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.find_intersecting_point">
+<span class="sig-name descname"><span class="pre">find_intersecting_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'radius'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.find_intersecting_point" title="Link to this definition">¶</a></dt>
+<dd><p>Note: coordinates are lat/lon in the objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.get_estimated_fuel_consumption">
+<span class="sig-name descname"><span class="pre">get_estimated_fuel_consumption</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.get_estimated_fuel_consumption" title="Link to this definition">¶</a></dt>
+<dd><p>Assumes first and last are takeoff and landing and that
+they have been named already.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.get_eta_wo_atfm">
+<span class="sig-name descname"><span class="pre">get_eta_wo_atfm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.get_eta_wo_atfm" title="Link to this definition">¶</a></dt>
+<dd><p>Estimated time of arrival without ATFM delay</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.get_planned_flying_time_to_landing">
+<span class="sig-name descname"><span class="pre">get_planned_flying_time_to_landing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.get_planned_flying_time_to_landing" title="Link to this definition">¶</a></dt>
+<dd><p>Length of trajectory in minute, up to landing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.name_point">
+<span class="sig-name descname"><span class="pre">name_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.name_point" title="Link to this definition">¶</a></dt>
+<dd><p>need to sort the point after that
+TODO: deletion should be done before adding the new one
+to avoid removing the new point.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.commodities.flight_plan.FlightPlan.recompute_speeds_new_point">
+<span class="sig-name descname"><span class="pre">recompute_speeds_new_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.flight_plan.FlightPlan.recompute_speeds_new_point" title="Link to this definition">¶</a></dt>
+<dd><p>This recomputes the speed of the point “name” and the next one.
+Note: this does not add a new point.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
+<p>name: id of point to recompute.
+points:  list of points existing already.</p>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Mercury</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, University of Westminster, Innaxis, Luis Delgado, Gerald Gurtner.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/generated/agents.commodities.flight_plan.FlightPlan.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

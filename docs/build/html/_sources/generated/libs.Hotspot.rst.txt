@@ -1,0 +1,43 @@
+libs.Hotspot
+============
+
+.. automodule:: libs.Hotspot
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.GlobalFuns
+   libs.Hotspot.GlobalOptimum
+   libs.Hotspot.Istop
+   libs.Hotspot.ModelStructure
+   libs.Hotspot.NNBound
+   libs.Hotspot.OfferChecker
+   libs.Hotspot.ScheduleMaker
+   libs.Hotspot.UDPP
+   libs.Hotspot.combined_models
+   libs.Hotspot.libs
+   libs.Hotspot.scripts
+   libs.Hotspot.test_costs
+

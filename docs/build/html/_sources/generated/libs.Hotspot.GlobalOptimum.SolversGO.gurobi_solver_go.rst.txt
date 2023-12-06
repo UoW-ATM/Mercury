@@ -1,0 +1,38 @@
+libs.Hotspot.GlobalOptimum.SolversGO.gurobi\_solver\_go
+=======================================================
+
+.. automodule:: libs.Hotspot.GlobalOptimum.SolversGO.gurobi_solver_go
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      stop
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      GOGurobi
+   
+   
+
+   
+   
+   
+
+
+

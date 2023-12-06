@@ -1,0 +1,6 @@
+libs.airspace\_particularities.is\_ATFM\_AREA
+=============================================
+
+.. currentmodule:: libs.airspace_particularities
+
+.. autofunction:: is_ATFM_AREA

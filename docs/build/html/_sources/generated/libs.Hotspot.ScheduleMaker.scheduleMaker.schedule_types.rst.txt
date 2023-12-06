@@ -1,0 +1,6 @@
+libs.Hotspot.ScheduleMaker.scheduleMaker.schedule\_types
+========================================================
+
+.. currentmodule:: libs.Hotspot.ScheduleMaker.scheduleMaker
+
+.. autofunction:: schedule_types

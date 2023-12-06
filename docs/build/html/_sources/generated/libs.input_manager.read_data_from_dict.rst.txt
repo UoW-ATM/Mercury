@@ -1,0 +1,6 @@
+libs.input\_manager.read\_data\_from\_dict
+==========================================
+
+.. currentmodule:: libs.input_manager
+
+.. autofunction:: read_data_from_dict

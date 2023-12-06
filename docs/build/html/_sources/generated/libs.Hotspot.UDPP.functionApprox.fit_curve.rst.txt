@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.functionApprox.fit\_curve
+===========================================
+
+.. currentmodule:: libs.Hotspot.UDPP.functionApprox
+
+.. autofunction:: fit_curve

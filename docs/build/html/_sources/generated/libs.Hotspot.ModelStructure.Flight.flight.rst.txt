@@ -1,0 +1,38 @@
+libs.Hotspot.ModelStructure.Flight.flight
+=========================================
+
+.. automodule:: libs.Hotspot.ModelStructure.Flight.flight
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      compatible_slots
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      Flight
+   
+   
+
+   
+   
+   
+
+
+

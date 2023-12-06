@@ -1,0 +1,6 @@
+libs.Hotspot.libs.other\_tools.write\_on\_file
+==============================================
+
+.. currentmodule:: libs.Hotspot.libs.other_tools
+
+.. autofunction:: write_on_file

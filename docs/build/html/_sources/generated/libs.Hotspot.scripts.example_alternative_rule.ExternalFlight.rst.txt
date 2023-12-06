@@ -1,0 +1,25 @@
+libs.Hotspot.scripts.example\_alternative\_rule.ExternalFlight
+==============================================================
+
+.. currentmodule:: libs.Hotspot.scripts.example_alternative_rule
+
+.. autoclass:: ExternalFlight
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExternalFlight.__init__
+   
+   
+
+   
+   
+   

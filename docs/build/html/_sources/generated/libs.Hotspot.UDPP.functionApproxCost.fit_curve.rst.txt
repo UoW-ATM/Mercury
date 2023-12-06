@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.functionApproxCost.fit\_curve
+===============================================
+
+.. currentmodule:: libs.Hotspot.UDPP.functionApproxCost
+
+.. autofunction:: fit_curve

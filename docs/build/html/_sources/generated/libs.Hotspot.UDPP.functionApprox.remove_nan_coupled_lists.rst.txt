@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.functionApprox.remove\_nan\_coupled\_lists
+============================================================
+
+.. currentmodule:: libs.Hotspot.UDPP.functionApprox
+
+.. autofunction:: remove_nan_coupled_lists

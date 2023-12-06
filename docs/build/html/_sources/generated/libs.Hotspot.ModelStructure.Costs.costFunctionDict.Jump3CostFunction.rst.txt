@@ -1,0 +1,36 @@
+libs.Hotspot.ModelStructure.Costs.costFunctionDict.Jump3CostFunction
+====================================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Costs.costFunctionDict
+
+.. autoclass:: Jump3CostFunction
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Jump3CostFunction.__init__
+      ~Jump3CostFunction.build_pure_lambda
+      ~Jump3CostFunction.get_var_paras
+      ~Jump3CostFunction.single_computation
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Jump3CostFunction.fixed_paras
+      ~Jump3CostFunction.nickname
+      ~Jump3CostFunction.paras
+   
+   

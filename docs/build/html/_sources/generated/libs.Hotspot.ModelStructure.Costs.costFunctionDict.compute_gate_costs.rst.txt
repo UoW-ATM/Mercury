@@ -1,0 +1,6 @@
+libs.Hotspot.ModelStructure.Costs.costFunctionDict.compute\_gate\_costs
+=======================================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Costs.costFunctionDict
+
+.. autofunction:: compute_gate_costs

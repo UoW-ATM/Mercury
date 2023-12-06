@@ -1,0 +1,6 @@
+libs.other\_tools.compatible\_slots
+===================================
+
+.. currentmodule:: libs.other_tools
+
+.. autofunction:: compatible_slots

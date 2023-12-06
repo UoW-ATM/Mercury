@@ -1,0 +1,37 @@
+modules.TA
+==========
+
+.. automodule:: modules.TA
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+    
+    
+       modules.TA.TA_L1
+    
+       modules.TA.TA_L2
+    
+       modules.TA.module_definition
+

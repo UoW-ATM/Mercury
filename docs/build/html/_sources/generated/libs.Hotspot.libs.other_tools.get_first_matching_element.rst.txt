@@ -1,0 +1,6 @@
+libs.Hotspot.libs.other\_tools.get\_first\_matching\_element
+============================================================
+
+.. currentmodule:: libs.Hotspot.libs.other_tools
+
+.. autofunction:: get_first_matching_element

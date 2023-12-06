@@ -1,0 +1,25 @@
+libs.Hotspot.ModelStructure.Slot.slot.Slot
+==========================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Slot.slot
+
+.. autoclass:: Slot
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Slot.__init__
+   
+   
+
+   
+   
+   

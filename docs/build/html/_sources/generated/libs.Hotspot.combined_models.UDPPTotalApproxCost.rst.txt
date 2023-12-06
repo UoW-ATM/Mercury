@@ -1,0 +1,53 @@
+libs.Hotspot.combined\_models.UDPPTotalApproxCost
+=================================================
+
+.. currentmodule:: libs.Hotspot.combined_models
+
+.. autoclass:: UDPPTotalApproxCost
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UDPPTotalApproxCost.__init__
+      ~UDPPTotalApproxCost.check_requirements
+      ~UDPPTotalApproxCost.compute_costs
+      ~UDPPTotalApproxCost.compute_costs_list
+      ~UDPPTotalApproxCost.compute_delays
+      ~UDPPTotalApproxCost.get_flight_by_slot
+      ~UDPPTotalApproxCost.get_flight_from_name
+      ~UDPPTotalApproxCost.get_kwargs_init
+      ~UDPPTotalApproxCost.get_kwargs_run
+      ~UDPPTotalApproxCost.get_new_flight_list
+      ~UDPPTotalApproxCost.make_airlines
+      ~UDPPTotalApproxCost.make_df
+      ~UDPPTotalApproxCost.name
+      ~UDPPTotalApproxCost.name_cls
+      ~UDPPTotalApproxCost.print_new_schedule
+      ~UDPPTotalApproxCost.print_performance
+      ~UDPPTotalApproxCost.print_schedule
+      ~UDPPTotalApproxCost.run
+      ~UDPPTotalApproxCost.set_delay_vect
+      ~UDPPTotalApproxCost.set_flight_index
+      ~UDPPTotalApproxCost.set_flights_attributes
+      ~UDPPTotalApproxCost.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UDPPTotalApproxCost.Models
+      ~UDPPTotalApproxCost.requirements
+   
+   

@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_crco
+=====================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_crco

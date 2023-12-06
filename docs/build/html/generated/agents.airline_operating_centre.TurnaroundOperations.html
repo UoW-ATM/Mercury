@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>agents.airline_operating_centre.TurnaroundOperations &#8212; Mercury  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="agents-airline-operating-centre-turnaroundoperations">
+<h1>agents.airline_operating_centre.TurnaroundOperations<a class="headerlink" href="#agents-airline-operating-centre-turnaroundoperations" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.TurnaroundOperations">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.airline_operating_centre.</span></span><span class="sig-name descname"><span class="pre">TurnaroundOperations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.TurnaroundOperations" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Role</span></code></p>
+<p>TRO</p>
+<p>Description: When a flight arrives to the gate computes the turnaround time required, generates the ready to depart time of the subsequent flight.</p>
+<ol class="arabic simple">
+<li><p>Reallocate passengers of arriving flight if needed</p></li>
+<li><p>Computes the turnaround time.</p></li>
+<li><p>Computes delay due to non-ATFM causes</p></li>
+<li><p>Updates the EOBT</p></li>
+<li><p>Requests reassessment of flight departure in case extra delay has been incurred</p></li>
+</ol>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.TurnaroundOperations.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.TurnaroundOperations.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.TurnaroundOperations.__init__" title="agents.airline_operating_centre.TurnaroundOperations.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(agent)</p></td>
+<td><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.airline_operating_centre.TurnaroundOperations.check_arrival" title="agents.airline_operating_centre.TurnaroundOperations.check_arrival"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_arrival</span></code></a>(flight_uid, arrival_event)</p></td>
+<td><p>Note: keep the aircraft release at the end of this method to make sure that EOBT is updated before.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.TurnaroundOperations.check_delay_estimation" title="agents.airline_operating_centre.TurnaroundOperations.check_delay_estimation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_delay_estimation</span></code></a>(flight_uid, ...)</p></td>
+<td><p>This, in theory, should happen only exactly 60 minutes before most up to date EOBT.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_following_flight</span></code>(flight_uid)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_departing_reassessment</span></code>(flight_uid, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_process_arrival_pax</span></code>(flight_uid)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_turnaround</span></code>(aircraft, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.airline_operating_centre.TurnaroundOperations.send" title="agents.airline_operating_centre.TurnaroundOperations.send"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send</span></code></a>(msg)</p></td>
+<td><p>Function to send messages to its own agent</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_turnaround_time</span></code>(msg)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.TurnaroundOperations.check_arrival">
+<span class="sig-name descname"><span class="pre">check_arrival</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrival_event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.TurnaroundOperations.check_arrival" title="Link to this definition">¶</a></dt>
+<dd><p>Note: keep the aircraft release at the end of this method to make sure
+that EOBT is updated before.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.TurnaroundOperations.check_delay_estimation">
+<span class="sig-name descname"><span class="pre">check_delay_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay_estimation_event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.TurnaroundOperations.check_delay_estimation" title="Link to this definition">¶</a></dt>
+<dd><p>This, in theory, should happen only exactly 60 minutes before most up to date EOBT.
+Delay is added to the current now + 60 minutes,</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.TurnaroundOperations.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.TurnaroundOperations.send" title="Link to this definition">¶</a></dt>
+<dd><p>Function to send messages to its own agent</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Mercury</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, University of Westminster, Innaxis, Luis Delgado, Gerald Gurtner.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/generated/agents.airline_operating_centre.TurnaroundOperations.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

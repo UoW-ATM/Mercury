@@ -1,0 +1,43 @@
+libs.Hotspot.UDPP.functionApproxCost
+====================================
+
+.. automodule:: libs.Hotspot.UDPP.functionApproxCost
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      compute_test_values
+      fit_cost_curve
+      fit_curve
+      loss_fun
+      make_preference_fun
+      obj_approx
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      FunctionApproxCost
+   
+   
+
+   
+   
+   
+
+
+

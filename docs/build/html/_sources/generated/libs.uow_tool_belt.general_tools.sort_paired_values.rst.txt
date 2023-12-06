@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.general\_tools.sort\_paired\_values
+========================================================
+
+.. currentmodule:: libs.uow_tool_belt.general_tools
+
+.. autofunction:: sort_paired_values

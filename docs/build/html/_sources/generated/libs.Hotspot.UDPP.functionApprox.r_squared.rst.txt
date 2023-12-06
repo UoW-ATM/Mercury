@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.functionApprox.r\_squared
+===========================================
+
+.. currentmodule:: libs.Hotspot.UDPP.functionApprox
+
+.. autofunction:: r_squared

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>libs.Hotspot.combined_models &#8212; Mercury  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-libs.Hotspot.combined_models">
+<span id="libs-hotspot-combined-models"></span><h1>libs.Hotspot.combined_models<a class="headerlink" href="#module-libs.Hotspot.combined_models" title="Link to this heading">¶</a></h1>
+<p>Combined models are collections of models which are executed one after the 
+other. Usual comined models corresponds to a local model + global one, for
+instance UDPPLocal and UDPPMerge, in order to allow for a easy end-to-end 
+computation, also using the same api than other models. Some operations 
+sometimes need to be performed between models, like recomputing cost vectors.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.combine_model.html#libs.Hotspot.combined_models.combine_model" title="libs.Hotspot.combined_models.combine_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_model</span></code></a>(Models_list[, ...])</p></td>
+<td><p>Creates a model that combines sequentially the models in Models.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.init_and_run.html#libs.Hotspot.combined_models.init_and_run" title="libs.Hotspot.combined_models.init_and_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_and_run</span></code></a>(Model, slots, flights, ...)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.FuncApproxUDPPLocal.html#libs.Hotspot.combined_models.FuncApproxUDPPLocal" title="libs.Hotspot.combined_models.FuncApproxUDPPLocal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FuncApproxUDPPLocal</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.GlobalOptimumTotalApprox.html#libs.Hotspot.combined_models.GlobalOptimumTotalApprox" title="libs.Hotspot.combined_models.GlobalOptimumTotalApprox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GlobalOptimumTotalApprox</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.GlobalOptimumTotalApproxCost.html#libs.Hotspot.combined_models.GlobalOptimumTotalApproxCost" title="libs.Hotspot.combined_models.GlobalOptimumTotalApproxCost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GlobalOptimumTotalApproxCost</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.IstopApprox.html#libs.Hotspot.combined_models.IstopApprox" title="libs.Hotspot.combined_models.IstopApprox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IstopApprox</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.IstopApproxCost.html#libs.Hotspot.combined_models.IstopApproxCost" title="libs.Hotspot.combined_models.IstopApproxCost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IstopApproxCost</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.NNBoundTotalApprox.html#libs.Hotspot.combined_models.NNBoundTotalApprox" title="libs.Hotspot.combined_models.NNBoundTotalApprox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NNBoundTotalApprox</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.NNBoundTotalApproxCost.html#libs.Hotspot.combined_models.NNBoundTotalApproxCost" title="libs.Hotspot.combined_models.NNBoundTotalApproxCost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NNBoundTotalApproxCost</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPIstop.html#libs.Hotspot.combined_models.UDPPIstop" title="libs.Hotspot.combined_models.UDPPIstop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPIstop</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPIstopApprox.html#libs.Hotspot.combined_models.UDPPIstopApprox" title="libs.Hotspot.combined_models.UDPPIstopApprox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPIstopApprox</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPIstopApproxCost.html#libs.Hotspot.combined_models.UDPPIstopApproxCost" title="libs.Hotspot.combined_models.UDPPIstopApproxCost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPIstopApproxCost</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPLocalFunctionApprox.html#libs.Hotspot.combined_models.UDPPLocalFunctionApprox" title="libs.Hotspot.combined_models.UDPPLocalFunctionApprox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPLocalFunctionApprox</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPLocalFunctionApproxCost.html#libs.Hotspot.combined_models.UDPPLocalFunctionApproxCost" title="libs.Hotspot.combined_models.UDPPLocalFunctionApproxCost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPLocalFunctionApproxCost</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPMergeIstop.html#libs.Hotspot.combined_models.UDPPMergeIstop" title="libs.Hotspot.combined_models.UDPPMergeIstop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPMergeIstop</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPTotal.html#libs.Hotspot.combined_models.UDPPTotal" title="libs.Hotspot.combined_models.UDPPTotal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPTotal</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPTotalApprox.html#libs.Hotspot.combined_models.UDPPTotalApprox" title="libs.Hotspot.combined_models.UDPPTotalApprox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPTotalApprox</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="libs.Hotspot.combined_models.UDPPTotalApproxCost.html#libs.Hotspot.combined_models.UDPPTotalApproxCost" title="libs.Hotspot.combined_models.UDPPTotalApproxCost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDPPTotalApproxCost</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CombinedModel</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Mercury</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, University of Westminster, Innaxis, Luis Delgado, Gerald Gurtner.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/generated/libs.Hotspot.combined_models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

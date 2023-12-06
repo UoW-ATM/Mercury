@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>agents.dman.DepartureQueueUpdater &#8212; Mercury  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="agents-dman-departurequeueupdater">
+<h1>agents.dman.DepartureQueueUpdater<a class="headerlink" href="#agents-dman-departurequeueupdater" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.dman.DepartureQueueUpdater">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.dman.</span></span><span class="sig-name descname"><span class="pre">DepartureQueueUpdater</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.dman.DepartureQueueUpdater" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Role</span></code></p>
+<p>DQU: Departure Queue Updater</p>
+<dl class="simple">
+<dt>Description: When a flight update its EOBT, its position in the departure queue is updated.</dt><dd><p>If it’s the first time a fligth is ‘seen’ it will be added as scheduled to the queue.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.dman.DepartureQueueUpdater.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.dman.DepartureQueueUpdater.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.dman.DepartureQueueUpdater.__init__" title="agents.dman.DepartureQueueUpdater.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(agent)</p></td>
+<td><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.dman.DepartureQueueUpdater.send" title="agents.dman.DepartureQueueUpdater.send"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send</span></code></a>(msg)</p></td>
+<td><p>Function to send messages to its own agent</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_take_off_time_flight</span></code>(flight_uid, etot)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_departure_update</span></code>(msg)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.dman.DepartureQueueUpdater.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.dman.DepartureQueueUpdater.send" title="Link to this definition">¶</a></dt>
+<dd><p>Function to send messages to its own agent</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Mercury</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, University of Westminster, Innaxis, Luis Delgado, Gerald Gurtner.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/generated/agents.dman.DepartureQueueUpdater.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

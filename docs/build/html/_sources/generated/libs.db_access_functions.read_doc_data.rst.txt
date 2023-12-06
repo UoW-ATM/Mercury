@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_doc\_data
+==========================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_doc_data

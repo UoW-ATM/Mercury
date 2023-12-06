@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_iedf\_wind\_dict
+=================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_iedf_wind_dict

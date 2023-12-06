@@ -1,0 +1,36 @@
+libs.Hotspot.ModelStructure.Costs.costFunctionDict.QuadraticCostFunction
+========================================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Costs.costFunctionDict
+
+.. autoclass:: QuadraticCostFunction
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~QuadraticCostFunction.__init__
+      ~QuadraticCostFunction.build_pure_lambda
+      ~QuadraticCostFunction.get_var_paras
+      ~QuadraticCostFunction.single_computation
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~QuadraticCostFunction.fixed_paras
+      ~QuadraticCostFunction.nickname
+      ~QuadraticCostFunction.paras
+   
+   

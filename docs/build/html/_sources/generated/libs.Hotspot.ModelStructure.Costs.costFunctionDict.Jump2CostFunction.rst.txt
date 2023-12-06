@@ -1,0 +1,36 @@
+libs.Hotspot.ModelStructure.Costs.costFunctionDict.Jump2CostFunction
+====================================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Costs.costFunctionDict
+
+.. autoclass:: Jump2CostFunction
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Jump2CostFunction.__init__
+      ~Jump2CostFunction.build_pure_lambda
+      ~Jump2CostFunction.get_var_paras
+      ~Jump2CostFunction.single_computation
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Jump2CostFunction.fixed_paras
+      ~Jump2CostFunction.nickname
+      ~Jump2CostFunction.paras
+   
+   

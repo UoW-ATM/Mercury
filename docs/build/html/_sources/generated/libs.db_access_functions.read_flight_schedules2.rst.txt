@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_flight\_schedules2
+===================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_flight_schedules2

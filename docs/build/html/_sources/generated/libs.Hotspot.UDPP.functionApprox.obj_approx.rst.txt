@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.functionApprox.obj\_approx
+============================================
+
+.. currentmodule:: libs.Hotspot.UDPP.functionApprox
+
+.. autofunction:: obj_approx

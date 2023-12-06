@@ -1,0 +1,53 @@
+libs.Hotspot.combined\_models.UDPPIstop
+=======================================
+
+.. currentmodule:: libs.Hotspot.combined_models
+
+.. autoclass:: UDPPIstop
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UDPPIstop.__init__
+      ~UDPPIstop.check_requirements
+      ~UDPPIstop.compute_costs
+      ~UDPPIstop.compute_costs_list
+      ~UDPPIstop.compute_delays
+      ~UDPPIstop.get_flight_by_slot
+      ~UDPPIstop.get_flight_from_name
+      ~UDPPIstop.get_kwargs_init
+      ~UDPPIstop.get_kwargs_run
+      ~UDPPIstop.get_new_flight_list
+      ~UDPPIstop.make_airlines
+      ~UDPPIstop.make_df
+      ~UDPPIstop.name
+      ~UDPPIstop.name_cls
+      ~UDPPIstop.print_new_schedule
+      ~UDPPIstop.print_performance
+      ~UDPPIstop.print_schedule
+      ~UDPPIstop.run
+      ~UDPPIstop.set_delay_vect
+      ~UDPPIstop.set_flight_index
+      ~UDPPIstop.set_flights_attributes
+      ~UDPPIstop.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UDPPIstop.Models
+      ~UDPPIstop.requirements
+   
+   

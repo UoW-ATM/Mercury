@@ -129,3 +129,5 @@ logs/
 results/
 
 *.zip
+
+docs/source/generated

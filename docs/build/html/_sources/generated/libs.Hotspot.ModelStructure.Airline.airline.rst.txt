@@ -1,0 +1,31 @@
+libs.Hotspot.ModelStructure.Airline.airline
+===========================================
+
+.. automodule:: libs.Hotspot.ModelStructure.Airline.airline
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      Airline
+   
+   
+
+   
+   
+   
+
+
+

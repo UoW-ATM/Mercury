@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.plot\_tools.savefig
+========================================
+
+.. currentmodule:: libs.uow_tool_belt.plot_tools
+
+.. autofunction:: savefig

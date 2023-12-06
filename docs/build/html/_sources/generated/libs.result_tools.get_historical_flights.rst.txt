@@ -1,0 +1,6 @@
+libs.result\_tools.get\_historical\_flights
+===========================================
+
+.. currentmodule:: libs.result_tools
+
+.. autofunction:: get_historical_flights

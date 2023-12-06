@@ -1,0 +1,31 @@
+libs.Hotspot.GlobalOptimum.globalOptimum
+========================================
+
+.. automodule:: libs.Hotspot.GlobalOptimum.globalOptimum
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      GlobalOptimum
+   
+   
+
+   
+   
+   
+
+
+

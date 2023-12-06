@@ -1,0 +1,6 @@
+libs.performance\_trajectory.unit\_conversions.m2kt
+===================================================
+
+.. currentmodule:: libs.performance_trajectory.unit_conversions
+
+.. autofunction:: m2kt

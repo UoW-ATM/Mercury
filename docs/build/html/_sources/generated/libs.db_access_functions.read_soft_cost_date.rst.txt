@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_soft\_cost\_date
+=================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_soft_cost_date

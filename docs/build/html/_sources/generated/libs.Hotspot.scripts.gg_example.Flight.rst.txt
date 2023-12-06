@@ -1,0 +1,25 @@
+libs.Hotspot.scripts.gg\_example.Flight
+=======================================
+
+.. currentmodule:: libs.Hotspot.scripts.gg_example
+
+.. autoclass:: Flight
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Flight.__init__
+   
+   
+
+   
+   
+   

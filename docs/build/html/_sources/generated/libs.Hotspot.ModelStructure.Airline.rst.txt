@@ -1,0 +1,32 @@
+libs.Hotspot.ModelStructure.Airline
+===================================
+
+.. automodule:: libs.Hotspot.ModelStructure.Airline
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.ModelStructure.Airline.airline
+

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Quickstart &#8212; Mercury  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Mercury’s documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">¶</a></h1>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Start by cloning the repository, for instance:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/UoW-ATM/Mercury
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Use this to download the third party libraries:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>Mercury
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--recursive<span class="w"> </span>--remote<span class="w"> </span>--init
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>In a fresh python environment, install all the required packages:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>libproj-dev<span class="w"> </span>libgeos-dev<span class="w"> </span>build-essential<span class="w"> </span>python3-dev<span class="w"> </span>proj-data<span class="w"> </span>proj-bin
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>shapely<span class="w"> </span>cartopy<span class="w"> </span>--no-binary<span class="w"> </span>shapely<span class="w"> </span>--no-binary<span class="w"> </span>cartopy
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Download the sample data here:
+<a class="reference external" href="https://zenodo.org/doi/10.5281/zenodo.10211704">https://zenodo.org/doi/10.5281/zenodo.10211704</a>. By default, Mercury
+will look for them just outside the root directory in a folder named
+“input”.</p></li>
+<li><p>To run Mercury, you need to use bada 3 or bada 4 (not supported for
+now). You can request a licence from EUROCONTROL, then use the script
+generate_bada3_input.py to transform the AFP, OFP and PTD files from
+BADA into tables (parquet files) that will be read by Mercury. The
+script has a help function.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./generate_bada3_input.py<span class="w"> </span>-s<span class="w"> </span>path_to/bada3_files<span class="w"> </span>-d<span class="w"> </span>path_to/processed_bada3_files
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Ensure you copy the generated parquet files into the
+data/ac_performance/bada/bada3/ of your input folder (per scenario).
+The location of the performance files might be modified in the
+future.</p></li>
+<li><p>Note: support for OpenAP, an open alternative to BADA, is under
+development.</p></li>
+</ul>
+</section>
+<section id="running-the-cli-version">
+<h2>Running the CLI version<a class="headerlink" href="#running-the-cli-version" title="Link to this heading">¶</a></h2>
+<p>You can test the model by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./mercury.py<span class="w"> </span>-id<span class="w"> </span>-1
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">-h</span></code> to have list of all the possible arguments.</p>
+</section>
+<section id="programmatic-use-of-mercury">
+<h2>Programmatic use of Mercury<a class="headerlink" href="#programmatic-use-of-mercury" title="Link to this heading">¶</a></h2>
+<p>Mercury can be used as an object. An example of its use and some
+examples to run can be found in the <code class="docutils literal notranslate"><span class="pre">Mercury.ipynb</span></code> Jupyter notebook.
+The notebook shows the possible uses of Mercury in terms of parameter
+setting, scenarios, case study, etc.</p>
+</section>
+<section id="graphical-interface">
+<h2>Graphical interface<a class="headerlink" href="#graphical-interface" title="Link to this heading">¶</a></h2>
+<p>You can use a GUI to explore the data input and output structure, create
+new scenarios, case studies, etc. Use the following command to start it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>dashboard
+./mercury_gui.py
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Mercury</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-cli-version">Running the CLI version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#programmatic-use-of-mercury">Programmatic use of Mercury</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#graphical-interface">Graphical interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Mercury’s documentation</a></li>
+      <li>Next: <a href="api.html" title="next chapter">API</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, University of Westminster, Innaxis, Luis Delgado, Gerald Gurtner.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/Quickstart.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

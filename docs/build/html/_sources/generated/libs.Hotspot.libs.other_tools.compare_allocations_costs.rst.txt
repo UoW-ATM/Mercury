@@ -1,0 +1,6 @@
+libs.Hotspot.libs.other\_tools.compare\_allocations\_costs
+==========================================================
+
+.. currentmodule:: libs.Hotspot.libs.other_tools
+
+.. autofunction:: compare_allocations_costs

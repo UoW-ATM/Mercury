@@ -1,0 +1,6 @@
+libs.Hotspot.libs.other\_tools.loop
+===================================
+
+.. currentmodule:: libs.Hotspot.libs.other_tools
+
+.. autofunction:: loop

@@ -1,0 +1,38 @@
+libs.Hotspot.scripts.example\_alternative\_rule
+===============================================
+
+.. automodule:: libs.Hotspot.scripts.example_alternative_rule
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      example_alternative_rule
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      ExternalFlight
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,31 @@
+libs.result\_manager.Result\_manager
+====================================
+
+.. currentmodule:: libs.result_manager
+
+.. autoclass:: Result_manager
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Result_manager.__init__
+      ~Result_manager.calculate_results
+      ~Result_manager.get_results
+      ~Result_manager.read_results
+      ~Result_manager.read_results_flights
+      ~Result_manager.read_results_pax
+      ~Result_manager.results_all_iter2
+   
+   
+
+   
+   
+   

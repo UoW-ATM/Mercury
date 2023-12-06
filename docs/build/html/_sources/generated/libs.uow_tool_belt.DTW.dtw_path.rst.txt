@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.DTW.dtw\_path
+==================================
+
+.. currentmodule:: libs.uow_tool_belt.DTW
+
+.. autofunction:: dtw_path

@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_flight\_plan\_ansps\_weights\_for\_crco
+========================================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_flight_plan_ansps_weights_for_crco

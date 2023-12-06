@@ -1,0 +1,32 @@
+libs.performance\_trajectory.trajectory.TrajectorySegment
+=========================================================
+
+.. currentmodule:: libs.performance_trajectory.trajectory
+
+.. autoclass:: TrajectorySegment
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TrajectorySegment.__init__
+      ~TrajectorySegment.print_info
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TrajectorySegment.status_codes
+   
+   

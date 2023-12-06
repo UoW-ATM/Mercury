@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.udppMerge.sort\_flights\_by\_time
+===================================================
+
+.. currentmodule:: libs.Hotspot.UDPP.udppMerge
+
+.. autofunction:: sort_flights_by_time

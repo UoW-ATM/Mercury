@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.general\_tools.get\_first\_matching\_element
+=================================================================
+
+.. currentmodule:: libs.uow_tool_belt.general_tools
+
+.. autofunction:: get_first_matching_element

@@ -1,0 +1,6 @@
+libs.result\_tools.compute\_metrics\_flights
+============================================
+
+.. currentmodule:: libs.result_tools
+
+.. autofunction:: compute_metrics_flights

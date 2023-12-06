@@ -1,0 +1,6 @@
+libs.performance\_trajectory.standard\_atmosphere.temperature
+=============================================================
+
+.. currentmodule:: libs.performance_trajectory.standard_atmosphere
+
+.. autofunction:: temperature

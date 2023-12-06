@@ -1,0 +1,47 @@
+﻿core
+====
+
+.. automodule:: core
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+    
+    
+       core.delivery_system
+    
+       core.module_management
+    
+       core.parametriser
+    
+       core.read_config
+    
+       core.results_aggregator
+    
+       core.scenario_loader
+    
+       core.simulation_manager
+    
+       core.world_builder
+

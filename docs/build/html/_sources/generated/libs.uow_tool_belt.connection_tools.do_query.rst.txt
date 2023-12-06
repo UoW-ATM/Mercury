@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.connection\_tools.do\_query
+================================================
+
+.. currentmodule:: libs.uow_tool_belt.connection_tools
+
+.. autofunction:: do_query

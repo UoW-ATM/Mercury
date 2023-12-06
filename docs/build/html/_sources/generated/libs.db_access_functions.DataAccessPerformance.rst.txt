@@ -1,0 +1,28 @@
+libs.db\_access\_functions.DataAccessPerformance
+================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autoclass:: DataAccessPerformance
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DataAccessPerformance.__init__
+      ~DataAccessPerformance.combine_db_table
+      ~DataAccessPerformance.read_ac_performances
+      ~DataAccessPerformance.read_dict_wtc_engine_model
+   
+   
+
+   
+   
+   

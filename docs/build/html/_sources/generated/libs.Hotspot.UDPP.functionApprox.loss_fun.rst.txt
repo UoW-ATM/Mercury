@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.functionApprox.loss\_fun
+==========================================
+
+.. currentmodule:: libs.Hotspot.UDPP.functionApprox
+
+.. autofunction:: loss_fun

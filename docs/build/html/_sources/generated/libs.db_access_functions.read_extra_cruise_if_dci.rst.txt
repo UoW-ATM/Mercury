@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_extra\_cruise\_if\_dci
+=======================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_extra_cruise_if_dci

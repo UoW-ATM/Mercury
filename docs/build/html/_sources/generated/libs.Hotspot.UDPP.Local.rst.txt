@@ -1,0 +1,32 @@
+libs.Hotspot.UDPP.Local
+=======================
+
+.. automodule:: libs.Hotspot.UDPP.Local
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.UDPP.Local.local
+

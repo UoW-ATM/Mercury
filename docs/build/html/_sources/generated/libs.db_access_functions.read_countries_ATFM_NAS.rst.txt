@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_countries\_ATFM\_NAS
+=====================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_countries_ATFM_NAS

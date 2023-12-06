@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.connection\_tools.generic\_connection
+==========================================================
+
+.. currentmodule:: libs.uow_tool_belt.connection_tools
+
+.. autofunction:: generic_connection

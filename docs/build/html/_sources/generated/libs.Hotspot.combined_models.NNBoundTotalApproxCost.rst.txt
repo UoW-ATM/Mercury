@@ -1,0 +1,53 @@
+libs.Hotspot.combined\_models.NNBoundTotalApproxCost
+====================================================
+
+.. currentmodule:: libs.Hotspot.combined_models
+
+.. autoclass:: NNBoundTotalApproxCost
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NNBoundTotalApproxCost.__init__
+      ~NNBoundTotalApproxCost.check_requirements
+      ~NNBoundTotalApproxCost.compute_costs
+      ~NNBoundTotalApproxCost.compute_costs_list
+      ~NNBoundTotalApproxCost.compute_delays
+      ~NNBoundTotalApproxCost.get_flight_by_slot
+      ~NNBoundTotalApproxCost.get_flight_from_name
+      ~NNBoundTotalApproxCost.get_kwargs_init
+      ~NNBoundTotalApproxCost.get_kwargs_run
+      ~NNBoundTotalApproxCost.get_new_flight_list
+      ~NNBoundTotalApproxCost.make_airlines
+      ~NNBoundTotalApproxCost.make_df
+      ~NNBoundTotalApproxCost.name
+      ~NNBoundTotalApproxCost.name_cls
+      ~NNBoundTotalApproxCost.print_new_schedule
+      ~NNBoundTotalApproxCost.print_performance
+      ~NNBoundTotalApproxCost.print_schedule
+      ~NNBoundTotalApproxCost.run
+      ~NNBoundTotalApproxCost.set_delay_vect
+      ~NNBoundTotalApproxCost.set_flight_index
+      ~NNBoundTotalApproxCost.set_flights_attributes
+      ~NNBoundTotalApproxCost.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NNBoundTotalApproxCost.Models
+      ~NNBoundTotalApproxCost.requirements
+   
+   

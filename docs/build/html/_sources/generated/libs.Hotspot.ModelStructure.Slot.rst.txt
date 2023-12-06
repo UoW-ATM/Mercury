@@ -1,0 +1,32 @@
+libs.Hotspot.ModelStructure.Slot
+================================
+
+.. automodule:: libs.Hotspot.ModelStructure.Slot
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.ModelStructure.Slot.slot
+

@@ -1,0 +1,6 @@
+libs.uow\_tool\_belt.general\_tools.distance\_euclidean
+=======================================================
+
+.. currentmodule:: libs.uow_tool_belt.general_tools
+
+.. autofunction:: distance_euclidean

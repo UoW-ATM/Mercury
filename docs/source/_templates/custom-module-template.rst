@@ -59,8 +59,10 @@
    :toctree:
    :template: custom-module-template.rst
    :recursive:
-{% for item in modules %}
-   {{ item }}
-{%- endfor %}
+    {% for item in modules %}
+    {% if not item.endswith('Hotspot') %}
+       {{ item }}
+    {%- endif %}
+    {%- endfor %}
 {% endif %}
 {% endblock %}

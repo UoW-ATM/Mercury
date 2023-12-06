@@ -1,0 +1,53 @@
+libs.Hotspot.combined\_models.FuncApproxUDPPLocal
+=================================================
+
+.. currentmodule:: libs.Hotspot.combined_models
+
+.. autoclass:: FuncApproxUDPPLocal
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FuncApproxUDPPLocal.__init__
+      ~FuncApproxUDPPLocal.check_requirements
+      ~FuncApproxUDPPLocal.compute_costs
+      ~FuncApproxUDPPLocal.compute_costs_list
+      ~FuncApproxUDPPLocal.compute_delays
+      ~FuncApproxUDPPLocal.get_flight_by_slot
+      ~FuncApproxUDPPLocal.get_flight_from_name
+      ~FuncApproxUDPPLocal.get_kwargs_init
+      ~FuncApproxUDPPLocal.get_kwargs_run
+      ~FuncApproxUDPPLocal.get_new_flight_list
+      ~FuncApproxUDPPLocal.make_airlines
+      ~FuncApproxUDPPLocal.make_df
+      ~FuncApproxUDPPLocal.name
+      ~FuncApproxUDPPLocal.name_cls
+      ~FuncApproxUDPPLocal.print_new_schedule
+      ~FuncApproxUDPPLocal.print_performance
+      ~FuncApproxUDPPLocal.print_schedule
+      ~FuncApproxUDPPLocal.run
+      ~FuncApproxUDPPLocal.set_delay_vect
+      ~FuncApproxUDPPLocal.set_flight_index
+      ~FuncApproxUDPPLocal.set_flights_attributes
+      ~FuncApproxUDPPLocal.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FuncApproxUDPPLocal.Models
+      ~FuncApproxUDPPLocal.requirements
+   
+   

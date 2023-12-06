@@ -1,0 +1,25 @@
+libs.Hotspot.Istop.Solvers.gurobi\_offer\_solver.Offer
+======================================================
+
+.. currentmodule:: libs.Hotspot.Istop.Solvers.gurobi_offer_solver
+
+.. autoclass:: Offer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Offer.__init__
+   
+   
+
+   
+   
+   

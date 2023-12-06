@@ -1,0 +1,38 @@
+libs.Hotspot.Istop.istop
+========================
+
+.. automodule:: libs.Hotspot.Istop.istop
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      wrap_flight_istop
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      Istop
+   
+   
+
+   
+   
+   
+
+
+

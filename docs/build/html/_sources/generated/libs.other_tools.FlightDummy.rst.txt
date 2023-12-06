@@ -1,0 +1,25 @@
+libs.other\_tools.FlightDummy
+=============================
+
+.. currentmodule:: libs.other_tools
+
+.. autoclass:: FlightDummy
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FlightDummy.__init__
+   
+   
+
+   
+   
+   

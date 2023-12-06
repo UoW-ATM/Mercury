@@ -1,0 +1,60 @@
+libs.Hotspot.Istop.istop.Istop
+==============================
+
+.. currentmodule:: libs.Hotspot.Istop.istop
+
+.. autoclass:: Istop
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Istop.__init__
+      ~Istop.assign_flights
+      ~Istop.check_and_set_matches
+      ~Istop.check_requirements
+      ~Istop.compute_costs
+      ~Istop.compute_costs_list
+      ~Istop.compute_delays
+      ~Istop.f_in_matched
+      ~Istop.get_flight_by_slot
+      ~Istop.get_flight_from_name
+      ~Istop.get_kwargs_init
+      ~Istop.get_match_for_flight
+      ~Istop.get_new_flight_list
+      ~Istop.index
+      ~Istop.is_in
+      ~Istop.make_airlines
+      ~Istop.make_df
+      ~Istop.name
+      ~Istop.name_cls
+      ~Istop.offer_solution_maker
+      ~Istop.other_airlines_compatible_slots
+      ~Istop.print_new_schedule
+      ~Istop.print_performance
+      ~Istop.print_schedule
+      ~Istop.run
+      ~Istop.set_delay_vect
+      ~Istop.set_flight_index
+      ~Istop.set_flights_attributes
+      ~Istop.set_schedule_matrix
+      ~Istop.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Istop.requirements
+   
+   

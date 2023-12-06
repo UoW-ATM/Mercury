@@ -1,0 +1,38 @@
+
+- Start by cloning the repository, for instance:
+
+```commandline
+git clone https://github.com/UoW-ATM/Mercury
+```
+
+- Use this to download the third party libraries:
+```commandline
+cd Mercury
+git submodule update --recursive --remote --init
+```
+
+- In a fresh python environment, install all the required packages:
+```commandline
+sudo apt-get install libproj-dev libgeos-dev build-essential python3-dev proj-data proj-bin
+python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
+pip install -r requirements.txt
+```
+
+- Download the sample data here: https://zenodo.org/doi/10.5281/zenodo.10211704. By default, Mercury will look for them just outside the root directory in a folder
+named "input".
+
+- To run Mercury, you need to use bada 3 or bada 4 (not supported for now). You can request a licence from EUROCONTROL,
+then use the script generate_bada3_input.py to transform the AFP, OFP and PTD files from BADA into tables (parquet files) that will be read by Mercury. The script has a help function.
+```commandline
+./generate_bada3_input.py -s path_to/bada3_files -d path_to/processed_bada3_files
+```
+- Ensure you copy the generated parquet files into the data/ac_performance/bada/bada3/ of your input folder (per scenario). The location of the performance files might be modified in the future.
+
+- Note: support for OpenAP, an open alternative to BADA, is under development.
+
+
+You can test the model by running:
+```commandline
+./mercury.py -id -1
+```
+Or using the jupyter notebook "Mercury.ipynb", see below.

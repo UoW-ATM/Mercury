@@ -1,0 +1,52 @@
+libs.Hotspot.UDPP.udppLocal.UDPPLocal
+=====================================
+
+.. currentmodule:: libs.Hotspot.UDPP.udppLocal
+
+.. autoclass:: UDPPLocal
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UDPPLocal.__init__
+      ~UDPPLocal.check_requirements
+      ~UDPPLocal.compute_costs
+      ~UDPPLocal.compute_costs_list
+      ~UDPPLocal.compute_delays
+      ~UDPPLocal.compute_optimal_prioritisation
+      ~UDPPLocal.get_flight_by_slot
+      ~UDPPLocal.get_flight_from_name
+      ~UDPPLocal.get_kwargs_init
+      ~UDPPLocal.get_new_flight_list
+      ~UDPPLocal.make_airlines
+      ~UDPPLocal.make_df
+      ~UDPPLocal.name
+      ~UDPPLocal.name_cls
+      ~UDPPLocal.print_new_schedule
+      ~UDPPLocal.print_performance
+      ~UDPPLocal.print_schedule
+      ~UDPPLocal.run
+      ~UDPPLocal.set_delay_vect
+      ~UDPPLocal.set_flight_index
+      ~UDPPLocal.set_flights_attributes
+      ~UDPPLocal.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UDPPLocal.requirements
+   
+   

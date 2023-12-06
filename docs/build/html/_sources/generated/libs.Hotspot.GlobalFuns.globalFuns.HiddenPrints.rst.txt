@@ -1,0 +1,25 @@
+libs.Hotspot.GlobalFuns.globalFuns.HiddenPrints
+===============================================
+
+.. currentmodule:: libs.Hotspot.GlobalFuns.globalFuns
+
+.. autoclass:: HiddenPrints
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HiddenPrints.__init__
+   
+   
+
+   
+   
+   

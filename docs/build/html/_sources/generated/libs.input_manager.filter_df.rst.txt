@@ -1,0 +1,6 @@
+libs.input\_manager.filter\_df
+==============================
+
+.. currentmodule:: libs.input_manager
+
+.. autofunction:: filter_df

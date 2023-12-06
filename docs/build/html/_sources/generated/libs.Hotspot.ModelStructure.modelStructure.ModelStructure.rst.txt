@@ -1,0 +1,50 @@
+libs.Hotspot.ModelStructure.modelStructure.ModelStructure
+=========================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.modelStructure
+
+.. autoclass:: ModelStructure
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ModelStructure.__init__
+      ~ModelStructure.check_requirements
+      ~ModelStructure.compute_costs
+      ~ModelStructure.compute_costs_list
+      ~ModelStructure.compute_delays
+      ~ModelStructure.get_flight_by_slot
+      ~ModelStructure.get_flight_from_name
+      ~ModelStructure.get_kwargs_init
+      ~ModelStructure.get_new_flight_list
+      ~ModelStructure.make_airlines
+      ~ModelStructure.make_df
+      ~ModelStructure.name
+      ~ModelStructure.name_cls
+      ~ModelStructure.print_new_schedule
+      ~ModelStructure.print_performance
+      ~ModelStructure.print_schedule
+      ~ModelStructure.set_delay_vect
+      ~ModelStructure.set_flight_index
+      ~ModelStructure.set_flights_attributes
+      ~ModelStructure.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ModelStructure.requirements
+   
+   

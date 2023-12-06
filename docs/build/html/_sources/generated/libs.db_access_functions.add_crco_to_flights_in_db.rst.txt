@@ -1,0 +1,6 @@
+libs.db\_access\_functions.add\_crco\_to\_flights\_in\_db
+=========================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: add_crco_to_flights_in_db

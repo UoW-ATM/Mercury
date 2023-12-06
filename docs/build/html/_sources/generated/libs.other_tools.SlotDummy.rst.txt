@@ -1,0 +1,25 @@
+libs.other\_tools.SlotDummy
+===========================
+
+.. currentmodule:: libs.other_tools
+
+.. autoclass:: SlotDummy
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SlotDummy.__init__
+   
+   
+
+   
+   
+   

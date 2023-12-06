@@ -1,0 +1,6 @@
+libs.Hotspot.ScheduleMaker.scheduleMaker.df\_maker
+==================================================
+
+.. currentmodule:: libs.Hotspot.ScheduleMaker.scheduleMaker
+
+.. autofunction:: df_maker

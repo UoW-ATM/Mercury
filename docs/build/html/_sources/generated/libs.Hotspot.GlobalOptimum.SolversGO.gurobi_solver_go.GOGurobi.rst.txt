@@ -1,0 +1,56 @@
+libs.Hotspot.GlobalOptimum.SolversGO.gurobi\_solver\_go.GOGurobi
+================================================================
+
+.. currentmodule:: libs.Hotspot.GlobalOptimum.SolversGO.gurobi_solver_go
+
+.. autoclass:: GOGurobi
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GOGurobi.__init__
+      ~GOGurobi.assign_flights
+      ~GOGurobi.check_requirements
+      ~GOGurobi.compute_costs
+      ~GOGurobi.compute_costs_list
+      ~GOGurobi.compute_delays
+      ~GOGurobi.get_flight_by_slot
+      ~GOGurobi.get_flight_from_name
+      ~GOGurobi.get_kwargs_init
+      ~GOGurobi.get_new_flight_list
+      ~GOGurobi.get_sol_array
+      ~GOGurobi.make_airlines
+      ~GOGurobi.make_df
+      ~GOGurobi.name
+      ~GOGurobi.name_cls
+      ~GOGurobi.print_new_schedule
+      ~GOGurobi.print_performance
+      ~GOGurobi.print_schedule
+      ~GOGurobi.run
+      ~GOGurobi.set_constraints
+      ~GOGurobi.set_delay_vect
+      ~GOGurobi.set_flight_index
+      ~GOGurobi.set_flights_attributes
+      ~GOGurobi.set_objective
+      ~GOGurobi.set_variables
+      ~GOGurobi.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GOGurobi.requirements
+   
+   

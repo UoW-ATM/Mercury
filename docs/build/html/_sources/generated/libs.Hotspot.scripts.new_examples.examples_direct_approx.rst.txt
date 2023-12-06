@@ -1,0 +1,6 @@
+libs.Hotspot.scripts.new\_examples.examples\_direct\_approx
+===========================================================
+
+.. currentmodule:: libs.Hotspot.scripts.new_examples
+
+.. autofunction:: examples_direct_approx

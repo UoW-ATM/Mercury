@@ -1,0 +1,6 @@
+libs.Hotspot.ScheduleMaker.df\_to\_schedule.make\_flight
+========================================================
+
+.. currentmodule:: libs.Hotspot.ScheduleMaker.df_to_schedule
+
+.. autofunction:: make_flight

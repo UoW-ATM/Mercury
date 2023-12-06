@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>agents.airline_operating_centre.DynamicCostIndexComputer &#8212; Mercury  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="agents-airline-operating-centre-dynamiccostindexcomputer">
+<h1>agents.airline_operating_centre.DynamicCostIndexComputer<a class="headerlink" href="#agents-airline-operating-centre-dynamiccostindexcomputer" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.airline_operating_centre.</span></span><span class="sig-name descname"><span class="pre">DynamicCostIndexComputer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Role</span></code></p>
+<p>DCIC</p>
+<p>Description: Compute the new cost index of a given flight. It communicates
+with the role PotentialDelayRecoveryProvider (in Flight, PDRP), to get options for speeding up.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.__init__" title="agents.airline_operating_centre.DynamicCostIndexComputer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(agent[, TA])</p></td>
+<td><p>On initialisation of a Role, it gets a pointer to the Agent it belongs to.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1" title="agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_delay_cost_functions_dci_l1</span></code></a>(flight_uid)</p></td>
+<td><p>A (slightly) modified build_delay_cost_functions_heuristic fnc to fit the dci needs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1_old" title="agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1_old"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_delay_cost_functions_dci_l1_old</span></code></a>(flight_uid)</p></td>
+<td><p>A (slightly) modified build_delay_cost_functions_heuristic fnc to fit the dci needs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.cost_index_assessment" title="agents.airline_operating_centre.DynamicCostIndexComputer.cost_index_assessment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cost_index_assessment</span></code></a>(flight_uid, ...)</p></td>
+<td><p>Decides how the CI assessment is done depending on the level.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.decide_if_delay_recovery_performed" title="agents.airline_operating_centre.DynamicCostIndexComputer.decide_if_delay_recovery_performed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decide_if_delay_recovery_performed</span></code></a>(delay)</p></td>
+<td><p>Probabilistically decide whether the flight is performing delay recovery for the amount of delay &quot;delay&quot;.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.plot_costs_dci" title="agents.airline_operating_centre.DynamicCostIndexComputer.plot_costs_dci"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_costs_dci</span></code></a>(time, fuel, x_cont)</p></td>
+<td><p>If one wants to plot cost functions used to make dci decisions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA0" title="agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reassess_cost_index_TA0</span></code></a>(flight_uid)</p></td>
+<td><p>RULE OF THUMB FOR LEVEL 0:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA1" title="agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reassess_cost_index_TA1</span></code></a>(flight_uid)</p></td>
+<td><p>On level 1, the first time CI is assessed is at top of the climb.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA2" title="agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reassess_cost_index_TA2</span></code></a>(flight_uid)</p></td>
+<td><p>Doing the same as on level 1, but allowing to slow down if estimated arrival more than 15 minutes earlier than scheduled.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_potential_delay_recovery_info</span></code>(flight_uid)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_dci_decision_info</span></code>(flight_uid, params)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.send" title="agents.airline_operating_centre.DynamicCostIndexComputer.send"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send</span></code></a>(msg)</p></td>
+<td><p>Function to send messages to its own agent</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agents.airline_operating_centre.DynamicCostIndexComputer.send_speed_up_msg_to_fpu" title="agents.airline_operating_centre.DynamicCostIndexComputer.send_speed_up_msg_to_fpu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_speed_up_msg_to_fpu</span></code></a>(flight_uid, ...[, ...])</p></td>
+<td><p>Sends a message to the flight plan updater who updates the speed by increasing it by perc_selected.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_potential_delay_recovery_info</span></code>(msg)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_toc_reached_message</span></code>(msg)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1">
+<span class="sig-name descname"><span class="pre">build_delay_cost_functions_dci_l1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_to_date_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1" title="Link to this definition">¶</a></dt>
+<dd><p>A (slightly) modified build_delay_cost_functions_heuristic fnc to
+fit the dci needs.</p>
+<p>default options for diff = True for dci.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1_old">
+<span class="sig-name descname"><span class="pre">build_delay_cost_functions_dci_l1_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_to_date_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.build_delay_cost_functions_dci_l1_old" title="Link to this definition">¶</a></dt>
+<dd><p>A (slightly) modified build_delay_cost_functions_heuristic fnc to
+fit the dci needs.</p>
+<p>default options for diff = True for dci.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.cost_index_assessment">
+<span class="sig-name descname"><span class="pre">cost_index_assessment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">push_back_ready_event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.cost_index_assessment" title="Link to this definition">¶</a></dt>
+<dd><p>Decides how the CI assessment is done depending on the level.
+Level 0: only at pushback ready
+Level 1: at top of climb (and therefore not needed at pushback ready? Or is it?
+CHANGE IF TURNS OUT THAT ALSO NEEDED AT PUSHBACK READY.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.decide_if_delay_recovery_performed">
+<span class="sig-name descname"><span class="pre">decide_if_delay_recovery_performed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.decide_if_delay_recovery_performed" title="Link to this definition">¶</a></dt>
+<dd><p>Probabilistically decide whether the flight is performing delay recovery
+for the amount of delay “delay”.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.plot_costs_dci">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_costs_dci</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_cont</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.plot_costs_dci" title="Link to this definition">¶</a></dt>
+<dd><p>If one wants to plot cost functions used to make dci decisions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA0">
+<span class="sig-name descname"><span class="pre">reassess_cost_index_TA0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA0" title="Link to this definition">¶</a></dt>
+<dd><dl>
+<dt>RULE OF THUMB FOR LEVEL 0:</dt><dd><p>The cost index is assessed only pre-departure (at pushback_ready), there is no dynamic changing (DCI).
+Departure delays greater than 60 minutes always try to be amortised. Lower than 15 - never.
+If between, probabilistic decision is made according to a linear prob. distribution (from 20% at 15 mins).
+As a general rule, we try to reduce the delay as much as possible to 5 minutes.</p>
+<p>Therefore, if enough fuel - reduce delay to 5 minutes. If not enough fuel to reduce to 5,
+use max_fuel to achieve maximum possible delay reduction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA1">
+<span class="sig-name descname"><span class="pre">reassess_cost_index_TA1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA1" title="Link to this definition">¶</a></dt>
+<dd><p>On level 1, the first time CI is assessed is at top of the climb.</p>
+<p>From deliverable: Dynamic cost indexing for flights, with a simplified in-flight delay and
+cost estimation based on heuristics and general cost of delay rules.</p>
+<p>At TOC: Estimate times I can recover and fuel needed. Compute time and fuel costs, and choose
+the cheapest option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA2">
+<span class="sig-name descname"><span class="pre">reassess_cost_index_TA2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.reassess_cost_index_TA2" title="Link to this definition">¶</a></dt>
+<dd><p>Doing the same as on level 1, but allowing to slow down if estimated arrival
+more than 15 minutes earlier than scheduled. Slow down to 15 minutes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.send" title="Link to this definition">¶</a></dt>
+<dd><p>Function to send messages to its own agent</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.airline_operating_centre.DynamicCostIndexComputer.send_speed_up_msg_to_fpu">
+<span class="sig-name descname"><span class="pre">send_speed_up_msg_to_fpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perc_selected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_tod_dci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.DynamicCostIndexComputer.send_speed_up_msg_to_fpu" title="Link to this definition">¶</a></dt>
+<dd><p>Sends a message to the flight plan updater who updates the speed by
+increasing it by perc_selected.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Mercury</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, University of Westminster, Innaxis, Luis Delgado, Gerald Gurtner.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/generated/agents.airline_operating_centre.DynamicCostIndexComputer.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

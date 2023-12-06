@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_nas\_route\_pool\_static\_o\_d
+===============================================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_nas_route_pool_static_o_d

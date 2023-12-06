@@ -1,0 +1,32 @@
+libs.Hotspot.UDPP.LocalOptimised
+================================
+
+.. automodule:: libs.Hotspot.UDPP.LocalOptimised
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby
+

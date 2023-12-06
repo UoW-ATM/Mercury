@@ -1,0 +1,119 @@
+libs.uow\_tool\_belt.general\_tools
+===================================
+
+.. automodule:: libs.uow_tool_belt.general_tools
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      A_B
+      add_dicts
+      alert_print
+      alphabet
+      apply_args_and_kwargs
+      average_on_downsampled_interval
+      average_on_intervals
+      average_on_quantiles
+      bootstrap_mean_test
+      bootstrap_test
+      build_col_print_func
+      build_step_bivariate_function
+      build_step_multi_valued_function
+      build_triangular
+      center_spatial_network
+      clock_time
+      compute_percentile_with_weight
+      counter
+      create_dir
+      dict_depth
+      distance_euclidean
+      fit
+      get_first_matching_element
+      gini
+      groupby_on_downsampled_interval
+      groupby_on_intervals
+      groupby_on_quantiles
+      haversine
+      haversine_old
+      hex_to_rgb
+      human_format
+      human_format_for_ticks
+      intermediate_point
+      inv_mu_sig_lognorm
+      inv_s_loc_scale_lognorm
+      inv_s_scale_lognorm
+      inverted_edf
+      keep_time
+      loading
+      logging
+      loop
+      make_df_with_3_levels
+      make_df_with_3_levels_quick
+      make_nested_dict_from_df
+      mysql_server
+      parallelize
+      partial_corr
+      percentile_10
+      percentile_90
+      percentile_custom
+      permutation_test
+      permutation_test_only_diff
+      proportional
+      r_squared
+      read_paras
+      recursive_concat
+      recursive_minimization
+      remove_nan_coupled_lists
+      scale_and_s_from_mean_sigma_lognorm
+      scale_and_s_from_quantile_sigma_lognorm
+      set_interval
+      shift_spatial_network
+      show_dic
+      silence
+      simple_color_map_function
+      simple_colormap_object
+      sol_Bs
+      sort_lists
+      sort_paired_values
+      spread_integer
+      ssh_client_connection
+      ssh_copy
+      ssh_tunnel_connection
+      starmap_with_kwargs
+      strip_string
+      timeit
+      weight_avg
+      write_on_file
+      yes
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst 
+   
+      DummyFile
+      HiddenPrints
+      Paras
+      TwoWayDict
+   
+   
+
+   
+   
+   
+
+
+

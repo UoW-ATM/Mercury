@@ -1,0 +1,36 @@
+libs.Hotspot.ModelStructure.Costs.costFunctionDict.GateCostFunction
+===================================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Costs.costFunctionDict
+
+.. autoclass:: GateCostFunction
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GateCostFunction.__init__
+      ~GateCostFunction.build_pure_lambda
+      ~GateCostFunction.get_var_paras
+      ~GateCostFunction.single_computation
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GateCostFunction.fixed_paras
+      ~GateCostFunction.nickname
+      ~GateCostFunction.paras
+   
+   

@@ -1,0 +1,45 @@
+libs.performance\_trajectory.trajectory.Trajectory
+==================================================
+
+.. currentmodule:: libs.performance_trajectory.trajectory
+
+.. autoclass:: Trajectory
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Trajectory.__init__
+      ~Trajectory.add_back_trajectory
+      ~Trajectory.add_back_trajectory_segment
+      ~Trajectory.add_front_trajectory
+      ~Trajectory.add_front_trajectory_segment
+      ~Trajectory.compress_segments
+      ~Trajectory.compress_trajectory_segments
+      ~Trajectory.dataframe_trajectory
+      ~Trajectory.dataframe_trajectory_segments
+      ~Trajectory.get_trajectory_id
+      ~Trajectory.number_of_climb_steps
+      ~Trajectory.payload_carried
+      ~Trajectory.plot_distance_fl
+      ~Trajectory.print_info
+      ~Trajectory.update_fl_weights_status
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Trajectory.status_codes
+   
+   

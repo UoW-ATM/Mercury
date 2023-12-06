@@ -1,0 +1,6 @@
+libs.Hotspot.libs.other\_tools.print\_allocation
+================================================
+
+.. currentmodule:: libs.Hotspot.libs.other_tools
+
+.. autofunction:: print_allocation

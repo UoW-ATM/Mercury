@@ -1,0 +1,32 @@
+libs.Hotspot.ModelStructure.Solution.solution
+=============================================
+
+.. automodule:: libs.Hotspot.ModelStructure.Solution.solution
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      make_df_solution
+      make_performance_df
+      make_solution
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

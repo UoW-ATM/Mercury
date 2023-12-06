@@ -1,0 +1,6 @@
+libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby.eta\_limit\_slot
+====================================================================
+
+.. currentmodule:: libs.Hotspot.UDPP.LocalOptimised.udppLocalOptGuroby
+
+.. autofunction:: eta_limit_slot

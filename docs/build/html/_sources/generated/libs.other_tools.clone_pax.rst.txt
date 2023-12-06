@@ -1,0 +1,6 @@
+libs.other\_tools.clone\_pax
+============================
+
+.. currentmodule:: libs.other_tools
+
+.. autofunction:: clone_pax

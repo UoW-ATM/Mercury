@@ -1,0 +1,32 @@
+libs.Hotspot.ModelStructure.Solution
+====================================
+
+.. automodule:: libs.Hotspot.ModelStructure.Solution
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.ModelStructure.Solution.solution
+

@@ -1,0 +1,6 @@
+libs.Hotspot.scripts.new\_examples.example\_agent\_paradigm\_approx
+===================================================================
+
+.. currentmodule:: libs.Hotspot.scripts.new_examples
+
+.. autofunction:: example_agent_paradigm_approx

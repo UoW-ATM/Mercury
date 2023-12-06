@@ -1,0 +1,6 @@
+libs.Hotspot.ModelStructure.Solution.solution.make\_solution
+============================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Solution.solution
+
+.. autofunction:: make_solution

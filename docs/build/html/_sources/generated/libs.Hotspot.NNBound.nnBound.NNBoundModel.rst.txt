@@ -1,0 +1,52 @@
+libs.Hotspot.NNBound.nnBound.NNBoundModel
+=========================================
+
+.. currentmodule:: libs.Hotspot.NNBound.nnBound
+
+.. autoclass:: NNBoundModel
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NNBoundModel.__init__
+      ~NNBoundModel.assign_flights
+      ~NNBoundModel.check_requirements
+      ~NNBoundModel.compute_costs
+      ~NNBoundModel.compute_costs_list
+      ~NNBoundModel.compute_delays
+      ~NNBoundModel.get_flight_by_slot
+      ~NNBoundModel.get_flight_from_name
+      ~NNBoundModel.get_kwargs_init
+      ~NNBoundModel.get_new_flight_list
+      ~NNBoundModel.make_airlines
+      ~NNBoundModel.make_df
+      ~NNBoundModel.name
+      ~NNBoundModel.name_cls
+      ~NNBoundModel.print_new_schedule
+      ~NNBoundModel.print_performance
+      ~NNBoundModel.print_schedule
+      ~NNBoundModel.run
+      ~NNBoundModel.set_delay_vect
+      ~NNBoundModel.set_flight_index
+      ~NNBoundModel.set_flights_attributes
+      ~NNBoundModel.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NNBoundModel.requirements
+   
+   

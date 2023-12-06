@@ -1,0 +1,6 @@
+libs.Hotspot.ModelStructure.Solution.solution.make\_df\_solution
+================================================================
+
+.. currentmodule:: libs.Hotspot.ModelStructure.Solution.solution
+
+.. autofunction:: make_df_solution

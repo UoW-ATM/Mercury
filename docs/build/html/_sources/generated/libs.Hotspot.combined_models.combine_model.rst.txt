@@ -1,0 +1,6 @@
+libs.Hotspot.combined\_models.combine\_model
+============================================
+
+.. currentmodule:: libs.Hotspot.combined_models
+
+.. autofunction:: combine_model

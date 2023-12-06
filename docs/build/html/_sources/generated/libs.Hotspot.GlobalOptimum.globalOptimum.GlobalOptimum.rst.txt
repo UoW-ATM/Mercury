@@ -1,0 +1,52 @@
+libs.Hotspot.GlobalOptimum.globalOptimum.GlobalOptimum
+======================================================
+
+.. currentmodule:: libs.Hotspot.GlobalOptimum.globalOptimum
+
+.. autoclass:: GlobalOptimum
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GlobalOptimum.__init__
+      ~GlobalOptimum.assign_flights
+      ~GlobalOptimum.check_requirements
+      ~GlobalOptimum.compute_costs
+      ~GlobalOptimum.compute_costs_list
+      ~GlobalOptimum.compute_delays
+      ~GlobalOptimum.get_flight_by_slot
+      ~GlobalOptimum.get_flight_from_name
+      ~GlobalOptimum.get_kwargs_init
+      ~GlobalOptimum.get_new_flight_list
+      ~GlobalOptimum.make_airlines
+      ~GlobalOptimum.make_df
+      ~GlobalOptimum.name
+      ~GlobalOptimum.name_cls
+      ~GlobalOptimum.print_new_schedule
+      ~GlobalOptimum.print_performance
+      ~GlobalOptimum.print_schedule
+      ~GlobalOptimum.run
+      ~GlobalOptimum.set_delay_vect
+      ~GlobalOptimum.set_flight_index
+      ~GlobalOptimum.set_flights_attributes
+      ~GlobalOptimum.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GlobalOptimum.requirements
+   
+   

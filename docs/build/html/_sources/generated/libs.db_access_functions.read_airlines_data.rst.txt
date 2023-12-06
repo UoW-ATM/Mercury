@@ -1,0 +1,6 @@
+libs.db\_access\_functions.read\_airlines\_data
+===============================================
+
+.. currentmodule:: libs.db_access_functions
+
+.. autofunction:: read_airlines_data

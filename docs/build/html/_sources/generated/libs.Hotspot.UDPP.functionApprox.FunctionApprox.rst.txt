@@ -1,0 +1,51 @@
+libs.Hotspot.UDPP.functionApprox.FunctionApprox
+===============================================
+
+.. currentmodule:: libs.Hotspot.UDPP.functionApprox
+
+.. autoclass:: FunctionApprox
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FunctionApprox.__init__
+      ~FunctionApprox.check_requirements
+      ~FunctionApprox.compute_costs
+      ~FunctionApprox.compute_costs_list
+      ~FunctionApprox.compute_delays
+      ~FunctionApprox.get_flight_by_slot
+      ~FunctionApprox.get_flight_from_name
+      ~FunctionApprox.get_kwargs_init
+      ~FunctionApprox.get_new_flight_list
+      ~FunctionApprox.make_airlines
+      ~FunctionApprox.make_df
+      ~FunctionApprox.name
+      ~FunctionApprox.name_cls
+      ~FunctionApprox.print_new_schedule
+      ~FunctionApprox.print_performance
+      ~FunctionApprox.print_schedule
+      ~FunctionApprox.run
+      ~FunctionApprox.set_delay_vect
+      ~FunctionApprox.set_flight_index
+      ~FunctionApprox.set_flights_attributes
+      ~FunctionApprox.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FunctionApprox.requirements
+   
+   

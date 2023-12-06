@@ -1,0 +1,32 @@
+libs.Hotspot.GlobalFuns
+=======================
+
+.. automodule:: libs.Hotspot.GlobalFuns
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   libs.Hotspot.GlobalFuns.globalFuns
+

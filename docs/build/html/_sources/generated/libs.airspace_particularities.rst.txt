@@ -1,0 +1,32 @@
+libs.airspace\_particularities
+==============================
+
+.. automodule:: libs.airspace_particularities
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_nas_airport
+      is_ATFM_AREA
+      is_ECAC
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

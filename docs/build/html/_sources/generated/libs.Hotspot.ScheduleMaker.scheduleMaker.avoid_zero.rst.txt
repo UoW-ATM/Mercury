@@ -1,0 +1,6 @@
+libs.Hotspot.ScheduleMaker.scheduleMaker.avoid\_zero
+====================================================
+
+.. currentmodule:: libs.Hotspot.ScheduleMaker.scheduleMaker
+
+.. autofunction:: avoid_zero

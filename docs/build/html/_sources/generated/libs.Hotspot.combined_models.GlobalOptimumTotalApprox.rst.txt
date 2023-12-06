@@ -1,0 +1,53 @@
+libs.Hotspot.combined\_models.GlobalOptimumTotalApprox
+======================================================
+
+.. currentmodule:: libs.Hotspot.combined_models
+
+.. autoclass:: GlobalOptimumTotalApprox
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GlobalOptimumTotalApprox.__init__
+      ~GlobalOptimumTotalApprox.check_requirements
+      ~GlobalOptimumTotalApprox.compute_costs
+      ~GlobalOptimumTotalApprox.compute_costs_list
+      ~GlobalOptimumTotalApprox.compute_delays
+      ~GlobalOptimumTotalApprox.get_flight_by_slot
+      ~GlobalOptimumTotalApprox.get_flight_from_name
+      ~GlobalOptimumTotalApprox.get_kwargs_init
+      ~GlobalOptimumTotalApprox.get_kwargs_run
+      ~GlobalOptimumTotalApprox.get_new_flight_list
+      ~GlobalOptimumTotalApprox.make_airlines
+      ~GlobalOptimumTotalApprox.make_df
+      ~GlobalOptimumTotalApprox.name
+      ~GlobalOptimumTotalApprox.name_cls
+      ~GlobalOptimumTotalApprox.print_new_schedule
+      ~GlobalOptimumTotalApprox.print_performance
+      ~GlobalOptimumTotalApprox.print_schedule
+      ~GlobalOptimumTotalApprox.run
+      ~GlobalOptimumTotalApprox.set_delay_vect
+      ~GlobalOptimumTotalApprox.set_flight_index
+      ~GlobalOptimumTotalApprox.set_flights_attributes
+      ~GlobalOptimumTotalApprox.update_flights
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GlobalOptimumTotalApprox.Models
+      ~GlobalOptimumTotalApprox.requirements
+   
+   

@@ -1,0 +1,6 @@
+libs.result\_tools.build\_aligned\_pax\_flight\_df
+==================================================
+
+.. currentmodule:: libs.result_tools
+
+.. autofunction:: build_aligned_pax_flight_df

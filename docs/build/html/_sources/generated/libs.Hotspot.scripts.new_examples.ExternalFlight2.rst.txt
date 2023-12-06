@@ -1,0 +1,25 @@
+libs.Hotspot.scripts.new\_examples.ExternalFlight2
+==================================================
+
+.. currentmodule:: libs.Hotspot.scripts.new_examples
+
+.. autoclass:: ExternalFlight2
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExternalFlight2.__init__
+   
+   
+
+   
+   
+   
