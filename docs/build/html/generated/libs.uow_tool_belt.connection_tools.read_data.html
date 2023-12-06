@@ -40,24 +40,23 @@ be read as mysql or files. The fmt option can point to the type of files read. I
 kwargs[‘file_name’] is present, the type of file will be inferred based on the extension of the file name, otherwise
 it will be assumed that the format is parquet. One can specify the fmt option to make this explicit. Note that the
 parquet format is less general than others, and that a ‘scenario’ key must be specified in kwargs.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>fmt: string</dt><dd><p>either ‘mysql’, ‘csv’, ‘pickle’, or ‘parquet’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fmt</strong> (<em>string</em>) – either ‘mysql’, ‘csv’, ‘pickle’, or ‘parquet’</p></li>
+<li><p><strong>connection</strong> (<em>dictionary</em>) – </p></li>
+<li><p><strong>kwargs_mysql</strong> (<em>dictionary</em>) – additional key arguments to be passed to read_mysql.
+Put select=None and query=’something’ to directly pass a query.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas Dataframe</em>)</p></li>
+<li><p><strong>Note</strong> (<em>automatic file format detection is not supported for parquet</em>)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-<p>connection: dictionary</p>
-<dl class="simple">
-<dt>kwargs_mysql: dictionary</dt><dd><p>additional key arguments to be passed to read_mysql.
-Put select=None and query=’something’ to directly pass a query.</p>
-</dd>
-</dl>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<p>df: pandas Dataframe</p>
-<p>Note: automatic file format detection is not supported for parquet</p>
-</section>
 </dd></dl>
 
 </section>

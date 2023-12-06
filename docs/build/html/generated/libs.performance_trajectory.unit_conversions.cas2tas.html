@@ -36,13 +36,22 @@
 <dt class="sig sig-object py" id="libs.performance_trajectory.unit_conversions.cas2tas">
 <span class="sig-prename descclassname"><span class="pre">libs.performance_trajectory.unit_conversions.</span></span><span class="sig-name descname"><span class="pre">cas2tas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.unit_conversions.cas2tas" title="Link to this definition">¶</a></dt>
 <dd><p>Transform CAS speed into TAS at a given altitude</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> – CAS speed (m/s)</p></li>
+<li><p><strong>h</strong> – altitude (ft)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>TAS speed (m/s)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>t</p>
+</dd>
+</dl>
 <dl class="simple">
-<dt>Args:</dt><dd><p>c: CAS speed (m/s)
-h: altitude (ft)</p>
-</dd>
-<dt>Returns:</dt><dd><p>t: TAS speed (m/s)</p>
-</dd>
-<dt>Example of use:    </dt><dd><p>c = 451
+<dt>Example of use:</dt><dd><p>c = 451
 h = 34000
 t = cas2tas(c,h)</p>
 </dd>

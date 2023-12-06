@@ -57,7 +57,7 @@
 <td><p>This is not BADA but from estimations done in the past (CC project).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.avg_climb_descent_ff" title="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.avg_climb_descent_ff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">avg_climb_descent_ff</span></code></a>(flv, ffv, from_fl, to_fl)</p></td>
-<td><p>Compute the average fuel flow between from_fl and to_fl  considering a vector of fl aligned with a vector of ff</p></td>
+<td><p>Compute the average fuel flow between from_fl and to_fl considering a vector of fl aligned with a vector of ff</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.compute_drag" title="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.compute_drag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_drag</span></code></a>(fl, mass, m[, bank])</p></td>
 <td><p>Compute drag in N at a given fl, mass, mach, bank angle.</p></td>
@@ -84,10 +84,10 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_climb_fuel_flow" title="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_climb_fuel_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_climb_fuel_flow</span></code></a>(from_fl, to_fl)</p></td>
-<td><p>Estimated average fuel flow between from_fl and to_fl  for the climb phase</p></td>
+<td><p>Estimated average fuel flow between from_fl and to_fl for the climb phase</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_descent_fuel_flow" title="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_descent_fuel_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_descent_fuel_flow</span></code></a>(from_fl, to_fl)</p></td>
-<td><p>Estimated average fuel flow between from_fl and to_fl  for the descending phase</p></td>
+<td><p>Estimated average fuel flow between from_fl and to_fl for the descending phase</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_holding_fuel_flow" title="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_holding_fuel_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_holding_fuel_flow</span></code></a>(fl, mass[, ...])</p></td>
 <td><p>TODO with BADA This is not BADA, this is based on values used in previous projects (CC) and in the ac mtow</p></td>
@@ -166,15 +166,22 @@ of some aircrafts and their mtow</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.avg_climb_descent_ff">
 <span class="sig-name descname"><span class="pre">avg_climb_descent_ff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ffv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.avg_climb_descent_ff" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the average fuel flow between from_fl and to_fl 
+<dd><p>Compute the average fuel flow between from_fl and to_fl
 considering a vector of fl aligned with a vector of ff</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>flv: array of flight levels (ft/100)
-ffv: array of fuel flows aligned with flv (kg/min)
-from_fl: fl from which to start the climb/descent
-to_fl: fl to which to end the climb/descent</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flv</strong> – array of flight levels (ft/100)</p></li>
+<li><p><strong>ffv</strong> – array of fuel flows aligned with flv (kg/min)</p></li>
+<li><p><strong>from_fl</strong> – fl from which to start the climb/descent</p></li>
+<li><p><strong>to_fl</strong> – fl to which to end the climb/descent</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>ff: fuel flow (kg/min)</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>fuel flow (kg/min)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ff</p>
 </dd>
 </dl>
 </dd></dl>
@@ -183,15 +190,24 @@ to_fl: fl to which to end the climb/descent</p>
 <dt class="sig sig-object py" id="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.compute_drag">
 <span class="sig-name descname"><span class="pre">compute_drag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.compute_drag" title="Link to this definition">¶</a></dt>
 <dd><p>Compute drag in N at a given fl, mass, mach, bank angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – flight level (ft/100)</p></li>
+<li><p><strong>mass</strong> – mass (kg)</p></li>
+<li><p><strong>m</strong> – mach (Mach)</p></li>
+<li><p><strong>bank</strong> – bank angle (rad)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Drag (N)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>drag</p>
+</dd>
+</dl>
 <dl>
-<dt>Args:</dt><dd><p>fl: flight level (ft/100)
-mass: mass (kg)
-m: mach (Mach)
-bank: bank angle (rad)</p>
-</dd>
-<dt>Returns:</dt><dd><p>drag: Drag (N)</p>
-</dd>
-<dt>Example of use:    </dt><dd><p>fl = 340
+<dt>Example of use:</dt><dd><p>fl = 340
 mass = 67010
 m = 0.78</p>
 <p>drag=compute_drag(fl,mass,m)</p>
@@ -203,14 +219,21 @@ m = 0.78</p>
 <dt class="sig sig-object py" id="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.compute_sr">
 <span class="sig-name descname"><span class="pre">compute_sr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cruise_wind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.compute_sr" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the specific range at a given fl, mass, mach and bank angle</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>fl: flight level (ft/100)
-mass: mass (kg)
-m: mach (Mach)
-cruise_wind: cruise tail wind (m/s)
-bank: bank angle (rad)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – flight level (ft/100)</p></li>
+<li><p><strong>mass</strong> – mass (kg)</p></li>
+<li><p><strong>m</strong> – mach (Mach)</p></li>
+<li><p><strong>cruise_wind</strong> – cruise tail wind (m/s)</p></li>
+<li><p><strong>bank</strong> – bank angle (rad)</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>sr: specifc range (nm/kg)</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>specifc range (nm/kg)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sr</p>
 </dd>
 </dl>
 </dd></dl>
@@ -232,15 +255,23 @@ given aircraft type. For this reason the function returns
 99999 * cts.fl_0 if the flight does not make it to the ground because
 it is too heavy and 99999 - cts.distance if it gets to the ground
 so when minimizing obtain the largest distance covered.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>weight: (kg) weight at TOC
-a: AircraftPerformance instance
-fl: (ft/100) altitude of at the TOC</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight</strong> – (kg) weight at TOC</p></li>
+<li><p><strong>a</strong> – AircraftPerformance instance</p></li>
+<li><p><strong>fl</strong> – (ft/100) altitude of at the TOC</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>error: 99999 * cts.fl_0 if too heavy and not reach ground</dt><dd><p>99999 - cts.distance if get to ground with that weight</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>99999 * cts.fl_0 if too heavy and not reach ground</dt><dd><p>99999 - cts.distance if get to ground with that weight</p>
 </dd>
 </dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error</p>
 </dd>
 </dl>
 </dd></dl>
@@ -271,15 +302,22 @@ using minimize_scalar</p>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="simple">
-<dt>Args:</dt><dd><p>x: (nm) distance of cruise
-a: AircraftPerformance instance
-weight_1: (kg) weight at end of climb + cruise
-distance_to_cover: (nm) distance that needs to be covered by the climb and the cruise
-fl_cruise: (ft/100) altitude of the cruise
-m: (Mach) speed of the cruise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – (nm) distance of cruise</p></li>
+<li><p><strong>a</strong> – AircraftPerformance instance</p></li>
+<li><p><strong>weight_1</strong> – (kg) weight at end of climb + cruise</p></li>
+<li><p><strong>distance_to_cover</strong> – (nm) distance that needs to be covered by the climb and the cruise</p></li>
+<li><p><strong>fl_cruise</strong> – (ft/100) altitude of the cruise</p></li>
+<li><p><strong>m</strong> – (Mach) speed of the cruise</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>error: (nm) abs(distance_to_cover - (x+cd))</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(nm) abs(distance_to_cover - (x+cd))</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error</p>
 </dd>
 </dl>
 </dd></dl>
@@ -287,15 +325,24 @@ m: (Mach) speed of the cruise</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_climb_fuel_flow">
 <span class="sig-name descname"><span class="pre">estimate_climb_fuel_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_climb_fuel_flow" title="Link to this definition">¶</a></dt>
-<dd><p>Estimated average fuel flow between from_fl and to_fl 
+<dd><p>Estimated average fuel flow between from_fl and to_fl
 for the climb phase</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_fl</strong> – fl from which to start the climb</p></li>
+<li><p><strong>to_fl</strong> – fl to which to end the climb</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>fuel flow (kg/min)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ff</p>
+</dd>
+</dl>
 <dl class="simple">
-<dt>Args:</dt><dd><p>from_fl: fl from which to start the climb
-to_fl: fl to which to end the climb</p>
-</dd>
-<dt>Returns:</dt><dd><p>ff: fuel flow (kg/min)</p>
-</dd>
-<dt>Example of use:    </dt><dd><p>ff=estimate_climb_fuel_flow(0,320)</p>
+<dt>Example of use:</dt><dd><p>ff=estimate_climb_fuel_flow(0,320)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -303,15 +350,24 @@ to_fl: fl to which to end the climb</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_descent_fuel_flow">
 <span class="sig-name descname"><span class="pre">estimate_descent_fuel_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.estimate_descent_fuel_flow" title="Link to this definition">¶</a></dt>
-<dd><p>Estimated average fuel flow between from_fl and to_fl 
+<dd><p>Estimated average fuel flow between from_fl and to_fl
 for the descending phase</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_fl</strong> – fl from which to start the descent</p></li>
+<li><p><strong>to_fl</strong> – fl to which to end the descent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>fuel flow (kg/min)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ff</p>
+</dd>
+</dl>
 <dl class="simple">
-<dt>Args:</dt><dd><p>from_fl: fl from which to start the descent
-to_fl: fl to which to end the descent</p>
-</dd>
-<dt>Returns:</dt><dd><p>ff: fuel flow (kg/min)</p>
-</dd>
-<dt>Example of use:    </dt><dd><p>ff=estimate_descent_fuel_flow(320,0)</p>
+<dt>Example of use:</dt><dd><p>ff=estimate_descent_fuel_flow(320,0)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,18 +386,24 @@ This is not BADA, this is based on values used in previous projects (CC) and in 
 (fuel, rocd, gamma and tas) at a given altitude (fl) and weight (mass)
 the type of intepolation can be selected with how.</p>
 <p>It uses the table of performances set by set_climb_fuel_flow_detailled_rate_performances</p>
-<dl>
-<dt>Args:</dt><dd><p>fl: altitude (ft/10) to interpolate the performances
-mass: (kg) ac mass to interpolate the performances
-how: by default “linear”. How to perform the interpolation. Griddata is used to</p>
-<blockquote>
-<div><p>interpolate possible values are: linear, nearest, cubic</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – altitude (ft/10) to interpolate the performances</p></li>
+<li><p><strong>mass</strong> – (kg) ac mass to interpolate the performances</p></li>
+<li><p><strong>how</strong> – by default “linear”. How to perform the interpolation. Griddata is used to
+interpolate possible values are: linear, nearest, cubic</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>climb_perf: dictionary with fuel, rocd, gamma and tas as result of the interpolation.</dt><dd><p>Note that fuel and tas do not depend on the interpolation.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>dictionary with fuel, rocd, gamma and tas as result of the interpolation.</dt><dd><p>Note that fuel and tas do not depend on the interpolation.</p>
 </dd>
 </dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>climb_perf</p>
 </dd>
 </dl>
 </dd></dl>
@@ -353,15 +415,20 @@ how: by default “linear”. How to perform the interpolation. Griddata is used
 at a given altitude (fl) and weight (mass)
 the type of intepolation can be selected with how.</p>
 <p>It uses the table of performances set by set_descent_fuel_flow_detailled_rate_performances</p>
-<dl>
-<dt>Args:</dt><dd><p>fl: altitude (ft/10) to interpolate the performances
-mass: (kg) ac mass to interpolate the performances
-how: by default “linear”. How to perform the interpolation. Griddata is used to</p>
-<blockquote>
-<div><p>interpolate possible values are: linear, nearest, cubic</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – altitude (ft/10) to interpolate the performances</p></li>
+<li><p><strong>mass</strong> – (kg) ac mass to interpolate the performances</p></li>
+<li><p><strong>how</strong> – by default “linear”. How to perform the interpolation. Griddata is used to
+interpolate possible values are: linear, nearest, cubic</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>m: Mach at the interpolated fl and mass.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mach at the interpolated fl and mass.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>m</p>
 </dd>
 </dl>
 </dd></dl>
@@ -373,18 +440,24 @@ how: by default “linear”. How to perform the interpolation. Griddata is used
 (fuel, rocd, gamma and tas) at a given altitude (fl) and weight (mass)
 the type of intepolation can be selected with how.</p>
 <p>It uses the table of performances set by set_descent_fuel_flow_detailled_rate_performances</p>
-<dl>
-<dt>Args:</dt><dd><p>fl: altitude (ft/10) to interpolate the performances
-mass: (kg) ac mass to interpolate the performances
-how: by default “linear”. How to perform the interpolation. Griddata is used to</p>
-<blockquote>
-<div><p>interpolate possible values are: linear, nearest, cubic</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – altitude (ft/10) to interpolate the performances</p></li>
+<li><p><strong>mass</strong> – (kg) ac mass to interpolate the performances</p></li>
+<li><p><strong>how</strong> – by default “linear”. How to perform the interpolation. Griddata is used to
+interpolate possible values are: linear, nearest, cubic</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>descent_perf: dictionary with fuel, rocd, gamma and tas as result of the interpolation.</dt><dd><p>Note that fuel and tas do not depend on the interpolation.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>dictionary with fuel, rocd, gamma and tas as result of the interpolation.</dt><dd><p>Note that fuel and tas do not depend on the interpolation.</p>
 </dd>
 </dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>descent_perf</p>
 </dd>
 </dl>
 </dd></dl>
@@ -394,10 +467,13 @@ how: by default “linear”. How to perform the interpolation. Griddata is used
 <span class="sig-name descname"><span class="pre">set_climb_descent_fuel_flow_performances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">climb_ff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_ff</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.set_climb_descent_fuel_flow_performances" title="Link to this definition">¶</a></dt>
 <dd><p>Add the fl, climb fuel flow and descent fuel flow arrays in the fligth performance object
 These values come from the ptf table.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>fl: array of flight levels
-climb_ff: fuel flow at the corresponding fl when climbing
-descent_ff: fuel flow at the corresponding fl when descending</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – array of flight levels</p></li>
+<li><p><strong>climb_ff</strong> – fuel flow at the corresponding fl when climbing</p></li>
+<li><p><strong>descent_ff</strong> – fuel flow at the corresponding fl when descending</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -408,17 +484,20 @@ descent_ff: fuel flow at the corresponding fl when descending</p>
 <dd><p>Add the fl, mass, fuel, roc, gamma and tas arrays in the fligth performance object
 These values come from the ptf table.
 In this case the values are more detailled as different fuel flows and rocd are
-considered as a funcion of altitude and mass. This allow us to interpolate the 
+considered as a funcion of altitude and mass. This allow us to interpolate the
 climb and descent performances with interpolate_climb_performances function.</p>
 <p>Note that the performances on fuel flow are the same for all the points. These
 detailled data are used only for rocd/gamma values.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>fl: array of flight levels
-mass: array of massess corresponding to the fls
-fuel: array of fuels corresponding to the fls
-rocd: rate of climb/descent corresponding to the fls
-gamma: angle of climb/descent corresponding to the fls
-tas: kt TAS corresponding to the fls</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – array of flight levels</p></li>
+<li><p><strong>mass</strong> – array of massess corresponding to the fls</p></li>
+<li><p><strong>fuel</strong> – array of fuels corresponding to the fls</p></li>
+<li><p><strong>rocd</strong> – rate of climb/descent corresponding to the fls</p></li>
+<li><p><strong>gamma</strong> – angle of climb/descent corresponding to the fls</p></li>
+<li><p><strong>tas</strong> – kt TAS corresponding to the fls</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -433,13 +512,16 @@ considered as a function of altitude and mass. This allow us to interpolate the
 climb and descent performances with interpolate_descent_performances function.</p>
 <p>Note that the performances on fuel flow are the same for all the points. These
 detailled data are used only for rocd/gamma values.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>fl: array of flight levels
-mass: array of masses corresponding to the fls
-fuel: array of fuels corresponding to the fls
-rocd: rate of climb/descent corresponding to the fls
-gamma: angle of climb/descent corresponding to the fls
-tas: kt TAS corresponding to the fls</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – array of flight levels</p></li>
+<li><p><strong>mass</strong> – array of masses corresponding to the fls</p></li>
+<li><p><strong>fuel</strong> – array of fuels corresponding to the fls</p></li>
+<li><p><strong>rocd</strong> – rate of climb/descent corresponding to the fls</p></li>
+<li><p><strong>gamma</strong> – angle of climb/descent corresponding to the fls</p></li>
+<li><p><strong>tas</strong> – kt TAS corresponding to the fls</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -452,10 +534,13 @@ These values come from the ptd table.
 This is to have the nominal Mach as a function of altitude and mass. This is
 useful for low altidues, i.e. &lt;FL360 as the nominal Mach is lower than the one
 use in a higher cruise phase.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>fl: array of flight levels
-mass: array of massess corresponding to the fls
-m: array of cruise nominal Mach speeds corresponding to the fls</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl</strong> – array of flight levels</p></li>
+<li><p><strong>mass</strong> – array of massess corresponding to the fls</p></li>
+<li><p><strong>m</strong> – array of cruise nominal Mach speeds corresponding to the fls</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -466,29 +551,35 @@ m: array of cruise nominal Mach speeds corresponding to the fls</p>
 <dd><p>Compute the trajectory cruise for a given cruise_distance with possible
 fl changes. In this case not a trajectory_segment but a full trajectory
 is returned as the cruise might be composed of several trajectory_segments.
-The cruise is estimated considereng that the final fl used is fl_1 and 
+The cruise is estimated considereng that the final fl used is fl_1 and
 the weight at the end of cruise is weight_1</p>
-<dl>
-<dt>Args:</dt><dd><p>fl_1: (ft/100), altitude at the end of cruise
-weight_1: mass (kg) at end of cruise
-cruise_distance: (nm) distance of the cruise</p>
-<dl class="simple">
-<dt>use_mref: default False: If true then m_nom is used as cruising speed</dt><dd><dl class="simple">
-<dt>True: If cruise_fl &lt; 360 m cruise is estimated as</dt><dd><p>interpolate_cruise_nominal_mach with weight_1
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl_1</strong> – (ft/100), altitude at the end of cruise</p></li>
+<li><p><strong>weight_1</strong> – mass (kg) at end of cruise</p></li>
+<li><p><strong>cruise_distance</strong> – (nm) distance of the cruise</p></li>
+<li><p><strong>use_mref</strong> – <p>default False: If true then m_nom is used as cruising speed
+True: If cruise_fl &lt; 360 m cruise is estimated as</p>
+<blockquote>
+<div><p>interpolate_cruise_nominal_mach with weight_1
 M will be reassessed everytime a climb step is
 performed.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>max_steps</strong> – default 10000: maximum number of steps used to estimate the cruise
+(maximum number of divisions of the cruise in delta distance)</p></li>
+<li><p><strong>min_d_dist</strong> – (nm) default 1: minimum distance of a step in delta distance</p></li>
+<li><p><strong>climb_step</strong> – (ft/100) default 20, altitude of the climb steps used</p></li>
+<li><p><strong>max_climbs</strong> – default 1: number of climbs considered</p></li>
+<li><p><strong>min_dist_remaining_fl</strong> – (nm) default 50, minimum cruise left before considering a climb step</p></li>
+</ul>
 </dd>
-</dl>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>trajectory containing the trajectory_segment that define the cruise</p>
 </dd>
-<dt>max_steps: default 10000: maximum number of steps used to estimate the cruise</dt><dd><p>(maximum number of divisions of the cruise in delta distance)</p>
-</dd>
-</dl>
-<p>min_d_dist: (nm) default 1: minimum distance of a step in delta distance
-climb_step: (ft/100) default 20, altitude of the climb steps used
-max_climbs: default 1: number of climbs considered
-min_dist_remaining_fl: (nm) default 50, minimum cruise left before considering a climb step</p>
-</dd>
-<dt>Returns:</dt><dd><p>trajectory: trajectory containing the trajectory_segment that define the cruise</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trajectory</p>
 </dd>
 </dl>
 </dd></dl>
@@ -498,16 +589,21 @@ min_dist_remaining_fl: (nm) default 50, minimum cruise left before considering a
 <span class="sig-name descname"><span class="pre">trajectory_segment_climb_estimation_from_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fl_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_fl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.trajectory_segment_climb_estimation_from_to" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the trajectory climb trajectory between fl_0 and fl_1 considering
 that the weight at fl_0 is weight_0 using the climb_perf data.</p>
-<dl>
-<dt>Args:</dt><dd><p>fl_1: top altitude (ft/100), end of climb
-weight_0: mass (kg) at fl_0
-fl_0: lower altitude (ft/100), start of climb altitdue (by default 0)
-d_fl: (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),</p>
-<blockquote>
-<div><p>by default: 10</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl_1</strong> – top altitude (ft/100), end of climb</p></li>
+<li><p><strong>weight_0</strong> – mass (kg) at fl_0</p></li>
+<li><p><strong>fl_0</strong> – lower altitude (ft/100), start of climb altitdue (by default 0)</p></li>
+<li><p><strong>d_fl</strong> – (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),
+by default: 10</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>trajectory_segment: trajectory_segment with the climb</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>trajectory_segment with the climb</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trajectory_segment</p>
 </dd>
 </dl>
 </dd></dl>
@@ -517,16 +613,21 @@ d_fl: (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),
 <span class="sig-name descname"><span class="pre">trajectory_segment_climb_estimation_from_toc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fl_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_fl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.trajectory_segment_climb_estimation_from_toc" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the trajectory climb trajectory between fl_0 and fl_1 considering
 that the weight at fl_1 is weight_1 using the climb_perf data.</p>
-<dl>
-<dt>Args:</dt><dd><p>fl_1: top altitude (ft/100), end of climb
-weight_1: mass (kg) at fl_1
-fl_0: lower altitude (ft/100), start of climb altitdue (by default 0)
-d_fl: (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),</p>
-<blockquote>
-<div><p>by default: 10</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl_1</strong> – top altitude (ft/100), end of climb</p></li>
+<li><p><strong>weight_1</strong> – mass (kg) at fl_1</p></li>
+<li><p><strong>fl_0</strong> – lower altitude (ft/100), start of climb altitdue (by default 0)</p></li>
+<li><p><strong>d_fl</strong> – (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),
+by default: 10</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>trajectory_segment: trajectory_segment with the climb</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>trajectory_segment with the climb</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trajectory_segment</p>
 </dd>
 </dl>
 </dd></dl>
@@ -536,22 +637,28 @@ d_fl: (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),
 <span class="sig-name descname"><span class="pre">trajectory_segment_cruise_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl_cruise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cruise_distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_d_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_cruise_wind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.trajectory_segment_cruise_estimation" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the trajectory cruise for a given cruise_distance and fl
 ending the cruise at weight_1</p>
-<dl>
-<dt>Args:</dt><dd><p>fl_cruise (ft/100), altitude of cruise
-weight_1: mass (kg) at end of cruise
-cruise_distance: (nm) distance of the cruise</p>
-<dl class="simple">
-<dt>use_mref: default False: If true then m_nom is used as cruising speed</dt><dd><dl class="simple">
-<dt>True: If cruise_fl &lt; 360 m cruise is estimated as</dt><dd><p>interpolate_cruise_nominal_mach with weight_1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl_cruise</strong> (<em>ft/100</em>) – </p></li>
+<li><p><strong>weight_1</strong> – mass (kg) at end of cruise</p></li>
+<li><p><strong>cruise_distance</strong> – (nm) distance of the cruise</p></li>
+<li><p><strong>use_mref</strong> – <p>default False: If true then m_nom is used as cruising speed
+True: If cruise_fl &lt; 360 m cruise is estimated as</p>
+<blockquote>
+<div><p>interpolate_cruise_nominal_mach with weight_1</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>max_steps</strong> – default 10000: maximum number of steps used to estimate the cruise
+(maximum number of divisions of the cruise in delta distance)</p></li>
+<li><p><strong>min_d_dist</strong> – (nm) default 1: minimum distance of a step in delta distance</p></li>
+</ul>
 </dd>
-</dl>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>trajectory_segment with the cruise</p>
 </dd>
-<dt>max_steps: default 10000: maximum number of steps used to estimate the cruise</dt><dd><p>(maximum number of divisions of the cruise in delta distance)</p>
-</dd>
-</dl>
-<p>min_d_dist: (nm) default 1: minimum distance of a step in delta distance</p>
-</dd>
-<dt>Returns:</dt><dd><p>trajectory_segment: trajectory_segment with the cruise</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trajectory_segment</p>
 </dd>
 </dl>
 </dd></dl>
@@ -561,16 +668,21 @@ cruise_distance: (nm) distance of the cruise</p>
 <span class="sig-name descname"><span class="pre">trajectory_segment_descent_estimation_from_lnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_lnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fl_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_fl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.performance_trajectory.ac_performances.AircraftPerformanceBada3Jet.trajectory_segment_descent_estimation_from_lnd" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the trajectory descent trajectory fl_0 and fl_1 considering
 that the landing weight is weight_lnd using the decent_perf data.</p>
-<dl>
-<dt>Args:</dt><dd><p>fl_0: top altitude (ft/100), start of descent
-weight_lnd: mass (kg) at fl_0 (landing if fl_1=0)
-fl_1: lower altitude (ft/100), end of descent altitude
-d_fl: (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),</p>
-<blockquote>
-<div><p>by default: 10</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl_0</strong> – top altitude (ft/100), start of descent</p></li>
+<li><p><strong>weight_lnd</strong> – mass (kg) at fl_0 (landing if fl_1=0)</p></li>
+<li><p><strong>fl_1</strong> – lower altitude (ft/100), end of descent altitude</p></li>
+<li><p><strong>d_fl</strong> – (ft/100), increment in altitude use to estimate the trajectory (Delta_fl),
+by default: 10</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>trajectory_segment: trajectory_segment with the descent</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>trajectory_segment with the descent</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trajectory_segment</p>
 </dd>
 </dl>
 </dd></dl>

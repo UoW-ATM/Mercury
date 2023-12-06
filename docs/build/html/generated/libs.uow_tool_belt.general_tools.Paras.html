@@ -45,14 +45,13 @@ between variables.
 In case of simple utilisation with a single iteration or no sweeping,
 a simple dictionary is enough.
 The update process is based on the attribute ‘update_priority’, ‘to_update’.
-The first one is a list of keys. First entries should be updated before updating 
+The first one is a list of keys. First entries should be updated before updating
 later ones.
 The second is a dictionary. Each value is a tuple (f, args) where f is function
 and args is a list of keys that the function takes as arguments. The function
-returns the value of the corresponding key. 
-Notes
-—–
-‘update_priority’ and ‘to_update’ could be merged in an sorted dictionary.</p>
+returns the value of the corresponding key.
+.. rubric:: Notes</p>
+<p>‘update_priority’ and ‘to_update’ could be merged in an sorted dictionary.</p>
 <p>Taken from ELSA ABM.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="libs.uow_tool_belt.general_tools.Paras.__init__">
@@ -99,7 +98,7 @@ Notes
 <td><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k] If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v In either case, this is followed by: for k in F:  D[k] = F[k]</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#libs.uow_tool_belt.general_tools.Paras.update_with_levels" title="libs.uow_tool_belt.general_tools.Paras.update_with_levels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_with_levels</span></code></a>(name_para, new_value)</p></td>
-<td><p>Updates the value with key name_para to new_value. Parameters ---------- name_para : string         label of the parameter to be updated new_value : object         new value of entry name_para of the dictionary. Notes ----- Changed in 2.9.4: self.update_priority instead of update_priority. NOTE: WAS CALLED &quot;update&quot; PREVIOUSLY.</p></td>
+<td><p>Updates the value with key name_para to new_value.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#libs.uow_tool_belt.general_tools.Paras.values" title="libs.uow_tool_belt.general_tools.Paras.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a>()</p></td>
 <td><p></p></td>
@@ -111,10 +110,10 @@ Notes
 <span class="sig-name descname"><span class="pre">analyse_dependance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.general_tools.Paras.analyse_dependance" title="Link to this definition">¶</a></dt>
 <dd><p>Detect the first level of priority hit by a dependance in each parameter.
 Those who don’t need any kind of update are not in the dictionnary.
-This should be used once when the ‘update_priority’ and ‘to_update’ are 
+This should be used once when the ‘update_priority’ and ‘to_update’ are
 finished.
-It computes the attribute ‘levels’, which is a dictionnary, whose values are 
-the parameters. The values are indices relative to update_priority at which 
+It computes the attribute ‘levels’, which is a dictionnary, whose values are
+the parameters. The values are indices relative to update_priority at which
 the update should begin when the parameter corresponding to key is changed.</p>
 </dd></dl>
 
@@ -184,21 +183,13 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <dt class="sig sig-object py" id="libs.uow_tool_belt.general_tools.Paras.update_with_levels">
 <span class="sig-name descname"><span class="pre">update_with_levels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_para</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.general_tools.Paras.update_with_levels" title="Link to this definition">¶</a></dt>
 <dd><p>Updates the value with key name_para to new_value.
-Parameters
-———-
-name_para : string</p>
-<blockquote>
-<div><p>label of the parameter to be updated</p>
-</div></blockquote>
-<dl class="simple">
-<dt>new_value<span class="classifier">object</span></dt><dd><p>new value of entry name_para of the dictionary.</p>
-</dd>
-</dl>
-<section id="notes">
-<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h3>
+:param name_para: label of the parameter to be updated
+:type name_para: string
+:param new_value: new value of entry name_para of the dictionary.
+:type new_value: object</p>
+<p class="rubric">Notes</p>
 <p>Changed in 2.9.4: self.update_priority instead of update_priority.
 NOTE: WAS CALLED “update” PREVIOUSLY</p>
-</section>
 </dd></dl>
 
 <dl class="py method">

@@ -92,9 +92,9 @@ if any.</p>
 <dt class="sig sig-object py" id="agents.commodities.slot_queue.CapacityPeriod.get_slot_number">
 <span class="sig-name descname"><span class="pre">get_slot_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.commodities.slot_queue.CapacityPeriod.get_slot_number" title="Link to this definition">¶</a></dt>
 <dd><p>Slots are numbered based on their time if they
-fall within the capacity period. Otherwise the number is just incremented 
+fall within the capacity period. Otherwise the number is just incremented
 based on the max index.</p>
-<p>Note: this function should be called only if you know that eta falls in the period 
+<p>Note: this function should be called only if you know that eta falls in the period
 time window (strictly).
 Note 2: eps is here to counter-act rouding error effects in the floor function.</p>
 </dd></dl>

@@ -37,24 +37,23 @@
 <span class="sig-prename descclassname"><span class="pre">core.module_management.</span></span><span class="sig-name descname"><span class="pre">get_module_paras</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.module_management.get_module_paras" title="Link to this definition">¶</a></dt>
 <dd><p>Used to get all parameters and their values from a given module. All parameter files should be toml format and
 all parameters should be defined under a “[para]” flag.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<p>path_module : posix path or string
-module_name : string</p>
-<blockquote>
-<div><p>can be of the form “CM” for the module without flavour or “FP|L1” for a module with flavour. See
-find_actual_module_name for more details.</p>
-</div></blockquote>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>module_paras<span class="classifier">dict</span></dt><dd><p>Keys are names of parameters, values are the values of parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_module</strong> (<em>posix path</em><em> or </em><em>string</em>) – </p></li>
+<li><p><strong>module_name</strong> (<em>string</em>) – can be of the form “CM” for the module without flavour or “FP|L1” for a module with flavour. See
+find_actual_module_name for more details.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>module_paras</strong> (<em>dict</em>) – Keys are names of parameters, values are the values of parameters</p></li>
+<li><p><strong>WARNING</strong> (<em>this function takes the first files starting with “paras_” as the parameter file.</em>)</p></li>
+<li><p><strong>TODO</strong> (<em>fix that for flavours.</em>)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-<p>WARNING: this function takes the first files starting with “<a href="#id1"><span class="problematic" id="id2">paras_</span></a>” as the parameter file.
-TODO: fix that for flavours.</p>
-</section>
 </dd></dl>
 
 </section>

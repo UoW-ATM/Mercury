@@ -35,35 +35,29 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="libs.uow_tool_belt.connection_tools.read_mysql">
 <span class="sig-prename descclassname"><span class="pre">libs.uow_tool_belt.connection_tools.</span></span><span class="sig-name descname"><span class="pre">read_mysql</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">select</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fromm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.connection_tools.read_mysql" title="Link to this definition">¶</a></dt>
-<dd><p>Read something from sql. ‘select’, ‘fromm’, and ‘conditions’ can be used for quick and dirty queries, but more 
+<dd><p>Read something from sql. ‘select’, ‘fromm’, and ‘conditions’ can be used for quick and dirty queries, but more
 complex ones should be done with ‘query’ directly by setting ‘select’ to` ‘None’</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>select: list of string</dt><dd><p>name of attribute to get. If None, set to ‘*’. Ignored if query is not None.</p>
-</dd>
-<dt>fromm: string</dt><dd><p>table name to query. Ignored if query is not None.</p>
-</dd>
-<dt>conditions: dictionnary</dt><dd><p>keys are name of attributes and values are values to be matched by the attributes.
-Ignored if query is not None.</p>
-</dd>
-<dt>query: string</dt><dd><p>full query for the database. If None, attributes ‘select’, ‘fromm’ and ‘conditions’ are used.</p>
-</dd>
-<dt>engine: sqlalchemy engine object</dt><dd><p>If given then it is used to do the connection,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>select</strong> (<em>list</em><em> of </em><em>string</em>) – name of attribute to get. If None, set to ‘*’. Ignored if query is not None.</p></li>
+<li><p><strong>fromm</strong> (<em>string</em>) – table name to query. Ignored if query is not None.</p></li>
+<li><p><strong>conditions</strong> (<em>dictionnary</em>) – keys are name of attributes and values are values to be matched by the attributes.
+Ignored if query is not None.</p></li>
+<li><p><strong>query</strong> (<em>string</em>) – full query for the database. If None, attributes ‘select’, ‘fromm’ and ‘conditions’ are used.</p></li>
+<li><p><strong>engine</strong> (<em>sqlalchemy engine object</em>) – If given then it is used to do the connection,
 if missing then it is created based on user, password, address and
-db_name from db_connection</p>
+db_name from db_connection</p></li>
+<li><p><strong>options</strong> (<em>dictionnary</em>) – options to be passed on to the sqlalchemy engine.</p></li>
+</ul>
 </dd>
-<dt>options: dictionnary</dt><dd><p>options to be passed on to the sqlalchemy engine.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df</strong> – with results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas Dataframe</p>
 </dd>
 </dl>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>df: pandas Dataframe</dt><dd><p>with results</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 </section>

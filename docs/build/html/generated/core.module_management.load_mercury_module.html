@@ -36,22 +36,21 @@
 <dt class="sig sig-object py" id="core.module_management.load_mercury_module">
 <span class="sig-prename descclassname"><span class="pre">core.module_management.</span></span><span class="sig-name descname"><span class="pre">load_mercury_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.module_management.load_mercury_module" title="Link to this definition">¶</a></dt>
 <dd><p>Used to load a Mercury module with the path to modules and its names.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<p>path_module: posix path or string
-module_name: string</p>
-<blockquote>
-<div><p>can be of the form “CM” for the module without flavour or “FP|L1” for a module with flavour. See
-find_actual_module_name for more details.</p>
-</div></blockquote>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>cred: module</dt><dd><p>attributes can be loaded with cred.__getattribute__(‘attribute_name’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_module</strong> (<em>posix path</em><em> or </em><em>string</em>) – </p></li>
+<li><p><strong>module_name</strong> (<em>string</em>) – can be of the form “CM” for the module without flavour or “FP|L1” for a module with flavour. See
+find_actual_module_name for more details.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cred</strong> – attributes can be loaded with cred.__getattribute__(‘attribute_name’)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>module</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>

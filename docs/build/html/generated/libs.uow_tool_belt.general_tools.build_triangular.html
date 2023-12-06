@@ -36,25 +36,21 @@
 <dt class="sig sig-object py" id="libs.uow_tool_belt.general_tools.build_triangular">
 <span class="sig-prename descclassname"><span class="pre">libs.uow_tool_belt.general_tools.</span></span><span class="sig-name descname"><span class="pre">build_triangular</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.general_tools.build_triangular" title="Link to this definition">¶</a></dt>
 <dd><p>build a triangular lattice in a rectangle with N nodes along the abscissa (so 4*N**2 in total)</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<blockquote>
-<div><dl class="simple">
-<dt>N: int,</dt><dd><p>number of nodes along the abscissa</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em><em>,</em>) – number of nodes along the abscissa</p></li>
+<li><p><strong>side</strong> (<em>float</em>) – size of a side (in meters, cm, etc.)</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em>,</em>) – small number for the detection of overlapping nodes.</p></li>
+</ul>
 </dd>
-<dt>side: float</dt><dd><p>size of a side (in meters, cm, etc.)</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>G</strong></p>
 </dd>
-<dt>eps: float,</dt><dd><p>small number for the detection of overlapping nodes.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Networkx Graph.</p>
 </dd>
 </dl>
-</div></blockquote>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<blockquote>
-<div><p>G: Networkx Graph.</p>
-</div></blockquote>
-</section>
 </dd></dl>
 
 </section>

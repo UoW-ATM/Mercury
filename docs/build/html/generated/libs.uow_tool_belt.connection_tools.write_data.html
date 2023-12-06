@@ -36,23 +36,19 @@
 <dt class="sig sig-object py" id="libs.uow_tool_belt.connection_tools.write_data">
 <span class="sig-prename descclassname"><span class="pre">libs.uow_tool_belt.connection_tools.</span></span><span class="sig-name descname"><span class="pre">write_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.connection_tools.write_data" title="Link to this definition">¶</a></dt>
 <dd><p>Wrapper designed to have uniformed input writing.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>what: pandas Dataframe object,</dt><dd><p>to be written</p>
-</dd>
-<dt>where: string,</dt><dd><p>name of file to get the data from if which=’csv’ or ‘pickle’.
-Name of table otherwise.</p>
-</dd>
-<dt>how: string,</dt><dd><p>either ‘update’, ‘replace’, or ‘append’. Define how the data should be added.
-‘update’ only works with ‘mysql’ right now.</p>
-</dd>
-<dt>which: string,</dt><dd><p>either ‘mysql’, ‘csv’, or ‘pickle’.</p>
-</dd>
-<dt>kwargs_mysql: dictionary</dt><dd><p>additional key arguments to be passed to write_sql.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>what</strong> (<em>pandas Dataframe object</em><em>,</em>) – to be written</p></li>
+<li><p><strong>where</strong> (<em>string</em><em>,</em>) – name of file to get the data from if which=’csv’ or ‘pickle’.
+Name of table otherwise.</p></li>
+<li><p><strong>how</strong> (<em>string</em><em>,</em>) – either ‘update’, ‘replace’, or ‘append’. Define how the data should be added.
+‘update’ only works with ‘mysql’ right now.</p></li>
+<li><p><strong>which</strong> (<em>string</em><em>,</em>) – either ‘mysql’, ‘csv’, or ‘pickle’.</p></li>
+<li><p><strong>kwargs_mysql</strong> (<em>dictionary</em>) – additional key arguments to be passed to write_sql.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>

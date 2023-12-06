@@ -36,23 +36,19 @@
 <dt class="sig sig-object py" id="libs.uow_tool_belt.connection_tools.write_mysql">
 <span class="sig-prename descclassname"><span class="pre">libs.uow_tool_belt.connection_tools.</span></span><span class="sig-name descname"><span class="pre">write_mysql</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'update'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_for_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys_for_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hard_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_temp_csv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.connection_tools.write_mysql" title="Link to this definition">¶</a></dt>
 <dd><p>Write a dataframe in the mysql database</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>data: pandas DataFrame object,</dt><dd><p>stuff to be put in database.</p>
-</dd>
-<dt>table_name: string,</dt><dd><p>name of table in database.</p>
-</dd>
-<dt>how: string,</dt><dd><p>either ‘update’, ‘replace’, or ‘append’.</p>
-</dd>
-<dt>key_for_update: string, int, float, or list</dt><dd><p>name of key(s) for table row matching.</p>
-</dd>
-<dt>engine: sqlalchemy engine object </dt><dd><p>If given then it is used to do the connection,
-if missing then it is created based on default parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas DataFrame object</em><em>,</em>) – stuff to be put in database.</p></li>
+<li><p><strong>table_name</strong> (<em>string</em><em>,</em>) – name of table in database.</p></li>
+<li><p><strong>how</strong> (<em>string</em><em>,</em>) – either ‘update’, ‘replace’, or ‘append’.</p></li>
+<li><p><strong>key_for_update</strong> (<em>string</em><em>, </em><em>int</em><em>, </em><em>float</em><em>, or </em><em>list</em>) – name of key(s) for table row matching.</p></li>
+<li><p><strong>engine</strong> (<em>sqlalchemy engine object</em>) – If given then it is used to do the connection,
+if missing then it is created based on default parameters</p></li>
+<li><p><strong>TODO</strong> (<em>harmonise keys_for_update and key_for_update</em>) – </p></li>
+</ul>
 </dd>
 </dl>
-<p>TODO: harmonise keys_for_update and key_for_update</p>
-</section>
 </dd></dl>
 
 </section>

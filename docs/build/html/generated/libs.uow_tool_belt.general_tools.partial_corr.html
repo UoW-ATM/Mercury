@@ -35,22 +35,19 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="libs.uow_tool_belt.general_tools.partial_corr">
 <span class="sig-prename descclassname"><span class="pre">libs.uow_tool_belt.general_tools.</span></span><span class="sig-name descname"><span class="pre">partial_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pearson'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.general_tools.partial_corr" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the sample linear partial correlation coefficients between pairs of variables in C, controlling 
+<dd><p>Returns the sample linear partial correlation coefficients between pairs of variables in C, controlling
 for the remaining variables in C.
-Parameters
-———-
-C : array-like, shape (n, p)</p>
-<blockquote>
-<div><p>Array with the different variables. Each column of C is taken as a variable</p>
-</div></blockquote>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>P<span class="classifier">array-like, shape (p, p)</span></dt><dd><p>P[i, j] contains the partial correlation of C[:, i] and C[:, j] controlling
+:param C: Array with the different variables. Each column of C is taken as a variable
+:type C: array-like, shape (n, p)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>P</strong> – P[i, j] contains the partial correlation of C[:, i] and C[:, j] controlling
 for the remaining variables in C.</p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>array-like, shape (p, p)</p>
+</dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>

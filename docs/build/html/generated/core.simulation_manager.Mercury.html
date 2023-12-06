@@ -74,7 +74,7 @@
 <dt class="sig sig-object py" id="core.simulation_manager.Mercury.compute_path">
 <span class="sig-name descname"><span class="pre">compute_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paras_simulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_scenario</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paras_scenario</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_case_study</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.simulation_manager.Mercury.compute_path" title="Link to this definition">¶</a></dt>
 <dd><p>This computes the path where the results will be saved, if they are saved as
-file. Returns None either if n_iter is None or if the results are saved in 
+file. Returns None either if n_iter is None or if the results are saved in
 the database. This is relative to base_path in profile or the connection</p>
 </dd></dl>
 
@@ -82,46 +82,39 @@ the database. This is relative to base_path in profile or the connection</p>
 <dt class="sig sig-object py" id="core.simulation_manager.Mercury.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenarios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_studies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paras_simulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paras_sc_fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paras_sc_iterated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_aggregator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_read</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_write</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parametriser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.simulation_manager.Mercury.run" title="Link to this definition">¶</a></dt>
 <dd><p>Main entry point for Mercury. Iterates through scenarios and parameters as asked.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<blockquote>
-<div><dl>
-<dt>paras_simulation: dict</dt><dd><p>all parameters linked to how the simulation is run.</p>
-</dd>
-<dt>paras_sc_fixed: dict</dt><dd><p>all parameters to fix for all iterations</p>
-</dd>
-<dt>scenarios: list</dt><dd><p>list of scenario ids to be run. Ids should match folder names in input folder.</p>
-</dd>
-<dt>case_studies: list</dt><dd><p>list of case studies ids to be run. Ids should match folder names in input folder.</p>
-</dd>
-<dt>iterated_paras_sc: dict</dt><dd><p>keys are parameters to be swept. Values are values of parameters to be used. All parameters values are
-combined.</p>
-</dd>
-<dt>args: list</dt><dd><p>additional argument for running the model</p>
-</dd>
-<dt>connection_read: dict,</dt><dd><p>with configuration for reading data (see connection_tools.py)</p>
-</dd>
-<dt>connection_write: dict,</dt><dd><p>with configuration for writing data (see connection_tools.py)</p>
-</dd>
-<dt>results_aggregator: ResultsAggregator instance (see libs/results_aggregator.py)</dt><dd><blockquote>
-<div><p>or registered ResultsAggregator class name
-or None</p>
-</div></blockquote>
-<p>If None, no aggregation will be done.</p>
-</dd>
-<dt>parametriser: Parametriser instance (see libs/results_aggregator.py)</dt><dd><blockquote>
-<div><p>or registered Parametriser class name
-or None</p>
-</div></blockquote>
-<p>If None, TODO</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paras_simulation</strong> (<em>dict</em>) – all parameters linked to how the simulation is run.</p></li>
+<li><p><strong>paras_sc_fixed</strong> (<em>dict</em>) – all parameters to fix for all iterations</p></li>
+<li><p><strong>scenarios</strong> (<em>list</em>) – list of scenario ids to be run. Ids should match folder names in input folder.</p></li>
+<li><p><strong>case_studies</strong> (<em>list</em>) – list of case studies ids to be run. Ids should match folder names in input folder.</p></li>
+<li><p><strong>iterated_paras_sc</strong> (<em>dict</em>) – keys are parameters to be swept. Values are values of parameters to be used. All parameters values are
+combined.</p></li>
+<li><p><strong>args</strong> (<em>list</em>) – additional argument for running the model</p></li>
+<li><p><strong>connection_read</strong> (<em>dict</em><em>,</em>) – with configuration for reading data (see connection_tools.py)</p></li>
+<li><p><strong>connection_write</strong> (<em>dict</em><em>,</em>) – with configuration for writing data (see connection_tools.py)</p></li>
+<li><p><strong>results_aggregator</strong> (<em>ResultsAggregator instance</em><em> (</em><em>see libs/results_aggregator.py</em><em>)</em>) – <dl class="simple">
+<dt>or registered ResultsAggregator class name</dt><dd><p>or None</p>
 </dd>
 </dl>
-</div></blockquote>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<p>TODO: return always something even if empty aggregator</p>
-</section>
+<p>If None, no aggregation will be done.</p>
+</p></li>
+<li><p><strong>parametriser</strong> (<em>Parametriser instance</em><em> (</em><em>see libs/results_aggregator.py</em><em>)</em>) – <dl class="simple">
+<dt>or registered Parametriser class name</dt><dd><p>or None</p>
+</dd>
+</dl>
+<p>If None, TODO</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TODO</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>return always something even if empty aggregator</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

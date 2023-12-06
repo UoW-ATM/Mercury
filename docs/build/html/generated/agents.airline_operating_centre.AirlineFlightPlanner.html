@@ -382,25 +382,23 @@ statements outside the function and build different functions.</p>
 <span class="sig-name descname"><span class="pre">compute_reactionary_delays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#agents.airline_operating_centre.AirlineFlightPlanner.compute_reactionary_delays" title="Link to this definition">¶</a></dt>
 <dd><p>Computes all the delays in the next flights of the day
 using the same aircraft than flight_uid.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>flight_uid: int,</dt><dd><p>uid of the flight having the delay</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flight_uid</strong> (<em>int</em><em>,</em>) – uid of the flight having the delay</p></li>
+<li><p><strong>x</strong> (<em>float</em><em>,</em>) – primary delay of the flight flight_uid</p></li>
+</ul>
 </dd>
-<dt>x: float,</dt><dd><p>primary delay of the flight flight_uid</p>
-</dd>
-</dl>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>delay: list,</dt><dd><p>Amount of delay of each flight of the day.
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>delay</strong> (<em>list,</em>) – Amount of delay of each flight of the day.
 These delay are between 0 (buffers are large enough)
-and x (no buffer).</p>
+and x (no buffer).</p></li>
+<li><p><strong>Note</strong> (<em>assumes no recovery strategy.</em>)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-<p>Note: assumes no recovery strategy.</p>
-</section>
 </dd></dl>
 
 <dl class="py method">

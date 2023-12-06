@@ -40,22 +40,18 @@ the name of the file definining it. For instance, FP module can define two flavo
 L2, that may be chosen from like this: FP|L1 and FP|L2. In this case, the file name corresponding
 to FP|L1 should be FP_L1.py.</p>
 <p>Note: if a module defines different flavours, the flavour has to be specified.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>module_name: string</dt><dd><p>In the form “FP” or “FP|L1”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>module_name</strong> (<em>string</em>) – In the form “FP” or “FP|L1”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>name_base</strong> (<em>string</em>) – the base name of the module, i.e. ‘FP’ or “CM”.</p></li>
+<li><p><strong>name_file</strong> (<em>string</em>) – the file name in which the definition of the module lies, for instance “FP_L1” or “CM”.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>name_base: string</dt><dd><p>the base name of the module, i.e. ‘FP’ or “CM”.</p>
-</dd>
-<dt>name_file: string</dt><dd><p>the file name in which the definition of the module lies, for instance “FP_L1” or “CM”.</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 </section>

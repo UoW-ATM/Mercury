@@ -36,49 +36,38 @@
 <dt class="sig sig-object py" id="libs.uow_tool_belt.general_tools.fit">
 <span class="sig-prename descclassname"><span class="pre">libs.uow_tool_belt.general_tools.</span></span><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-inf,</span> <span class="pre">inf)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.uow_tool_belt.general_tools.fit" title="Link to this definition">¶</a></dt>
 <dd><p>Simple function for linear fit.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>x: list or numpy array</dt><dd><p>x-coordinate of points to fit</p>
-</dd>
-<dt>y: list or numpy array</dt><dd><p>y-coordinate of points to fit</p>
-</dd>
-<dt>first_point: int, optional</dt><dd><p>index of first point to consider</p>
-</dd>
-<dt>last_point: int, optional</dt><dd><p>index of last point to consider</p>
-</dd>
-<dt>f_fit: function</dt><dd><p>function for it. Should have the signature (x, a, b, …), where 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>list</em><em> or </em><em>numpy array</em>) – x-coordinate of points to fit</p></li>
+<li><p><strong>y</strong> (<em>list</em><em> or </em><em>numpy array</em>) – y-coordinate of points to fit</p></li>
+<li><p><strong>first_point</strong> (<em>int</em><em>, </em><em>optional</em>) – index of first point to consider</p></li>
+<li><p><strong>last_point</strong> (<em>int</em><em>, </em><em>optional</em>) – index of last point to consider</p></li>
+<li><p><strong>f_fit</strong> (<em>function</em>) – function for it. Should have the signature (x, a, b, …), where
 x is the variable and a, b etc the coefficients to be regressed.
-If None, a linear function a + b*x is used.</p>
+If None, a linear function a + b*x is used.</p></li>
+<li><p><strong>p_0</strong> (<em>iterable</em><em>, </em><em>optional</em>) – array of initial guess for the coefficients</p></li>
+<li><p><strong>condition</strong> (<em>boolean</em><em>, </em><em>optional</em><em>,</em>) – If True, x and y are standarised before fit.</p></li>
+</ul>
 </dd>
-<dt>p_0: iterable, optional</dt><dd><p>array of initial guess for the coefficients</p>
-</dd>
-<dt>condition: boolean, optional,</dt><dd><p>If True, x and y are standarised before fit.</p>
-</dd>
-</dl>
-</section>
-<section id="return">
-<h2>Return<a class="headerlink" href="#return" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>popt: numpy array</dt><dd><p>of optimal coefficients</p>
-</dd>
-<dt>pcov: numpy array</dt><dd><p>covariance matrix of regression</p>
-</dd>
-<dt>f_fit_opt: function</dt><dd><p>function with optimal coefficients</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>popt</strong> (<em>numpy array</em>) – of optimal coefficients</p></li>
+<li><p><strong>pcov</strong> (<em>numpy array</em>) – covariance matrix of regression</p></li>
+<li><p><strong>f_fit_opt</strong> (<em>function</em>) – function with optimal coefficients</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-</section>
-<section id="notes">
-<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<p class="rubric">Notes</p>
 <p>nan values are discarded.
-Can plot output with 
+Can plot output with
 plot(x, y)
 plot(x, vectorize(f_fit_opt)(x))</p>
 <p>or:
 plot(x, y)
 x_cont = linspace(min(x), max(x), 100)
 plot(x_cont, vectorize(f_fit_opt)(x_cont))</p>
-</section>
 </dd></dl>
 
 </section>

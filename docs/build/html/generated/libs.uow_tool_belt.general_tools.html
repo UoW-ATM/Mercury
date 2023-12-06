@@ -67,7 +67,7 @@ bloated requirements files in codes using this library. The only exceptions are:
 <td><p>Test the null hypothesis that both samples have the same mean with confidence 1-p_value (two-tailed).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.bootstrap_test.html#libs.uow_tool_belt.general_tools.bootstrap_test" title="libs.uow_tool_belt.general_tools.bootstrap_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bootstrap_test</span></code></a>(sample1, sample2[, k, ...])</p></td>
-<td><p>Test the null hypothesis that the two samples are independent from each other  thanks to pearson coefficients (two-tailed).</p></td>
+<td><p>Test the null hypothesis that the two samples are independent from each other thanks to pearson coefficients (two-tailed).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.build_col_print_func.html#libs.uow_tool_belt.general_tools.build_col_print_func" title="libs.uow_tool_belt.general_tools.build_col_print_func"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_col_print_func</span></code></a>(colour[, verbose])</p></td>
 <td><p></p></td>
@@ -121,10 +121,10 @@ bloated requirements files in codes using this library. The only exceptions are:
 <td><p>Averages a df on the quantile of the columns col</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.haversine.html#libs.uow_tool_belt.general_tools.haversine" title="libs.uow_tool_belt.general_tools.haversine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">haversine</span></code></a>(lon1, lat1, lon2, lat2)</p></td>
-<td><p>Calculate the great circle distance between two points  on the earth (specified in decimal degrees) ---------- Parameters ---------- lon1, lat1 : coordinates point 1 in degrees lon2, lat2 : coordinates point 2 in degrees ------- Return ------ Distance between points in km</p></td>
+<td><p>Calculate the great circle distance between two points on the earth (specified in decimal degrees) ---------- :param lon1: :type lon1: coordinates point 1 in degrees :param lat1: :type lat1: coordinates point 1 in degrees :param lon2: :type lon2: coordinates point 2 in degrees :param lat2: :type lat2: coordinates point 2 in degrees :param -------:</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.haversine_old.html#libs.uow_tool_belt.general_tools.haversine_old" title="libs.uow_tool_belt.general_tools.haversine_old"><code class="xref py py-obj docutils literal notranslate"><span class="pre">haversine_old</span></code></a>(lon1, lat1, lon2, lat2)</p></td>
-<td><p>Calculate the great circle distance between two points  on the earth (specified in decimal degrees) ---------- Parameters ---------- lon1, lat1 : coordinates point 1 in degrees lon2, lat2 : coordinates point 2 in degrees ------- Return ------ Distance between points in km</p></td>
+<td><p>Calculate the great circle distance between two points on the earth (specified in decimal degrees) ---------- :param lon1: :type lon1: coordinates point 1 in degrees :param lat1: :type lat1: coordinates point 1 in degrees :param lon2: :type lon2: coordinates point 2 in degrees :param lat2: :type lat2: coordinates point 2 in degrees :param -------:</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.hex_to_rgb.html#libs.uow_tool_belt.general_tools.hex_to_rgb" title="libs.uow_tool_belt.general_tools.hex_to_rgb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hex_to_rgb</span></code></a>(value)</p></td>
 <td><p></p></td>
@@ -139,10 +139,10 @@ bloated requirements files in codes using this library. The only exceptions are:
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.inv_mu_sig_lognorm.html#libs.uow_tool_belt.general_tools.inv_mu_sig_lognorm" title="libs.uow_tool_belt.general_tools.inv_mu_sig_lognorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inv_mu_sig_lognorm</span></code></a>(mu_p, sig_p)</p></td>
-<td><p>Given the desired mu_p and sig_p, and mean and std of a lognorm distribution, returns mu and sig of the underlying normal  distribution.</p></td>
+<td><p>Given the desired mu_p and sig_p, and mean and std of a lognorm distribution, returns mu and sig of the underlying normal distribution.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.inv_s_loc_scale_lognorm.html#libs.uow_tool_belt.general_tools.inv_s_loc_scale_lognorm" title="libs.uow_tool_belt.general_tools.inv_s_loc_scale_lognorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inv_s_loc_scale_lognorm</span></code></a>(mu_p, sig_p, M_p)</p></td>
-<td><p>Given mean, sig, and median desired for the lognormal distribution,  returns the s, loc, and scale parameters for the scipy distribution.</p></td>
+<td><p>Given mean, sig, and median desired for the lognormal distribution, returns the s, loc, and scale parameters for the scipy distribution.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.inv_s_scale_lognorm.html#libs.uow_tool_belt.general_tools.inv_s_scale_lognorm" title="libs.uow_tool_belt.general_tools.inv_s_scale_lognorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inv_s_scale_lognorm</span></code></a>(mu_p, sig_p)</p></td>
 <td><p>Idem but direcly for scipy function</p></td>
@@ -175,26 +175,15 @@ bloated requirements files in codes using this library. The only exceptions are:
 <td><p>If engine is given, yield simply engine.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.parallelize.html#libs.uow_tool_belt.general_tools.parallelize" title="libs.uow_tool_belt.general_tools.parallelize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parallelize</span></code></a>(f[, args, kwargs, nprocs])</p></td>
-<td><p>Parameters
-
-f: function,
-
-e.g. with calling signature (A, B, C=None, D=None)
-
-args: iterable,
-
-list of inputs for function, e.g. [(a1, b1), (a2, b2), (a3, b3)]
-
-kwargs: iterable,
-
-list of inputs for function, e.g. [{'C':20, 'D':25}, {'C':30, 'D':40}]
-
-nprocs: int,
-
-number of processes to create. If None, max number of processes.</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param f<span class="colon">:</span></dt>
+<dd class="field-odd"><p>e.g. with calling signature (A, B, C=None, D=None)</p>
+</dd>
+</dl>
+</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.partial_corr.html#libs.uow_tool_belt.general_tools.partial_corr" title="libs.uow_tool_belt.general_tools.partial_corr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_corr</span></code></a>(C[, corr_type])</p></td>
-<td><p>Returns the sample linear partial correlation coefficients between pairs of variables in C, controlling  for the remaining variables in C. Parameters ---------- C : array-like, shape (n, p)         Array with the different variables. Each column of C is taken as a variable Returns ------- P : array-like, shape (p, p)         P[i, j] contains the partial correlation of C[:, i] and C[:, j] controlling         for the remaining variables in C.</p></td>
+<td><p>Returns the sample linear partial correlation coefficients between pairs of variables in C, controlling for the remaining variables in C.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.percentile_10.html#libs.uow_tool_belt.general_tools.percentile_10" title="libs.uow_tool_belt.general_tools.percentile_10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">percentile_10</span></code></a>(x)</p></td>
 <td><p></p></td>
@@ -209,7 +198,7 @@ number of processes to create. If None, max number of processes.</p></td>
 <td><p>Permutation test: better than bootstrap in general.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.permutation_test_only_diff.html#libs.uow_tool_belt.general_tools.permutation_test_only_diff" title="libs.uow_tool_belt.general_tools.permutation_test_only_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permutation_test_only_diff</span></code></a>(diff_sample[, k, ...])</p></td>
-<td><p>Use in case you have only access to the differences in the  two sequences, not the sequences themselves.</p></td>
+<td><p>Use in case you have only access to the differences in the two sequences, not the sequences themselves.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.proportional.html#libs.uow_tool_belt.general_tools.proportional" title="libs.uow_tool_belt.general_tools.proportional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">proportional</span></code></a>(v1, v2, p1, p2, p)</p></td>
 <td><p></p></td>
@@ -313,14 +302,12 @@ between variables.
 In case of simple utilisation with a single iteration or no sweeping,
 a simple dictionary is enough.
 The update process is based on the attribute 'update_priority', 'to_update'.
-The first one is a list of keys. First entries should be updated before updating 
+The first one is a list of keys. First entries should be updated before updating
 later ones.
 The second is a dictionary. Each value is a tuple (f, args) where f is function
 and args is a list of keys that the function takes as arguments. The function
-returns the value of the corresponding key. 
-Notes
------
-'update_priority' and 'to_update' could be merged in an sorted dictionary.</p></td>
+returns the value of the corresponding key.
+.. rubric:: Notes</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="libs.uow_tool_belt.general_tools.TwoWayDict.html#libs.uow_tool_belt.general_tools.TwoWayDict" title="libs.uow_tool_belt.general_tools.TwoWayDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TwoWayDict</span></code></a></p></td>
 <td><p></p></td>
