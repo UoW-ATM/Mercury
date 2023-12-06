@@ -16,9 +16,10 @@ jobs:
       - run: python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
       - run: pip install -r requirements.txt
       - run: git submodule update --recursive --remote --init
+      - run: cd docs && python3 generate_documentation.py
       - uses: actions/checkout@v4
-      - name: Build HTML
-        uses: ammaraskar/sphinx-action@master
+#      - name: Build HTML
+#        uses: ammaraskar/sphinx-action@master
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

@@ -1,6 +1,9 @@
 Quickstart
 ===========
 
+Mercury has been tested on ubuntu-like machines and Windows using anaconda. Python 3.10 is recommended. Python 3.12
+will raise issues (to be solved in the future).
+
 Installation
 ------------
 
