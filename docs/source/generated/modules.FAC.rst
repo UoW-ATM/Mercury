@@ -1,0 +1,35 @@
+modules.FAC
+===========
+
+.. automodule:: modules.FAC
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   modules.FAC.FAC_FIFO_queue
+   modules.FAC.FAC_total_cost
+   modules.FAC.FAC_total_delay
+   modules.FAC.module_definition
+

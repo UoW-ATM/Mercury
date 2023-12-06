@@ -5,6 +5,7 @@ Mercury is a research-oriented air transportation mobility simulator with a stro
 steps below to install Mercury on a debian-based distribution.
 
 # Quick Setup
+## Installation
 
 - Start by cloning the repository, for instance:
 
@@ -37,6 +38,7 @@ then use the script generate_bada3_input.py to transform the AFP, OFP and PTD fi
 
 - Note: support for OpenAP, an open alternative to BADA, is under development.
 
+## Running the CLI version
 
 You can test the model by running:
 ```commandline
@@ -44,19 +46,19 @@ You can test the model by running:
 ```
 Or using the jupyter notebook "Mercury.ipynb", see below.
 
-# Graphical interface
+## Programmatic use of Mercury
+
+Mercury can be used as an object. An example of its use and some examples to run can be found in 
+the `Mercury.ipynb` Jupyter notebook. The notebook shows the possible uses of Mercury in terms of parameter setting, 
+scenarios, case study, etc.
+
+## Graphical interface
 
 You can use a GUI to explore the data input and output structure, create new scenarios, case studies, etc. Use the 
 following command to start it:
 ```commandline
 dashboard/mercury_gui.py
 ```
-
-# Programmatic use of Mercury
-
-Mercury can be used as an object. An example of its use and some examples to run can be found in 
-the Mercury.ipynb Jupyter notebook. The notebook shows the possible uses of Mercury in terms of parameter setting, 
-scenarios, case study, etc.
 
 # Manual and documentation
 A more complete manual is in construction. An automatically generated documentation for the repository can be found in 

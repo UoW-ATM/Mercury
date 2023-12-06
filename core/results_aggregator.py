@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from ..libs.uow_tool_belt.general_tools import percentile_custom, weight_avg
+from Mercury.libs.uow_tool_belt.general_tools import percentile_custom, weight_avg
 
 class ResultsAggregatorSelector:
 	def __init__(self):

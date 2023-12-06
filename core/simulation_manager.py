@@ -11,13 +11,8 @@ every N simulations or not (batches). Within batches, can be parallelised
 from pathlib import Path
 import subprocess
 from copy import copy, deepcopy
-import os
-from os.path import join as jn
 import datetime as dt
-import gc
-import _io
 import uuid
-from warnings import warn
 
 from Mercury.model_version import model_version
 

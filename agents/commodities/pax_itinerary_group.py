@@ -1,7 +1,7 @@
 from copy import copy
 import numpy as np
 
-from ...libs.other_tools import distance_func
+from Mercury.libs.other_tools import distance_func
 
 
 def func(x, k, k_p, a, b, c):

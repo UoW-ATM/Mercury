@@ -1,0 +1,38 @@
+﻿modules
+=======
+
+.. automodule:: modules
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   modules.Auction
+   modules.CM
+   modules.FAC
+   modules.FP
+   modules.HMI_HOTSPOT
+   modules.TA
+   modules.nostromo_EAMAN
+

@@ -1,9 +1,6 @@
-# import sys
-# sys.path.insert(1, '..')
+import simpy
 
-import simpy 
-
-from ...libs.other_tools import flight_str
+from Mercury.libs.other_tools import flight_str
 
 class Aircraft(simpy.Resource):
 	"""

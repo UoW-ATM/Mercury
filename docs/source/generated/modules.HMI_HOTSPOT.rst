@@ -1,0 +1,46 @@
+modules.HMI\_HOTSPOT
+====================
+
+.. automodule:: modules.HMI_HOTSPOT
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   modules.HMI_HOTSPOT.HMI_FP_SEL
+   modules.HMI_HOTSPOT.HMI_HOTSPOT
+   modules.HMI_HOTSPOT.HMI_HOTSPOT_client_text
+   modules.HMI_HOTSPOT.HMI_HOTSPOT_client_text2
+   modules.HMI_HOTSPOT.HMI_HOTSPOT_client_text3
+   modules.HMI_HOTSPOT.HMI_server
+   modules.HMI_HOTSPOT.client_test
+   modules.HMI_HOTSPOT.client_test2
+   modules.HMI_HOTSPOT.client_test_hmi
+   modules.HMI_HOTSPOT.client_test_hmi2
+   modules.HMI_HOTSPOT.client_test_mercury
+   modules.HMI_HOTSPOT.hmi_regulation_test_hmi
+   modules.HMI_HOTSPOT.module_definition
+   modules.HMI_HOTSPOT.paras_HMI_FP_SEL
+   modules.HMI_HOTSPOT.paras_HMI_HOTSPOT
+

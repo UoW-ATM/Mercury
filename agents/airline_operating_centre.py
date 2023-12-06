@@ -5,12 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import compress
 
-from ..core.delivery_system import Letter
-from ..libs.other_tools import clone_pax, flight_str
-from ..libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
-from ..libs import Hotspot as hspt
+from Mercury.core.delivery_system import Letter
+from Mercury.libs.other_tools import clone_pax, flight_str
+from Mercury.libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
+from Mercury.libs import Hotspot as hspt
 
-from .agent_base import Agent, Role
+from Mercury.agents.agent_base import Agent, Role
 # from .commodities.debug_flights import flight_uid_DEBUG
 
 

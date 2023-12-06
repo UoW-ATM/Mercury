@@ -2,7 +2,7 @@ import pandas as pd
 import pathlib
 import numpy as np
 
-from Mercury.agents.modules.CM.paras_CM import paras
+from Mercury.modules.CM.paras_CM import paras
 from Mercury.libs import Hotspot as hspt
 from Mercury.libs.uow_tool_belt.general_tools import gini
 

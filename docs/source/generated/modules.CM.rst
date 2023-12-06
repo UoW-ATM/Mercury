@@ -1,0 +1,34 @@
+modules.CM
+==========
+
+.. automodule:: modules.CM
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   modules.CM.CM
+   modules.CM.module_definition
+   modules.CM.paras_CM
+

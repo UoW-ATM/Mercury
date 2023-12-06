@@ -1,6 +1,6 @@
 from scipy.stats import lognorm, expon, norm
 
-from ..libs.uow_tool_belt.general_tools import build_step_bivariate_function, build_step_multi_valued_function
+from Mercury.libs.uow_tool_belt.general_tools import build_step_bivariate_function, build_step_multi_valued_function
 
 
 class ParametriserSelector:

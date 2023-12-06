@@ -6,11 +6,11 @@ from ortools.linear_solver import pywraplp
 import numpy as np
 import pandas as pd
 
-from .agent_base import Agent, Role
-from ..core.delivery_system import Letter
-from ..libs.uow_tool_belt.general_tools import build_col_print_func
+from Mercury.agents.agent_base import Agent, Role
+from Mercury.core.delivery_system import Letter
+from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func
 
-from .commodities.slot_queue import SlotQueue
+from Mercury.agents.commodities.slot_queue import SlotQueue
 
 
 class AMAN(Agent):

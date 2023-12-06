@@ -5,8 +5,9 @@ the name of the file containing the modified methods.
 """
 
 from importlib.machinery import SourceFileLoader
-from Mercury.core.read_config import read_toml
 from pathlib import Path
+
+from Mercury.core.read_config import read_toml
 
 # These are the modules that are registered, i.e. known to be working with the last version of Mercury. Add the
 # name of your module here if you want to use the automatic parameters discovery and control (CLI and interactive).
@@ -92,20 +93,19 @@ def get_module_paras(path_module=None, module_name=None):
 	all parameters should be defined under a "[para]" flag.
 
 	Parameters
-	==========
-	path_module: posix path or string
-	module_name: string
+	----------
+	path_module : posix path or string
+	module_name : string
 		can be of the form "CM" for the module without flavour or "FP|L1" for a module with flavour. See
 		find_actual_module_name for more details.
 
 	Returns
-	=======
-	module_paras: dict
+	-------
+	module_paras : dict
 		Keys are names of parameters, values are the values of parameters
 
-	WARNING: this function takes the first files starting with "paras_" as teh parameter file.
+	WARNING: this function takes the first files starting with "paras_" as the parameter file.
 	TODO: fix that for flavours.
-
 	"""
 	name_base, name_file = find_actual_module_name(module_name)
 

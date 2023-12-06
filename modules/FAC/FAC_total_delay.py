@@ -1,7 +1,7 @@
 import simpy
 import numpy as np
 
-from Mercury.libs.delivery_system import Letter
+from Mercury.core.delivery_system import Letter
 from Mercury.libs.other_tools import flight_str
 
 
