@@ -20,11 +20,18 @@ jobs:
       - uses: actions/checkout@v4
 #      - name: Build HTML
 #        uses: ammaraskar/sphinx-action@master
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+
+      - name: deploy docs
+        uses: ./
         with:
-          name: html-docs
-          path: docs/build/html/
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          remote_url: ${{ steps.deployment.outputs.page_url }}
+
+#      - name: Upload artifacts
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: html-docs
+#          path: docs/build/html/
 
 #      - uses: actions/upload-pages-artifact@v2
 #        with:
@@ -38,18 +45,18 @@ jobs:
 
   # Deploy the artifact to GitHub pages.
   # This is a separate job so that only actions/deploy-pages has the necessary permissions.
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v2
+#  deploy:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    permissions:
+#      pages: write
+#      id-token: write
+#    environment:
+#      name: github-pages
+#      url: ${{ steps.deployment.outputs.page_url }}
+#    steps:
+#      - id: deployment
+#        uses: actions/deploy-pages@v2
         #uses: sphinx-notes/pages@v3
 #
 #name: website
