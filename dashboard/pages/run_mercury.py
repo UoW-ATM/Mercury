@@ -119,7 +119,7 @@ def run_fn(n_clicks,sc,cs):
     mercury = Mercury(paras_simulation=paras_simulation)
 
     # Run and get results
-    results, results_seq = mercury.run(scenarios=scenarios,paras_simulation=paras_simulation)
+    results, results_seq = mercury.run(scenarios=scenarios,paras_simulation=paras_simulation,case_studies=case_studies)
     print('run end')
     return ['Run has finished.']
 

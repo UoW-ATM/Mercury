@@ -9,7 +9,8 @@ from pathlib import Path
 import os
 import pandas as pd
 import datetime
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
 from copy import copy, deepcopy
 
 def read_data_from_dict(dictionary,key,data_path):
@@ -21,11 +22,11 @@ def read_data_from_dict(dictionary,key,data_path):
             if isinstance(v, dict):
                 traverse(v, ppath / k)
             else:
-                #print('reading: ',str(ppath / str(v+'.parquet')))
+                print_log('reading: ',str(ppath / str(v+'.parquet')))
                 try:
                     d[k] = pd.read_parquet(ppath / str(v+'.parquet'))
                 except FileNotFoundError:
-                    #print(v, 'does not exist')
+                    print_log(v, 'does not exist')
                     d[k] = v
         return d
 
@@ -50,10 +51,23 @@ def write_toml(toml_dict,path,filename):
     with open(path / filename, "wb") as f:
         tomli_w.dump(toml_dict, f)
 
+def print_log(*args,level='debug'):
+    args = [str(arg) for arg in args]
+    if level == 'debug':
+        logging.debug(" ".join(args))
+    elif level == 'info':
+        logging.info(" ".join(args))
+    elif level == 'warning':
+        logging.warning(" ".join(args))
+    elif level == 'error':
+        logging.error(" ".join(args))
+    else:
+        logging.debug(" ".join(args))
+
 class Input_manager:
     def __init__(self, scenario_path=None):
         self.scenario_path = scenario_path
-        self.case_study_config = {'case_study':{},'parameters':{},'data':{},'agents_configuration':{}}
+        self.case_study_config = {'case_study':{},'parameters':{},'data':{'schedules':{}},'agents_configuration':{}}
         self.experiment_config = {}
 
         self.stochastic_airport_regulations = 'R'
@@ -61,17 +75,17 @@ class Input_manager:
         self.uptake = 'D'
 
         self.input_path = Path(os.path.abspath(__file__)).parents[1] / Path(self.read_mercury_config()['read_profile']['path'])
-        #print('input_path', Path(self.input_path)/'scenario=0')
+        print_log('input_path', Path(self.input_path)/'scenario=0')
         self.scenarios = sorted([f.name for f in os.scandir(self.input_path) if f.is_dir() and 'scenario' in f.name])
-        print('scenarios available:', self.scenarios)
+        print_log('scenarios available:', self.scenarios, level='info')
         self.case_studies = []
 
     def read_scenario(self,scenario_name):
 
-        print('Reading scenario ', scenario_name)
+        print_log('Reading scenario ', scenario_name, level='info')
         scenario_config = read_toml(self.input_path / scenario_name /'scenario_config.toml')
 
-        #print(scenario_config)
+        print_log(scenario_config)
         scenario_path = self.input_path / scenario_name
 
 
@@ -79,21 +93,24 @@ class Input_manager:
         self.scenario_path = scenario_path
         self.data_dict = None
         #self.base_data_dict = None
-        #print('scenario_path', self.scenario_path)
+        print_log('scenario_path', self.scenario_path)
 
         if (scenario_path / 'case_studies').exists():
             case_studies = [f.name for f in os.scandir(scenario_path / 'case_studies') if f.is_dir()]
         else:
-            print('case_studies folder does not exits')
+            print_log('case_studies folder does not exits', level='warning')
 
         if (scenario_path.parents[0] / 'experiments').exists():
             experiments = [f.name for f in os.scandir(scenario_path.parents[0] / 'experiments')]
         else:
-            experiments = []
-            print('experiments folder does not exists')
 
-        print('Case studies available: ',case_studies)
-        print('Experiments available: ',experiments)
+            experiments = []
+
+            print_log('experiments folder does not exists', level='warning')
+
+
+        print_log('Case studies available: ',case_studies, level='info')
+        print_log('Experiments available: ',experiments, level='info')
 
         self.case_studies = case_studies
         self.experiments = experiments
@@ -108,7 +125,7 @@ class Input_manager:
 
         for name in names:
             if name not in self.scenario_config['data']:
-                print('Unknown data category to read', name)
+                print_log('Unknown data category to read', name, level='warning')
                 self.scenario_config['data'][name] #raises KeyError
             data = read_data_from_dict(self.scenario_config['data'],name,data_path)
             data_dict[name]=data
@@ -126,13 +143,15 @@ class Input_manager:
 
     def read_case_study(self, name='', read_data=True):
 
-        print('Reading case study', name, self.scenario_path)
+        print_log('Reading case study', name, self.scenario_path, level='info')
         case_study_path = self.scenario_path / 'case_studies' / name
 
         if not read_data:
             if name != 'none':
                 case_study_config = read_toml(case_study_path / 'case_study_config.toml')
-                # print(case_study_config)
+
+                print_log(case_study_config)
+
                 self.case_study_config = case_study_config
                 return None
 
@@ -142,17 +161,20 @@ class Input_manager:
 
         if name != 'none':
             case_study_config = read_toml(case_study_path / 'case_study_config.toml')
-            # print(case_study_config)
+
+            print_log(case_study_config)
+
             self.case_study_config = case_study_config
 
             if 'schedules' in case_study_config['data']:
                 if 'input_subset' in case_study_config['data']['schedules']:
 
                     df_flight_subset = pd.read_parquet(case_study_path / 'data' / 'schedules' / 'flight_subset.parquet')
-                    #print(df_flight_subset,df_schedules)
+                    print_log(df_flight_subset,df_schedules)
                     flight_schedules = df_schedules[df_schedules['nid'].isin(list(df_flight_subset['flight_nid']))]
 
-                    #print('flight_schedules',flight_schedules)
+
+                    print_log('flight_schedules',flight_schedules)
                 else:
                     flight_schedules = df_schedules
             else:
@@ -163,7 +185,6 @@ class Input_manager:
         self.case_study_data_dict = deepcopy(self.data_dict)
         self.case_study_data_dict['schedules']['input_schedules'] = flight_schedules
 
-
         self.base_data_dict = deepcopy(self.data_dict)
         self.base_data_dict['schedules']['input_schedules'] = flight_schedules
 
@@ -172,11 +193,13 @@ class Input_manager:
         df_pax_itineraries = self.data_dict['pax']['input_itinerary']
 
         pax_itineraries = df_pax_itineraries[(df_pax_itineraries['leg1'].isin(flight_list[1:-1])) & ((df_pax_itineraries['leg2'].isin(flight_list[1:-1])) | (pd.isna(df_pax_itineraries['leg2']))) & ((df_pax_itineraries['leg3'].isin(flight_list[1:-1])) | (pd.isna(df_pax_itineraries['leg3'])))]
-        # print(len(pax_itineraries))
+
+        print_log(len(pax_itineraries))
 
         self.case_study_data_dict['pax']['input_itinerary'] = pax_itineraries
         self.base_data_dict['pax']['input_itinerary'] = pax_itineraries
         # print(df_schedules.query('nid in [38858]'))
+
 
     def filter_schedules(self,which='scenario',query_type='',query=''):
 
@@ -187,7 +210,7 @@ class Input_manager:
         elif which == 'base':
             df_schedules = self.base_data_dict['schedules']['input_schedules']
 
-        #print('schedules',which,len(df_schedules))
+        print_log('schedules',which,len(df_schedules))
 
         if query_type == 'python':
             df= filter_df(df_schedules, query)
@@ -196,7 +219,7 @@ class Input_manager:
 
             df = filter_sql(df_schedules, sql_query=query)
         else:
-            print('Unknown query_type', query_type)
+            print_log('Unknown query_type', query_type, level='error')
 
         self.case_study_data_dict['schedules']['input_schedules'] = df
         self.case_study_config['data']['query'] = query
@@ -292,7 +315,7 @@ class Input_manager:
 
         df1 = atfm_delay[(atfm_delay['scenario_id']==scenario) & (atfm_delay['atfm_type'].isin(atfm_types))]
         df2 = atfm_prob[(atfm_prob['scenario_id']==scenario) & (atfm_prob['atfm_type'].isin(atfm_types))]
-        ## print(df1,atfm_types)
+
         self.case_study_data_dict['network_manager']['input_atfm_delay'] = df1
         self.case_study_data_dict['network_manager']['input_atfm_prob'] = df2
         return df1, df2
@@ -396,7 +419,7 @@ class Input_manager:
     def set_case_study_delay(self,df=None):
         #update base with a modified df
         #self.base_data_dict['delay']['input_delay_paras'].set_index(['para_name','delay_level'],inplace=True)
-        ###print(self.base_data_dict['delay']['input_delay_paras'],df.set_index(['para_name','delay_level']))
+        ##print_log(self.base_data_dict['delay']['input_delay_paras'],df.set_index(['para_name','delay_level']))
         #self.base_data_dict['delay']['input_delay_paras'].update(df.set_index(['para_name','delay_level']))
         #self.base_data_dict['delay']['input_delay_paras'].reset_index(inplace=True)
 
@@ -404,12 +427,12 @@ class Input_manager:
         changed_rows = self.base_data_dict['delay']['input_delay_paras'].merge(df, on=None,how='right', indicator=True)
         changed_rows['case_study'] = df['case_study']
         changed_rows.loc[changed_rows['_merge']=='right_only','case_study'] = 'CS'
-        #print('changed_rows',changed_rows)
+        print_log('changed_rows',changed_rows)
         df = changed_rows.drop('_merge', axis=1)
         df['delay_level'] = 'CS'
 
         self.base_data_dict['delay']['input_delay_paras'] = pd.concat([self.base_data_dict['delay']['input_delay_paras'],df]).drop_duplicates(['para_name','delay_level'],keep='last')
-        ##print('base_delay',self.base_data_dict['delay']['input_delay_paras'])
+        #print_log('base_delay',self.base_data_dict['delay']['input_delay_paras'])
         self.case_study_data_dict['delay']['input_delay_paras'] = df
         self.delays = 'CS'
 
@@ -438,14 +461,14 @@ class Input_manager:
         changed_rows = self.base_data_dict['eaman']['input_eaman'].merge(df, on=None,how='right', indicator=True)
         changed_rows['case_study'] = df['case_study']
         changed_rows.loc[changed_rows['_merge']=='right_only','case_study'] = 'CS'
-        #print('changed_rows',changed_rows)
+        print_log('changed_rows',changed_rows)
         df = changed_rows.drop('_merge', axis=1)
         df['uptake'] = 'CS'
         #update base with a modified df
         self.base_data_dict['eaman']['input_eaman'] = pd.concat([self.base_data_dict['eaman']['input_eaman'],df]).drop_duplicates(['icao_id','uptake'],keep='last')#.sort_values('icao_id')
-        ##print('base_delay',self.base_data_dict['delay']['input_delay_paras'])
+        #print_log('base_delay',self.base_data_dict['delay']['input_delay_paras'])
         self.case_study_data_dict['eaman']['input_eaman'] = df
-        #print('eaman',df.dtypes)
+        print_log('eaman',df.dtypes)
         self.uptake = 'CS'
 
 
@@ -552,7 +575,7 @@ class Input_manager:
         for k in kwargs:
             if k=='fuel_price':
                 self.case_study_config['parameters']['fuel_price'] = kwargs[k]
-            #print(k,kwargs[k])
+            print_log(k,kwargs[k])
 
     def update_case_study_config(self,data,subcat=None):
         for row in data:
@@ -564,7 +587,9 @@ class Input_manager:
 
     def save_case_study(self, case_study_id='', description='', case_study_name=''):
 
-        # print('Saving case study', case_study_name, 'with ', len(self.case_study_data_dict['schedules']['input_schedules'][['nid']]), ' flights')
+
+        print_log('Saving case study', case_study_name, 'with ', len(self.case_study_data_dict['schedules']['input_schedules'][['nid']]), ' flights')
+
         if not (self.scenario_path / 'case_studies' / case_study_name).exists():
             os.mkdir(self.scenario_path / 'case_studies' / case_study_name)
             os.mkdir(self.scenario_path / 'case_studies' / case_study_name / 'data')
@@ -603,7 +628,7 @@ class Input_manager:
     def read_experiment(self, name):
 
         experiment_config = read_toml(self.scenario_path / 'experiments' / name)
-        #print(experiment_config)
+        print_log(experiment_config)
 
         for category in experiment_config:
             if 'min' in experiment_config[category] and 'max' in experiment_config[category]:
@@ -622,9 +647,9 @@ class Input_manager:
     def set_mercury_config(self,key,value):
         #mercury_config = self.mercury_config
         self.mercury_config[key[0]][key[1]] = value
-        ##print(mercury_config)
+        #print_log(mercury_config)
         #self.mercury_config = mercury_config
-        ##print('setting',key,value)
+        #print_log('setting',key,value)
 
     def set_experiment(self,key,value):
         #mercury_config = self.mercury_config
@@ -634,7 +659,7 @@ class Input_manager:
 
     def save_experiment(self,experiment_id=''):
 
-        #print('Saving experiment', experiment_id)
+        print_log('Saving experiment', experiment_id)
         if not (self.scenario_path / 'experiments').exists():
             os.mkdir(self.scenario_path / 'experiments')
 
@@ -649,12 +674,12 @@ class Input_manager:
 
         df = pax_itineraries.merge(flight_schedules[['nid','origin','destination']].rename({'origin': 'origin1', 'destination': 'destination1'},axis=1),left_on='leg1', right_on='nid').drop(columns=['nid_y'])
 
-        ##print(df)
+        #print_log(df)
 
         df = df.merge(flight_schedules[['nid','origin','destination']].rename({'origin': 'origin2', 'destination': 'destination2'}, axis=1),how='left',left_on='leg2', right_on='nid').drop(columns=['nid'])
-        ##print(df)
+        #print_log(df)
         df = df.merge(flight_schedules[['nid','origin','destination']].rename({'origin': 'origin3', 'destination': 'destination3'}, axis=1),how='left',left_on='leg3', right_on='nid').drop(columns=['nid'])
-        ##print(df)
+        #print_log(df)
 
         df_flows1=df.groupby(['origin1','destination1'])[['pax']].sum().reset_index().rename({'origin1': 'origin', 'destination1': 'destination'}, axis=1)
         df_flows2=df.groupby(['origin2','destination2'])[['pax']].sum().reset_index().rename({'origin2': 'origin', 'destination2': 'destination'}, axis=1)
@@ -673,14 +698,21 @@ class Input_manager:
         modules = [f for f in os.scandir(Path(os.path.abspath(__file__)).parents[1] / modules_path) if f.is_dir() and '__' not in f.name]
         #modules = list((Path(os.path.abspath(__file__)).parents[1] / modules_path).glob('*.toml'))
         #module_names = [m.stem for m in modules]
-        #print('modules',modules)
+        print_log('modules',modules)
         module_configs = {}
+        module_specs = {}
         for module in modules:
             module_config = read_toml(Path(module.path)/('paras_'+module.name+'.toml'))
             module_configs[module.name] = module_config['paras']
-        #print(module_configs)
+            if (Path(module.path)/(module.name+'.toml')).exists():
+                print_log('reading', (module.name+'.toml'))
+                module_specs[module.name] = read_toml(Path(module.path)/(module.name+'.toml'))
+            else:
+                module_specs[module.name] = {'None':''}
+        print_log(module_configs)
         self.module_configs = module_configs
-        return module_configs
+        self.module_specs = module_specs
+        return module_configs, module_specs
 
     def save_module_configs(self, module_configs):
 

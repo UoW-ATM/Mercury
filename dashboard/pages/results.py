@@ -2,6 +2,7 @@ import sys
 sys.path.insert(1, '../..')
 from dash import html, dcc, callback, Input, Output, State, dash_table, ctx
 from Mercury.libs.result_manager import Result_manager
+from Mercury.libs.input_manager import Input_manager
 import pandas as pd
 import os
 import numpy as np
@@ -55,6 +56,11 @@ def results_tab_pax(df_pax):
 dash.register_page(__name__)
 mapbox_access_token='pk.eyJ1IjoibTIwMDEiLCJhIjoiY2p3ODFlNnlyMDRpZDQ5czJuODc5NHlyaSJ9.A_X5Lb4IR-M4bss0HZiDTA'
 px.set_mapbox_access_token(mapbox_access_token)
+
+input_man = Input_manager()
+input_man.read_scenario('scenario=-1')
+input_man.read_scenario_data(names=['airports'])
+df_airports,_,_ = input_man.get_airports()['airports']
 
 result_man = Result_manager()
 df = result_man.read_results()
