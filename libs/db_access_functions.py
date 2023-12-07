@@ -2,17 +2,13 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 
-from math import asin
-from math import pi
 import scipy.stats as stats
 from scipy.interpolate import interp1d
-from pathlib import Path
 
 from .uow_tool_belt.connection_tools import read_mysql, read_data, write_data
-from .uow_tool_belt.general_tools import scale_and_s_from_mean_sigma_lognorm
 from .performance_trajectory.trajectory import TrajectorySegment, Trajectory
 from .performance_trajectory import unit_conversions as uc
-from .performance_trajectory import ac_performances as bap
+
 
 # # decorator to be able to save the output of the functions
 # def save_output(func):
@@ -777,9 +773,9 @@ def read_dict_fp_pool_ids(connection, fp_pool_table='fp_pool_table'):
 
 	df = read_data(connection=connection, query=sql)
 
-	df['key'] = df.apply(lambda x: (x['trajectory_pool_id'],x['route_pool_id'], x['bada_code_ac_model']),axis=1)
+	df['key'] = df.apply(lambda x: (x['trajectory_pool_id'],x['route_pool_id'], x['bada_code_ac_model']), axis=1)
 
-	df = df[['key','id']]
+	df = df[['key', 'id']]
 
 	return df.set_index('key').to_dict()['id']
 

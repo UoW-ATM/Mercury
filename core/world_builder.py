@@ -10,8 +10,6 @@ import gc
 import pandas as pd
 from numpy.random import RandomState
 from functools import partial, wraps
-# from memory_profiler import profile
-# from importlib.machinery import SourceFileLoader
 from pathlib import Path
 import pickle
 
@@ -25,7 +23,6 @@ from ..libs.uow_tool_belt.general_tools import scale_and_s_from_quantile_sigma_l
 from ..libs.uow_tool_belt.general_tools import scale_and_s_from_mean_sigma_lognorm, build_col_print_func
 from ..libs.uow_tool_belt.connection_tools import write_data
 from ..libs.performance_trajectory.unit_conversions import *
-
 
 from Mercury.agents.airline_operating_centre import AirlineOperatingCentre
 from Mercury.agents.ground_airport import GroundAirport
@@ -70,10 +67,11 @@ def trace(env, callback):
 
 class World:
 	# List of data needed to create the agents.
+	# Needed only if ScenarioLoaderSimple is used.
+	# TODO: add this in a toml file instead of hardcoded?
 
 	data_to_load = ['dict_ac_model_perf',
 					'dict_ac_model_perf',
-					'dict_ac_bada_code_ac_model',
 					'routes',
 					'manual_airport_regulations',
 					'stochastic_airport_regulations',
@@ -115,7 +113,7 @@ class World:
 					'regulations_at_airport_df'
 					]
 
-	data_to_load_optional = []  # TODO
+
 
 	def __init__(self, paras, log_file=None):
 		self.paras = paras
@@ -136,7 +134,11 @@ class World:
 
 		self.start_env()
 
+		# Internal knowldege / Attributes
 		self.uid = 0
+		self.flights = {}  # keys are IFPS here
+		self.flights_uid = {}  # keys are uids.
+		self.aircraft = {}
 
 		global aprint
 		aprint = build_col_print_func(self.paras['print_colors__alert'], file=log_file)
@@ -240,7 +242,7 @@ class World:
 			if not mspecs.get('get_metric', None) is None:
 				self.get_modules_results_functions.append(mspecs.get('get_metric'))
 
-			# Here if we go though all the modifications specified in all the module files
+			# Here if we go through all the modifications specified in all the module files
 			for agent, role_modif in mspecs.get('agent_modif', {}).items():
 				self.module_agent_paras[agent] = {'{}__{}'.format(module, para_name): self.sc.paras['{}__{}'.format(module, para_name)] for para_name in role_modif.get('new_parameters', [])}
 
@@ -913,8 +915,8 @@ class World:
 			self.alliances[row['alliance']].register_airline(aoc)
 
 	def create_flights(self):
-		self.flights = {} # keys are IFPS here !!!
-		self.flights_uid = {} # keys are uids.
+		self.flights = {}  # keys are IFPS here !!!
+		self.flights_uid = {}  # keys are uids.
 		self.aircraft = {}
 
 		for i, row in self.sc.df_schedules.iterrows():
@@ -1499,7 +1501,7 @@ class World:
 							   'wait_time_max', 'wait_time_chosen']:
 						if len(wfp_info) > 0:
 							pouet[k].append(wfp_info[0][k]) # [0] due to the fact it's always the first dictionary
-						else: # no wfp was ever even considered? --> wfp_info is an empty list
+						else:  # no wfp was ever even considered? --> wfp_info is an empty list
 							pouet[k].append(None)
 					else:
 						pouet[k] += [getattr(f, k)]

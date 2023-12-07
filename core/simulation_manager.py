@@ -83,7 +83,7 @@ class Mercury:
 								log_file=f
 								)
 
-		if not parametriser is None:
+		if parametriser is not None:
 			parametriser.set_world(world)
 
 		return world
@@ -294,7 +294,6 @@ class Mercury:
 		Used to make several iterations of the same set of input in sequential. Builds the world on the first iteration
 		and builds agents if required (after deep clean). Passes the world to _run_on_iter for the simulation.
 		"""
-
 		world = self.build_world(connection=connection_read,
 								 parametriser=parametriser,
 								 paras_scenario=paras_scenario,
