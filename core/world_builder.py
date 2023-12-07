@@ -17,12 +17,12 @@ from .delivery_system import Postman
 from .module_management import load_mercury_module
 from .scenario_loader import ScenarioLoaderSelector
 
-from ..libs.uow_tool_belt.general_tools import build_step_multi_valued_function, build_step_bivariate_function
-from ..libs.uow_tool_belt.general_tools import clock_time
-from ..libs.uow_tool_belt.general_tools import scale_and_s_from_quantile_sigma_lognorm
-from ..libs.uow_tool_belt.general_tools import scale_and_s_from_mean_sigma_lognorm, build_col_print_func
-from ..libs.uow_tool_belt.connection_tools import write_data
-from ..libs.performance_trajectory.unit_conversions import *
+from Mercury.libs.uow_tool_belt.general_tools import build_step_multi_valued_function, build_step_bivariate_function
+from Mercury.libs.uow_tool_belt.general_tools import clock_time
+from Mercury.libs.uow_tool_belt.general_tools import scale_and_s_from_quantile_sigma_lognorm
+from Mercury.libs.uow_tool_belt.general_tools import scale_and_s_from_mean_sigma_lognorm, build_col_print_func
+from Mercury.libs.uow_tool_belt.connection_tools import write_data
+from Mercury.libs.performance_trajectory.unit_conversions import *
 
 from Mercury.agents.airline_operating_centre import AirlineOperatingCentre
 from Mercury.agents.ground_airport import GroundAirport
@@ -730,6 +730,10 @@ class World:
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
 
 	def create_AMANs(self):
+		"""
+		Creates all AMANs, including EAMANs.
+
+		"""
 		self.eamans = {}
 		for i, row in self.sc.df_eaman_data.iterrows():
 			if self.airports_per_icao.get(row['icao_id'], None) is not None:

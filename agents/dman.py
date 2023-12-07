@@ -1,9 +1,9 @@
-from ..core.delivery_system import Letter
-from ..libs.uow_tool_belt.general_tools import build_col_print_func
+from Mercury.core.delivery_system import Letter
+from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func
 
-from .agent_base import Agent, Role
-from .commodities.slot_queue import SlotQueue
-from .commodities.slot_queue import CapacityPeriod
+from Mercury.agents.agent_base import Agent, Role
+from Mercury.agents.commodities.slot_queue import SlotQueue
+from Mercury.agents.commodities.slot_queue import CapacityPeriod
 
 
 class DMAN(Agent):

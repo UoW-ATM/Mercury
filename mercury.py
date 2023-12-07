@@ -257,20 +257,6 @@ if __name__=='__main__':
 					connection=connection,
 					how=profile_write_agg['mode'])
 
-
-	# for stuff, res in results_seq.items():
-	# 	with generic_connection(profile=profile_write_agg['connection'],
-	# 						typ=profile_write_agg['type']) as connection:
-	#
-	# 		file_name = 'results.csv'
-	#
-	# 		write_data(data=res,
-	# 					fmt=profile_write_agg['fmt'],
-	# 					path=profile_write_agg['path'],
-	# 					file_name=file_name,
-	# 					connection=connection,
-	# 					how=profile_write_agg['mode'])
-
 	if results_seq is not None:
 		for stuff, res in results_seq.items():
 			with generic_connection(profile=profile_write_agg['connection'],

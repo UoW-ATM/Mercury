@@ -1,10 +1,10 @@
 import simpy
 
-from ..core.delivery_system import Letter
-from ..libs.uow_tool_belt.general_tools import build_col_print_func
+from Mercury.core.delivery_system import Letter
+from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func
 
-from .agent_base import Agent, Role
-from .commodities.debug_flights import flight_uid_DEBUG
+from Mercury.agents.agent_base import Agent, Role
+from Mercury.agents.commodities.debug_flights import flight_uid_DEBUG
 
 
 class Radar(Agent):

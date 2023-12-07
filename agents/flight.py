@@ -1,6 +1,3 @@
-# import sys
-# sys.path.insert(1, '..')
-
 import simpy
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,16 +5,14 @@ import pandas as pd
 
 from scipy.stats import norm
 
-from .agent_base import Agent, Role
+from Mercury.core.delivery_system import Letter
 
-from ..libs.other_tools import flight_str
-from ..libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
+from Mercury.libs.other_tools import flight_str
+from Mercury.libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
+from Mercury.libs.performance_trajectory import unit_conversions as uc
 
-from ..core.delivery_system import Letter
-
-from ..libs.performance_trajectory import unit_conversions as uc
-
-from .commodities.debug_flights import flight_uid_DEBUG
+from Mercury.agents.agent_base import Agent, Role
+from Mercury.agents.commodities.debug_flights import flight_uid_DEBUG
 
 
 class Flight(Agent):

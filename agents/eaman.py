@@ -1,11 +1,11 @@
 import pandas as pd
 
-from .agent_base import Role
-from ..core.delivery_system import Letter
-from ..libs.uow_tool_belt.general_tools import build_col_print_func
+from Mercury.core.delivery_system import Letter
+from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func
 
-from .aman import AMAN, ArrivalQueuePlannedUpdater, StrategicArrivalQueueBuilder, FlightInAMANHandler
-from .aman import ArrivalTacticalProvider, SlotAssigner, ArrivalCancellationHandler
+from Mercury.agents.agent_base import Role
+from Mercury.agents.aman import AMAN, ArrivalQueuePlannedUpdater, StrategicArrivalQueueBuilder, FlightInAMANHandler
+from Mercury.agents.aman import ArrivalTacticalProvider, SlotAssigner, ArrivalCancellationHandler
 
 
 class EAMAN(AMAN):
