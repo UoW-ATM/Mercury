@@ -450,7 +450,7 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 		# For these the connection needs to be adjusted as it's not in the input folder but whenever the paras_path has defined it
 		# the paras_path are the whole path
 
-		# Read ac_icao, wake turbulence, engine type as a common reference, but probably not needed
+		# Read ac_icao, wake turbulence, engine type as a common reference, needed to find WTC of ac missing to choose default
 		self.dict_wtc_engine_type = read_dict_ac_icao_wtc_engine(connection={'ssh_connection': connection['ssh_connection'],
 																			 'type': 'parquet', 'base_path': self.paras_paths['ac_icao_wake_engine'].parent},
 																 table=self.paras_paths['ac_icao_wake_engine'].stem)
