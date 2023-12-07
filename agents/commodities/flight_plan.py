@@ -171,7 +171,7 @@ class FlightPlan:
 		self.destination_icao = destination_icao
 		self.flight_uid = flight_uid
 		self.fuel_price = fuel_price
-		self.bada_code_ac_model = None  # Aircaft type used for the flight
+		self.ac_performance_model = None  # Aircaft type used for the flight
 
 		# List of Points that define the originally planned flight plan
 		self.points_original_planned = OrderedDict()
@@ -727,21 +727,21 @@ class FlightPlan:
 			time_prev = v.time_min
 			dist_prev = v.dist_from_orig_nm
 
-	def compute_max_min_mrc_speed_cruise(self, bada_performances):
-		# Note this will crash if bada_performances are not BADA4
+	def compute_max_min_mrc_speed_cruise(self, performance_model):
+		# Note this will crash if performance_model are not BADA4
 		alt_prev = None
 		weight_prev = None
 		m_min_start = None
 		for v in self.points_original_planned.values():
 			if v.alt_ft == alt_prev:
 				# cruise
-				m_min_end, m_max_end = bada_performances.compute_min_max_mach(fl=v.alt_ft, mass=v.weight)
+				m_min_end, m_max_end = performance_model.compute_min_max_mach(fl=v.alt_ft, mass=v.weight)
 				if m_min_start is None:
-					m_min_start, m_max_start = bada_performances.compute_min_max_mach(fl=v.alt_ft, mass=weight_prev)
+					m_min_start, m_max_start = performance_model.compute_min_max_mach(fl=v.alt_ft, mass=weight_prev)
 
 				# if m_min_end is None:
 				#     print("---------")
-				#     print(bada_performances.bada_version, bada_performances.ac_icao, bada_performances.ac_model, v.weight, weight_prev, v.name, v.coords, v.alt_ft)
+				#     print(performance_model.model_version, performance_model.ac_icao, performance_model.ac_model, v.weight, weight_prev, v.name, v.coords, v.alt_ft)
 				#     print("---------")
 				#     print()
 
@@ -772,7 +772,7 @@ class FlightPlan:
 				m_min_start = m_min
 				m_max_start = m_max
 				
-				m_mrc, sr = bada_performances.compute_mrc_speed(fl=v.alt_ft, mass=(v.weight+weight_prev)/2)
+				m_mrc, sr = performance_model.compute_mrc_speed(fl=v.alt_ft, mass=(v.weight+weight_prev)/2)
 				if m_mrc is not None:
 					# v.segment_mrc_speed_kt = m2kt(m=m_mrc,fl=v.alt_ft)
 					v.dict_speeds['mrc_kt'] = m2kt(m=m_mrc, fl=v.alt_ft)
@@ -1203,7 +1203,7 @@ class FlightPlan:
 			points=self.points_original_planned
 
 		if build_name:
-			fig_name+=str(self.origin_icao)+"_"+str(self.destination_icao)+"_"+str(self.bada_code_ac_model)+"_"+str(self.flight_uid)+".svg"
+			fig_name += str(self.origin_icao)+"_"+str(self.destination_icao)+"_"+str(self.ac_performance_model)+"_"+str(self.flight_uid)+".svg"
 		x = []
 		y = []
 		speeds = []

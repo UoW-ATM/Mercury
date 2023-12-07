@@ -193,6 +193,11 @@ class World:
 		"""
 		sl = ScenarioLoaderSelector().select(self.paras['read_profile']['scenario_loader'])
 
+		# Add into paras_scenario the information on ac performance which is in mercury paras (self.paras)
+		paras_scenario['ac_icao_wake_engine'] = self.paras['computation__ac_performance']['ac_icao_wake_engine']
+		paras_scenario['performance_model'] = self.paras['computation__ac_performance']['performance_model']
+		paras_scenario['performance_model_params'] = self.paras['computation__ac_performance'][paras_scenario['performance_model']]
+
 		self.sc = sl(info_scenario=info_scenario,
 					 case_study_conf=case_study_conf,
 					 data_scenario=data_scenario,
@@ -200,12 +205,13 @@ class World:
 					log_file=log_file,
 					print_color_info=self.paras['print_colors__info'])
 
-		self.sc.load_all_data(data_to_load=self.data_to_load,
-								process=self.process,
-								connection=connection,
-								rs=self.rs,
-								profile_paras=self.paras['read_profile'],
-								verbose=self.paras['computation__verbose'])
+		self.sc.load_all_data(rs=self.rs,
+							  connection=connection,
+							  profile_paras=self.paras['read_profile'],
+							  process=self.process,
+							  verbose=self.paras['computation__verbose'], # For ScenarioLoaderSimple
+							  data_to_load=self.data_to_load # For ScenarioLoaderSimple
+							  )
 
 		# TODO: check incompatibilities between modules.
 		# Load modules
@@ -495,7 +501,7 @@ class World:
 
 	def prepare_flight_plans(self):
 		self.fp_pool = {}
-		for (origin_icao, destination_icao, bada, _, _), fp in self.sc.dict_fp.items():
+		for (origin_icao, destination_icao, ac_model, _, _), fp in self.sc.dict_fp.items():
 			O, D = self.airports_per_icao[origin_icao].uid, self.airports_per_icao[destination_icao].uid
 
 			fp.origin_airport_uid = O
@@ -503,7 +509,7 @@ class World:
 			fp.origin_icao = origin_icao
 			fp.destination_icao = destination_icao
 
-			self.fp_pool[(O, D, bada)] = self.fp_pool.get((O, D, bada), []) + [fp]
+			self.fp_pool[(O, D, ac_model)] = self.fp_pool.get((O, D, ac_model), []) + [fp]
 
 	def check_consistency(self):
 		# Check that consecutive flights sharing the same aircraft land
@@ -904,7 +910,7 @@ class World:
 				aoc.register_airport(airport)
 
 			# TODO: only register relevant fp for this given AOC
-			aoc.register_fp_pool(self.fp_pool)
+			aoc.register_fp_pool(self.fp_pool, self.sc.dict_fp_ac_icao_ac_model)
 
 			if not row['alliance'] in self.alliances.keys():
 				alliance = Alliance(uid=self.uid, icao=row['alliance'])
@@ -929,21 +935,20 @@ class World:
 										registration=row['registration'],
 										seats=row['max_seats'],
 										ac_type=row['aircraft_type'],
-										bada_code_ac_model=self.sc.dict_ac_bada_code_ac_model[row['aircraft_type']],
-										bada_code_ac_model_ac_eq=self.sc.dict_ac_bada_code_ac_model_with_ac_eq[row['aircraft_type']],
+										ac_icao_code_performance_model=self.sc.dict_ac_icao_ac_model.get(row['aircraft_type']),
 										rs=self.rs)
-				if aircraft.bada_code_ac_model is None:
+				if aircraft.ac_icao_code_performance_model is None:
 					aprint("Aircraft performances missing for ", row['aircraft_type'])
 					raise Exception()
 
-				aircraft.performances = self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model,
-																		self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model,
-																	    self.sc.dict_ac_model_perf.get(aircraft.bada_code_ac_model_ac_eq)))
+				aircraft.performances = self.sc.dict_ac_model_perf.get(aircraft.ac_icao_code_performance_model)
 
 				if aircraft.performances is None:
-					aprint("Aircraft BADA performances missing for ", aircraft.bada_code_ac_model)
+					aprint("Aircraft Performance Model missing for ", aircraft.ac_icao_code_performance_model)
 					raise Exception()
 
+				if aircraft.performances.wtc is None:
+					aircraft.performances.wtc = self.sc.dict_wtc_engine_type[aircraft.ac_icao_code_performance_model]['wake']
 				aircraft.wtc = aircraft.performances.wtc
 
 				self.aircraft[row['registration']] = aircraft

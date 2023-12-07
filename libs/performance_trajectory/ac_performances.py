@@ -13,7 +13,7 @@ from . import trajectory as tr
 
 class AircraftPerformance(ABC):
 	engine_type = ""
-	bada_version = -1
+	model_version = -1
 
 	def __init__(self, ac_icao, ac_model, wtc, s, wref, m_nom, mtow, oew, mpl, vfe, m_max, hmo, d, f):
 		self.ac_icao = ac_icao
@@ -624,7 +624,7 @@ class AircraftPerformance(ABC):
 		fl_lower = fl_1 - climb_step
 		fl_used = fl_1
 		weight = weight_1
-		traj = tr.Trajectory(self.ac_icao, self.ac_model, self.bada_version, self.oew, self.mpl)
+		traj = tr.Trajectory(self.ac_icao, self.ac_model, self.model_version, self.oew, self.mpl)
 
 		n = max(1, min(ceil(cruise_distance / min_d_dist), max_steps))
 		d_dist = cruise_distance / n
@@ -824,7 +824,7 @@ class AircraftPerformance(ABC):
 							cruise_wind=0):
 		# TODO force_climb not implemented
 
-		traj = tr.Trajectory(self.ac_icao, self.ac_model, self.bada_version, self.oew, self.mpl, fp_distance)
+		traj = tr.Trajectory(self.ac_icao, self.ac_model, self.model_version, self.oew, self.mpl, fp_distance)
 
 		# print("*HERE ",fp_distance, fl, weight_landing, cruise_wind, max_climbs, try_lower_fl)
 
@@ -998,7 +998,7 @@ class AircraftPerformance(ABC):
 
 
 class AircraftPerformanceBada3(AircraftPerformance):
-	bada_version = 3
+	model_version = 3
 
 	def __init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
 				 oew=0, mpl=0, hmo=0, vfe=0, m_max=0, v_stall=0, d=[0],

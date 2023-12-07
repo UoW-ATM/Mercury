@@ -268,7 +268,7 @@ class GroundHandler(Role):
 		aircraft = msg['body']['aircraft']
 
 		mprint('Flight', msg['body']['flight_uid'], 'waits for turnaround of', aircraft)
-		tt = self.compute_turnaround_time(aircraft.bada_performances.wtc, msg['body']['ao_type'])
+		tt = self.compute_turnaround_time(aircraft.performances.wtc, msg['body']['ao_type'])
 		
 		self.agent.env.process(self.do_turnaround(aircraft, tt))
 

@@ -56,6 +56,11 @@ class ScenarioLoader:
 
 		case_study_paras_paths = unfold_paras_dict(case_study_conf['data'], data_path=cs_data_path)
 
+		# Add information on performance models paths
+		case_study_paras_paths['ac_icao_wake_engine'] = Path(paras_scenario['ac_icao_wake_engine'])
+		case_study_paras_paths['ac_icao_perfomance_model'] = Path(paras_scenario['performance_model_params']['ac_icao_perfomance_model'])
+		case_study_paras_paths['perf_models_path'] = Path(paras_scenario['performance_model_params']['perf_models_path'])
+
 		# update data paths from case study:
 		for stuff, path in case_study_paras_paths.items():
 			self.paras_paths[stuff] = path
@@ -223,7 +228,7 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 			route_pool_id = row['route_pool_id']
 			origin = row['icao_orig']
 			destination = row['icao_dest']
-			bada_code_ac_model = row['bada_code_ac_model']
+			ac_icao_code_performance_model = row['bada_code_ac_model']
 			fp_distance_nm = row['fp_distance_nm']
 			crco_cost_EUR = row['crco_cost_EUR']
 			sequence = row['sequence']
@@ -232,8 +237,8 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 			lon = row['lon']
 			alt_ft = row['alt_ft']
 			time_min = row['time_min']
-			if name == "landing" and row['dist_to_dest_nm']!=0:
-				aprint("Routes which landing is wrong, manually fixed in code: ",origin, destination, bada_code_ac_model)
+			if name == "landing" and row['dist_to_dest_nm'] != 0:
+				aprint("Routes which landing is wrong, manually fixed in code: ", origin, destination, ac_icao_code_performance_model)
 				dist_from_orig_nm = fp_distance_nm
 				dist_to_dest_nm = 0
 			else:
@@ -249,17 +254,17 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 			max_speed_kt = row['max_speed_kt']
 			mrc_speed_kt = row['mrc_speed_kt']
 
-			fp = self.dict_fp.get((origin, destination, bada_code_ac_model, trajectory_pool_id, route_pool_id), None)
+			fp = self.dict_fp.get((origin, destination, ac_icao_code_performance_model, trajectory_pool_id, route_pool_id), None)
 
 			if fp is None:
-				#Create FP
+				# Create FP
 				fp = FlightPlan()
 				fp.fp_pool_id = fp_pool_id
 				fp.crco_cost_EUR = crco_cost_EUR
 				fp.rs = self.rs
-				number_order=0
+				number_order = 0
 			else:
-				number_order+=1
+				number_order += 1
 
 			fp.add_point_original_planned(coords=(lat, lon),
 						name=name,
@@ -306,15 +311,20 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 		self.process = psutil.Process(os.getpid())
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
-		with clock_time(message_before='Getting BADA performances...',
+		with clock_time(message_before='Loading scenario...',
 						oneline=True, print_function=mprint):
 			self.load_scenario(connection=connection)
-			self.load_bada_performances(connection=connection)
 
 		with clock_time(message_before="Getting schedules...",
 						oneline=True, print_function=mprint):
 			self.load_schedules(connection=connection)
 			self.choose_reference_datetime()
+
+		with clock_time(message_before='Getting aircraft performance models...',
+						oneline=True, print_function=mprint):
+
+			self.load_aircraft_performances(connection=connection,
+											ac_types_needed=self.df_schedules.aircraft_type.drop_duplicates())
 
 		with clock_time(message_before='Getting ATFM probabilities...',
 						oneline=True, print_function=mprint):
@@ -394,6 +404,13 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 				else:
 					raise(err)
 
+		self.dict_fp_ac_icao_ac_model = {}
+		if self.paras_paths.get('input_fp_pool_ac_icao_ac_model') is not None:
+			# We have a relationship between AC ICAO code and AC model used for FP generation
+			self.dict_fp_ac_icao_ac_model = read_dict_fp_ac_icao_ac_model(connection,
+																		  ac_icao_ac_model_table=self.paras_paths['input_fp_pool_ac_icao_ac_model'],
+																		  scenario=self.scenario)
+
 	def load_flight_plans(self, connection=None):
 		#Get flight plans
 		# Before allowing to use routes instead of FP and allowing
@@ -413,14 +430,67 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 			self.create_flight_plans()
 
 	def load_bada_performances(self, connection=None):
-		# Read aircraft performance
-		dab3 = DataAccessPerformance(db=self.paras_paths['db_bada3'])
-		self.dict_ac_model_perf = dab3.read_ac_performances(connection=connection,
-																  scenario=self.scenario)
+		"""
+		OLD DEPRECATED - TO BE REMOVED ONCE BADA4 capabilities brought back
+		"""
+		# Read BADA preformances
+		dab3 = DataAccessPerformance(db=self.paras['db_bada3'])
+		dab4 = DataAccessBADA4(db=self.paras['db_bada4'])
+		self.dict_ac_model_perf = dab3.read_ac_performances(connection=connection)
+		self.dict_ac_model_perf = dab4.read_ac_performances(connection=connection,
+																				dict_key="ac_model")
 
-		self.dict_ac_bada_code_ac_model, self.dict_ac_bada_code_ac_model_with_ac_eq = read_dict_ac_bada_code_ac_model(connection=connection,
-																		  table=self.paras_paths['input_aircraft_eq_badacomputed'],
-																		  scenario=self.scenario)
+		self.dict_ac_bada_code_ac_model = read_dict_ac_bada_code_ac_model(connection=connection,
+																			table=self.paras['input_aircraft_eq_badacomputed'])
+
+	def load_aircraft_performances(self, connection=None, ac_types_needed=None):
+		# For these the connection needs to be adjusted as it's not in the input folder but whenever the paras_path has defined it
+		# the paras_path are the whole path
+
+		# Read ac_type, wake turbulence, engine type
+		self.dict_wtc_engine_type = read_dict_ac_type_wtc_engine(connection={'ssh_connection': connection['ssh_connection'],
+																			 'type': 'parquet', 'base_path': self.paras_paths['ac_icao_wake_engine'].parent},
+																 table=self.paras_paths['ac_icao_wake_engine'].stem)
+
+		# Read ac_icao --> performance model dictionary
+		self.dict_ac_icao_ac_model = read_dict_ac_icao_ac_model(connection={'ssh_connection': connection['ssh_connection'],
+																			 'type': 'parquet', 'base_path': self.paras_paths['ac_icao_perfomance_model'].parent},
+																table=self.paras_paths['ac_icao_perfomance_model'].stem)
+
+		# Check models needed
+		ac_models_needed = set()
+		if ac_types_needed is not None:
+			# Load default ac types if available (given in mercury_config.toml)
+			dict_default_ac_types = self.paras['performance_model_params'].get('default_ac_types', {})
+			# Iterate over ac_types_needed to get model code
+			for a in ac_types_needed:
+				a_model = self.dict_ac_icao_ac_model.get(a)
+				if a_model is None:
+					# Model not available check default WTC_EngineType instead
+					if self.dict_wtc_engine_type.get(a) is not None:
+						wt = self.dict_wtc_engine_type.get(a)
+						if wt is not None:
+							a_model = dict_default_ac_types.get(wt['wake']+'_'+wt['engine_type'])
+							# Add model to list
+							self.dict_ac_icao_ac_model[a] = a_model
+							if a_model is None:
+								raise("Default ac for ", wt['wake']+'_'+wt['engine_type'], " not available")
+						else:
+							raise("WTC not available for ac", a)
+					else:
+						raise("AC type not available for performance model", a)
+
+				ac_models_needed.add(a_model)
+
+		# Read aircraft performance
+		# Get DataAccessPerformance for model used
+		daap = get_data_access_performance(model=self.paras['performance_model'], models_path=self.paras_paths['perf_models_path'])
+
+		self.dict_ac_model_perf = daap.read_ac_performances(connection=connection, ac_models_needed=list(ac_models_needed))
+
+		#self.xxdict_ac_bada_code_ac_model, self.xxdict_ac_bada_code_ac_model_with_ac_eq = read_dict_ac_bada_code_ac_model(connection=connection,
+		#																	  table=self.paras_paths['input_aircraft_eq_badacomputed'],
+		#																  scenario=self.scenario)
 
 
 	def load_scenario(self, connection=None):

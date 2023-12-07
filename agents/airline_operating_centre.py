@@ -230,7 +230,7 @@ class AirlineOperatingCentre(Agent):
 		"""
 		return self.cr.get_tat(airport_uid, flight_uid)
 		# aircraft = self.aoc_flights_info[flight_uid]['aircraft']
-		# return self.aoc_airports_info[airport_uid]['tats'][aircraft.bada_performances.wtc][self.airline_type]
+		# return self.aoc_airports_info[airport_uid]['tats'][aircraft.performances.wtc][self.airline_type]
 
 	def get_number_seats_flight(self, flight_uid):
 		"""
@@ -390,11 +390,14 @@ class AirlineOperatingCentre(Agent):
 		"""
 		self.trajectory_pool = trajectory_pool
 
-	def register_fp_pool(self, fp_pool):
+	def register_fp_pool(self, fp_pool, dict_fp_ac_icao_ac_model=None):
 		"""
 		Register poool of flight plans.
 		"""
+		if dict_fp_ac_icao_ac_model is None:
+			dict_fp_ac_icao_ac_model = {}
 		self.fp_pool = fp_pool
+		self.dict_fp_ac_icao_ac_model = dict_fp_ac_icao_ac_model
 
 	def register_nm(self, nm):
 		"""
@@ -962,11 +965,11 @@ class AirlineFlightPlanner(Role):
 			eobt = max(eobt, aoc_flight_info['sobt'])
 		origin_airport_uid = aoc_flight_info['origin_airport_uid']
 		destination_airport_uid = aoc_flight_info['destination_airport_uid']
-		# ac_performances_bada = aoc_flight_info['aircraft'].bada_performances
-		bada_code_ac_model = aoc_flight_info['aircraft'].bada_code_ac_model
+		ac_type = aoc_flight_info['aircraft'].ac_type
 
 		try:
-			possible_fp_pool = self.agent.fp_pool[(origin_airport_uid, destination_airport_uid, bada_code_ac_model)]
+			possible_fp_pool = self.agent.fp_pool[(origin_airport_uid, destination_airport_uid,
+												   self.agent.dict_fp_ac_icao_ac_model.get(ac_type, ac_type))]
 		except:
 			print('COICOIN', list(self.agent.fp_pool.keys()))
 			raise
@@ -981,7 +984,7 @@ class AirlineFlightPlanner(Role):
 			fp.sibt = aoc_flight_info['sibt']
 			fp.exot = np.round(self.agent.aoc_airports_info[origin_airport_uid]['avg_taxi_out_time'], 2)
 			fp.exit = np.round(self.agent.aoc_airports_info[destination_airport_uid]['avg_taxi_in_time'], 2)
-			fp.bada_code_ac_model = bada_code_ac_model
+			fp.ac_performance_model = self.agent.dict_fp_ac_icao_ac_model.get(ac_type, ac_type)
 			fp.flight_uid = aoc_flight_info['flight_uid']
 			fp.fuel_price = self.agent.fuel_price
 			fp.compute_eibt()
@@ -991,7 +994,7 @@ class AirlineFlightPlanner(Role):
 			fp_options = fp_options + [fp]
 
 		if self.agent.remove_shorter_route_calibration:
-			if len(fp_options)>1:
+			if len(fp_options) > 1:
 				fp_options = [(option, option.get_total_planned_distance()) for option in fp_options]
 				fp_options = sorted(fp_options, key=lambda x: x[1], reverse=True)[:-1]
 				fp_options = list(zip(*fp_options))[0]
@@ -3832,7 +3835,7 @@ class TurnaroundOperations(Role):
 
 		ac_ready_at_time = self.agent.env.now + tt
 
-		# print(ac_ready_at_time, self.agent.aoc_flights_info[flight_uid]['aircraft'].bada_code_ac_model)
+		# print(ac_ready_at_time, self.agent.aoc_flights_info[flight_uid]['aircraft'].ac_icao_code_performance_model)
 
 		reactionar_del = max(0., ac_ready_at_time-self.agent.aoc_flights_info[flight_uid]['sobt'])
 

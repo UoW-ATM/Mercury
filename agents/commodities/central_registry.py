@@ -95,7 +95,7 @@ class CentralRegistry:
 		"""
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
 		aircraft = aoc.aoc_flights_info[flight_uid]['aircraft']
-		return aoc.aoc_airports_info[airport_uid]['tats'][aircraft.bada_performances.wtc][aoc.airline_type]
+		return aoc.aoc_airports_info[airport_uid]['tats'][aircraft.performances.wtc][aoc.airline_type]
 
 	def get_first_obt(self, itinerary):
 		flight_uid_origin, aoc_origin_uid = itinerary[0]
