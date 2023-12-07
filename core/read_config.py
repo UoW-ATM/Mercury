@@ -1,6 +1,7 @@
 import tomli
 from pathlib import Path
 
+
 def unfold_paras_dict(dictionary, data_path=Path()):
 	new_dict = {}
 
@@ -9,7 +10,8 @@ def unfold_paras_dict(dictionary, data_path=Path()):
 			if isinstance(v, dict):
 				traverse(v, d, ppath / k)
 			else:
-				d[k] = Path(ppath) / v
+				if (v != 'None') and (v != 'none'):
+					d[k] = Path(ppath) / v
 		return d
 
 	return traverse(dictionary, new_dict, data_path)
