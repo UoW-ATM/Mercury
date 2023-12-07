@@ -105,12 +105,12 @@ Manual and references
 
 A more complete manual is in construction and can be found here_.
 
-.. _here: https://uow-atm.github.io/Mercury/Mercury.html
+.. _here: https://uow-atm.github.io/Mercury
 
 The following articles can also be consulted to learn more about
 Mercury:
 
--  the one included in docs/SIDs_2023_OpenMercury.pdf, presenting the general approach to Mercury,
+-  the one included in `the repo <https://github.com/UoW-ATM/Mercury/blob/master/docs/SIDs_2023_OpenMercury.pdf>`_, presenting the general approach to Mercury,
 -  the one available there_ showing some details of Mercury and some examples of its uses, from a few years back.
 
 .. _there: https://www.sciencedirect.com/science/article/abs/pii/S0968090X21003600
