@@ -129,3 +129,5 @@ logs/
 results/
 
 *.zip
+
+libs/performance_trajectory/performance_models/bada/bada3/
