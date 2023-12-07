@@ -18,7 +18,8 @@ from ..libs.db_access_functions import read_fp_pool, read_dict_fp_ac_icao_ac_mod
 										read_airports_modif_data, read_turnaround_data, read_eamans_data, read_compensation_data, \
 										read_doc_data, read_non_pax_cost_data, read_non_pax_cost_fit_data, read_nonpax_cost_curfews, \
 										read_estimated_avg_costs_curfews, read_airlines_data, read_extra_cruise_if_dci, \
-										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports
+										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports, \
+										read_all_regulation_days
 from ..libs.db_ac_performance import DataAccessPerformance
 from ..libs.db_ac_performance_provider import get_data_access_performance
 
