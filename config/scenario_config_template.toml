@@ -10,89 +10,81 @@ description = "Test"
 	input_delay_paras = 'delay_parameters'
 
 	[data.network_manager]
-	input_atfm_delay = 'iedf_atfm_static_old1409'
-	input_atfm_prob = 'prob_atfm_static_old1409'
+	input_atfm_delay = 'iedf_atfm_static'
+	input_atfm_prob = 'prob_atfm_static'
 
-	input_regulation_at_airport_days = 'regulation_at_airport_days_static_old1409'
-	input_atfm_regulation_at_airport = 'regulation_at_airport_static_old1409'
-	input_atfm_regulation_at_airport_manual = 'regulation_at_airport_manual_old1409'
+	input_regulation_at_airport_days = 'regulation_at_airport_days_static'
+	input_atfm_regulation_at_airport = 'regulation_at_airport_static'
+	input_atfm_regulation_at_airport_manual = 'regulation_at_airport_manual'
 
 	[data.costs]
-	input_soft_cost = 'soft_cost_delay_static_old1409'
-	input_compensation = 'passenger_compensation_static_old1409'
-	input_doc = 'duty_of_care_static_old1409'
-	input_non_pax_cost = 'non_pax_delay_static_old1409'
-	input_non_pax_cost_fit = 'non_pax_delay_fit_static_old1409'
-	input_cost_curfews = 'curfew_non_pax_costs_old1409'
-	input_estimated_cost_curfews = 'curfew_costs_estimated_old1409'
+	input_soft_cost = 'soft_cost_delay_static'
+	input_compensation = 'passenger_compensation_static'
+	input_doc = 'duty_of_care_static'
+	input_non_pax_cost = 'non_pax_delay_static'
+	input_non_pax_cost_fit = 'non_pax_delay_fit_static'
+	input_cost_curfews = 'curfew_non_pax_costs'
+	input_estimated_cost_curfews = 'curfew_costs_estimated'
 
 	[data.pax]
-	input_itinerary = 'pax_itineraries_old1409'
+	input_itinerary = 'pax_itineraries'
 
 	[data.airports]
-	input_airport = 'airport_info_static_old1409'
-	input_mtt = 'mtt_static_old1409'
-	input_airport_modif = 'airport_modif_cap_old1409'
+	input_airport = 'airport_info_static'
+	input_mtt = 'mtt_static'
+	input_airport_modif = 'airport_modif_cap'
 
 		[data.airports.curfew]
 		icao_airport_name = 'icao'
 		curfew_airport_name = 'arrival_curfew_start'
-		input_airport_curfew = 'airports_curfews_ectl_old1409'
-		input_curfew_extra_time = 'airports_extra_time_curfews_ectl_old1409'
-		input_airports_with_curfews = 'airports_with_curfews_old1409'
-		input_airports_curfew2 = 'airport_curfew_old1409'
+		input_airport_curfew = 'airports_curfews_ectl'
+		input_curfew_extra_time = 'airports_extra_time_curfews_ectl'
+		input_airports_with_curfews = 'airports_with_curfews'
+		input_airports_curfew2 = 'airport_curfew'
 
 		[data.airports.taxi]
-		input_taxi_in = 'taxi_in_static_old1409'
-		input_taxi_out = 'taxi_out_static_old1409'
+		input_taxi_in = 'taxi_in_static'
+		input_taxi_out = 'taxi_out_static'
 
 
 	[data.eaman]
-	input_eaman = 'eaman_definition_old1409' # table name
+	input_eaman = 'eaman_definition' # table name
 
 	[data.airlines]
-	input_airline = 'airline_static_old1409' # table name
+	input_airline = 'airline_static' # table name
 
 	[data.schedules]
-	input_schedules = 'flight_schedule_old1409' # table name
-	input_subset = 'flight_subset'
-
-	[data.ac_performance]
-		[data.ac_performance.bada]
-			#CR
-		#BADA performances databases
-		db_bada3 = "bada3"
-		db_bada4 = "bada4_2"
-		input_aircraft_eq_badacomputed = 'ac_eq_badacomputed_static_old1409'
+	input_schedules = 'flight_schedule' # table name
 
 	[data.flight_plans]
 		[data.flight_plans.crco]
 		#CRCO if computing FPs
-		input_crco_charges = 'crco_charges_static_old1409'
-		input_crco_vat = 'crco_vat_static_old1409'
-		input_crco_fix = 'crco_fix_static_old1409'
-		input_overfly = 'crco_overfly_static_old1409'
-		input_crco_weight = 'crco_weight_static_old1409'
+		input_crco_charges = 'crco_charges_static'
+		input_crco_vat = 'crco_vat_static'
+		input_crco_fix = 'crco_fix_static'
+		input_overfly = 'crco_overfly_static'
+		input_crco_weight = 'crco_weight_static'
 
 		[data.flight_plans.routes]
-		input_route_pool = 'route_pool_old1409'
-		input_route_pool_has_airspace = 'route_pool_has_airspace_static_old1409'
-		input_airspace = 'airspace_static_old1409'
+		input_route_pool = 'route_pool'
+		input_route_pool_has_airspace = 'route_pool_has_airspace_static'
+		input_airspace = 'airspace_static'
 
 		[data.flight_plans.trajectories]
-		input_trajectory_pool = 'trajectory_pool_old1409'
-		input_trajectory_segments = 'trajectory_segment_old1409'
+		input_trajectory_pool = 'trajectory_pool'
+		input_trajectory_segments = 'trajectory_segment'
 
 		[data.flight_plans.flight_plans_pool]
-		input_fp_pool = 'fp_pool_m_old1409'
-		input_fp_pool_point = 'fp_pool_point_m_old1409'
+		input_fp_pool = 'fp_pool_m'
+		input_fp_pool_point = 'fp_pool_point_m'
+		input_fp_pool_ac_icao_ac_model = 'fp_pool_ac_icao_ac_model' # relationship between ac ICAO code and ac model used in fp generation (not needed)
 
 		[data.flight_plans.flight_uncertainties]
-		input_flight_uncertainties = 'flight_uncertainties_static_old1409'
-		input_extra_cruise_if_dci = 'increment_cruise_dci_static_old1409'
+		input_flight_uncertainties = 'flight_uncertainties_static'
+		input_extra_cruise_if_dci = 'increment_cruise_dci_static'
 
 		[data.flight_plans.en_route_wind]
-		input_iedf_wind_static = 'iedf_wind_static_old1409'
+		input_iedf_wind_static = 'iedf_wind_static'
 		wind_type = 'LIKE \"%%segment%%\"'
 
 
