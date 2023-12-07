@@ -7,8 +7,8 @@ sys.path.insert(1, "../..")
 
 from numpy.random import RandomState
 
-from ..libs.uow_tool_belt.general_tools import build_col_print_func, clock_time
-from ..libs.db_access_functions import *
+from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func, clock_time
+from Mercury.libs.db_access_functions import *
 
 from Mercury.core.read_config import read_toml, unfold_paras_dict
 from Mercury.agents.commodities.flight_plan import FlightPlan

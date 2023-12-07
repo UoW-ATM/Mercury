@@ -10,9 +10,10 @@ import sys
 
 import simpy
 
-from Mercury.agents.modules.paras_HMI_FP_SEL import paras
+from Mercury.core.delivery_system import Letter
 
-from Mercury.libs.delivery_system import Letter
+from Mercury.modules.HMI_HOTSPOT.paras_HMI_FP_SEL import paras
+
 
 # When you want to choose the option in command line
 def select_fp_cli(self, cost_options, flight_uid):

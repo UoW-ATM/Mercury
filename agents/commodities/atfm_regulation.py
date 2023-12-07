@@ -1,8 +1,8 @@
 import simpy
 
-from .slot_queue import SlotQueue
-from ...libs.other_tools import flight_str
-from .debug_flights import flight_uid_DEBUG
+from Mercury.libs.other_tools import flight_str
+from Mercury.agents.commodities.slot_queue import SlotQueue
+from Mercury.agents.commodities.debug_flights import flight_uid_DEBUG
 
 class ATFMRegulation:
 	"""

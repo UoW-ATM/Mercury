@@ -9,9 +9,9 @@ from pathlib import Path
 import simpy
 from simpy.events import AllOf
 
-from Mercury.agents.modules.HMI_HOTSPOT.paras_HMI_HOTSPOT import paras
-from Mercury.agents.modules.CM.paras_CM import paras as paras_CM
-from Mercury.libs.delivery_system import Letter
+from Mercury.modules.HMI_HOTSPOT.paras_HMI_HOTSPOT import paras
+from Mercury.modules.CM.paras_CM import paras as paras_CM
+from Mercury.core.delivery_system import Letter
 
 from Mercury.libs.uow_tool_belt.general_tools import clock_time
 

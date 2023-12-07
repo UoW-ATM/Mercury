@@ -2,9 +2,9 @@ import math
 import copy
 import uuid
 
-from ...libs.other_tools import flight_str
-from ...libs.uow_tool_belt.general_tools import alert_print as aprint
-from .debug_flights import flight_uid_DEBUG
+from Mercury.libs.other_tools import flight_str
+from Mercury.libs.uow_tool_belt.general_tools import alert_print as aprint
+from Mercury.agents.commodities.debug_flights import flight_uid_DEBUG
 
 class Slot:
 	def __init__(self, slot_num=None, time=None, duration=None, capacity_period=None):

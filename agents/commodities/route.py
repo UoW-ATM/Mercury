@@ -1,10 +1,7 @@
-# import sys
-# sys.path.insert(1, '../..')
-
 from numpy import *
 from collections import OrderedDict
 
-from ...libs.uow_tool_belt.general_tools import distance_euclidean, alert_print as aprint
+from Mercury.libs.uow_tool_belt.general_tools import distance_euclidean, alert_print as aprint
 
 
 class RoutePoint:

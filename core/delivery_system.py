@@ -1,12 +1,9 @@
-# import sys
-# sys.path.insert(1, '../libs')
-
 import zmq
 # import threading
 
 import json
 
-from ..libs.uow_tool_belt.general_tools import TwoWayDict
+from Mercury.libs.uow_tool_belt.general_tools import TwoWayDict
 
 
 class Postman:
