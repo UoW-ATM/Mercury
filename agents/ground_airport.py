@@ -51,7 +51,11 @@ class GroundAirport(Agent):
 		self.apply_agent_modifications()
 
 		# Internal knowledge
-		self.icao = None  # ICAO id of the airport
+		# ICAO id of the airport
+		if hasattr(self, 'icao'):
+			self.icao = self.icao
+		else:
+			self.icao = None
 
 		self.flights = {}  # List of flights would operate at the airport
 
