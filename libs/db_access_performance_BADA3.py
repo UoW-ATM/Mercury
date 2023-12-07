@@ -86,6 +86,11 @@ class DataAccessPerformanceBADA3(DataAccessPerformance):
 
 		d_performance = read_data(connection=self.get_connection(connection), query=sql)
 
+		# There is an aircraft SW4 which in BADA3 has a WTC of 'L/M'... replace by 'L' to avoid
+		# downstream problems, e.g., trying to access the turnaround time of a 'L/M' aircraft type.
+		d_performance.loc[d_performance.WTC == 'L/M', 'WTC'] = 'L'
+
+
 		d_performance.loc[d_performance['EngineType'] == "Jet", 'ac_perf'] = d_performance[
 			d_performance['EngineType'] == "Jet"].apply(lambda x: bap.AircraftPerformanceBada3Jet(
 			x['ICAO_model'],
