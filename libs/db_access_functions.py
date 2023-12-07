@@ -799,7 +799,7 @@ def read_dict_ac_type_wtc_prev(connection, table='ac_eq_badacomputed_static'):
 	return df.set_index('ac_icao').to_dict()['wake']
 
 
-def read_dict_ac_type_wtc_engine(connection, table='ac_icao_wake_engine'):
+def read_dict_ac_icao_wtc_engine(connection, table='ac_icao_wake_engine'):
 	sql = 'SELECT ac_icao, wake, engine_type FROM ' + table
 	df = read_data(connection=connection, query=sql)
 	return df.set_index('ac_icao')[['wake', 'engine_type']].to_dict(orient='index')

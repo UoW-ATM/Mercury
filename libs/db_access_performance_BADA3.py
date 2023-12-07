@@ -189,3 +189,18 @@ class DataAccessPerformanceBADA3(DataAccessPerformance):
 			dict_perf.get(i).set_detailled_mach_nominal(cms[:, 0], cms[:, 1], cms[:, 2])
 
 		return dict_perf
+
+	def get_dict_ac_icao_ac_model(self, connection, ac_icao_needed=None):
+		sql = "SELECt apof.bada_code AS ICAO_model \
+				FROM {} apof ".format(self.combine_db_table('apof_ac_type'))
+
+		d_ac_icao_b3 = read_data(connection=self.get_connection(connection), query=sql)
+
+		if ac_icao_needed is not None:
+			# Filter only the ones that are needed
+			# Some might be missing, that's fine will be deal by the scenario_loader
+			d_ac_icao_b3 = d_ac_icao_b3[d_ac_icao_b3.ICAO_model.isin(ac_icao_needed)]
+
+		d_ac_icao_b3['ac_model'] = d_ac_icao_b3['ICAO_model']
+		return d_ac_icao_b3.set_index('ac_model').to_dict()['ICAO_model']
+

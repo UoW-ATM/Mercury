@@ -267,7 +267,7 @@ class AircraftDepartingHandler(Role):
 		msg = Letter()
 		msg['to'] = self.agent.origin_airport_uid
 		msg['type'] = 'taxi_out_time_request'
-		msg['body'] = {'ac_type': self.agent.aircraft.ac_type,
+		msg['body'] = {'ac_icao': self.agent.aircraft.ac_icao,
 						'ao_type': self.agent.aoc_info['ao_type'],
 						'taxi_out_time_estimation': self.agent.FP.exot}
 
@@ -368,7 +368,7 @@ class DepartureSlotRequester(Role):
 		msg = Letter()
 		msg['to'] = self.agent.origin_airport_uid
 		msg['type'] = 'taxi_out_time_estimation_request'
-		msg['body'] = {'ac_type': self.agent.aircraft.ac_type, 'ao_type': self.agent.aoc_info['ao_type']}
+		msg['body'] = {'ac_icao': self.agent.aircraft.ac_icao, 'ao_type': self.agent.aoc_info['ao_type']}
 
 		self.send(msg)
 
@@ -751,7 +751,7 @@ class GroundArrivalHandler(Role):
 		msg = Letter()
 		msg['to'] = self.agent.destination_airport_uid
 		msg['type'] = 'taxi_in_time_request'
-		msg['body'] = {'ac_type': self.agent.aircraft.ac_type, 'ao_type': self.agent.aoc_info['ao_type']}
+		msg['body'] = {'ac_icao': self.agent.aircraft.ac_icao, 'ao_type': self.agent.aoc_info['ao_type']}
 
 		self.send(msg)
 

@@ -87,7 +87,7 @@ class GroundAirport(Agent):
 	def give_turnaround_time_dists(self, dists):
 		"""
 		Initialise the turnaround time distributions in the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.turnaround_time_dists = dists
@@ -102,7 +102,7 @@ class GroundAirport(Agent):
 	def give_taxi_out_time_estimation_dist(self, dists):
 		"""
 		Initialise the taxi-out estimation distribution in the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.taxi_out_time_estimation_dists = dists
@@ -114,7 +114,7 @@ class GroundAirport(Agent):
 	def give_taxi_in_time_estimation_dist(self, dists):
 		"""
 		Initialise the taxi-in estimation distribution in the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.taxi_in_time_estimation_dists = dists
@@ -126,7 +126,7 @@ class GroundAirport(Agent):
 	def give_taxi_time_add_dist(self, dists):
 		"""
 		Initialise the taxi time 'noise' distribution for the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.taxi_time_add_dists = dists
@@ -282,7 +282,7 @@ class GroundHandler(Role):
 	def wait_for_turnaround_time_request(self, msg):
 		mprint(self.agent, 'received turnaround time request from AOC', msg['from'])
 
-		tt = self.compute_turnaround_time(msg['body']['ac_type'], msg['body']['ao_type'])
+		tt = self.compute_turnaround_time(msg['body']['ac_icao'], msg['body']['ao_type'])
 		self.send_turnaround_time(msg['from'], msg['body']['flight_uid'], tt)
 
 
@@ -337,11 +337,11 @@ class TaxiOutEstimator(Role):
 	def wait_for_taxi_out_estimation_request(self, msg):
 		mprint(self.agent, 'received taxi-out time estimation request from AOC', msg['from'])
 
-		toe = self.estimate_taxi_out_time(msg['body']['ac_type'], msg['body']['ao_type'])
+		toe = self.estimate_taxi_out_time(msg['body']['ac_icao'], msg['body']['ao_type'])
 		self.return_taxi_out_estimation(msg['from'], toe)
 
-	def estimate_taxi_out_time(self, ac_type, ao_type):
-		# Note that taxi-out does not depend on aircraft type (ac_type) nor airline operator type (ao_type) for now
+	def estimate_taxi_out_time(self, ac_icao, ao_type):
+		# Note that taxi-out does not depend on aircraft type (ac_icao) nor airline operator type (ao_type) for now
 		estimation = float(self.agent.taxi_out_time_estimation_dists.rvs(random_state=self.agent.rs))
 		return estimation
 
@@ -363,16 +363,16 @@ class TaxiOutProvider(Role):
 	def wait_for_taxi_out_request(self, msg):
 		mprint(self.agent, 'received taxi-out time request from AOC', msg['from'])
 
-		to = self.compute_taxi_out_time(msg['body']['ac_type'],
+		to = self.compute_taxi_out_time(msg['body']['ac_icao'],
 										msg['body']['ao_type'],
 										msg['body']['taxi_out_time_estimation'])
 		self.return_taxi_out_time(msg['from'], to)
 
-	def compute_taxi_out_time(self, ac_type, ao_type, taxi_out_time_estimation):
+	def compute_taxi_out_time(self, ac_icao, ao_type, taxi_out_time_estimation):
 		"""
 		Sample the taxi-out time from the distribution
 		"""
-		# Note that taxi-out does not depend on aircraft type (ac_type) nor airline operator type (ao_type) for now
+		# Note that taxi-out does not depend on aircraft type (ac_icao) nor airline operator type (ao_type) for now
 		taxi_out_time = taxi_out_time_estimation + self.agent.taxi_time_add_dists.rvs(random_state=self.agent.rs)
 		return max(self.agent.min_tt, taxi_out_time)
 
@@ -394,15 +394,15 @@ class TaxiInProvider(Role):
 	def wait_for_taxi_in_request(self, msg):
 		mprint(self.agent, 'received taxi-in time request from flight', msg['from'])
 
-		ti = self.compute_taxi_in_time(msg['body']['ac_type'], msg['body']['ao_type'])
+		ti = self.compute_taxi_in_time(msg['body']['ac_icao'], msg['body']['ao_type'])
 		self.return_taxi_in_time(msg['from'], ti)
 
-	def compute_taxi_in_time(self, ac_type, ao_type):
+	def compute_taxi_in_time(self, ac_icao, ao_type):
 		"""
 		Note: we add the "estimation" and the "disruption" in order to have
 		the same distribution as for taxi-out.
 		"""
-		# Note that taxi-in does not depend on ac_type or ao_type for now
+		# Note that taxi-in does not depend on ac_icao or ao_type for now
 		estimation = self.agent.taxi_in_time_estimation_dists.rvs(random_state=self.agent.rs)
 		disruption = self.agent.taxi_time_add_dists.rvs(random_state=self.agent.rs)
 		return max(self.agent.min_tt, estimation + disruption)

@@ -75,6 +75,7 @@ class AirlineOperatingCentre(Agent):
 
 		self.trajectory_pool = None  # Pool of trajectories between o-d to be used if FP generated on the fly based on trajectories
 		self.fp_pool = None  # Pool of FPs
+		self.dict_fp_ac_icao_ac_model = {}  # Dictionary relating AC ICAO code with AC models used in FP pool
 
 		self.alliance = None # Alliance for the arline. To be filled when registering airline into alliance
 
@@ -325,8 +326,8 @@ class AirlineOperatingCentre(Agent):
 		"""
 
 		def f(aircraft, delay, phase):
-			if aircraft.ac_type in dict_np_cost.keys():
-				return max(0., dict_np_cost[aircraft.ac_type][phase] * delay)
+			if aircraft.ac_icao in dict_np_cost.keys():
+				return max(0., dict_np_cost[aircraft.ac_icao][phase] * delay)
 			else:
 				return max(0., dict_np_cost_fit[phase]['a'] + dict_np_cost_fit[phase]['b'] * delay)
 
@@ -392,7 +393,7 @@ class AirlineOperatingCentre(Agent):
 
 	def register_fp_pool(self, fp_pool, dict_fp_ac_icao_ac_model=None):
 		"""
-		Register poool of flight plans.
+		Register pool of flight plans.
 		"""
 		if dict_fp_ac_icao_ac_model is None:
 			dict_fp_ac_icao_ac_model = {}
@@ -965,11 +966,11 @@ class AirlineFlightPlanner(Role):
 			eobt = max(eobt, aoc_flight_info['sobt'])
 		origin_airport_uid = aoc_flight_info['origin_airport_uid']
 		destination_airport_uid = aoc_flight_info['destination_airport_uid']
-		ac_type = aoc_flight_info['aircraft'].ac_type
+		ac_icao = aoc_flight_info['aircraft'].ac_icao
 
 		try:
 			possible_fp_pool = self.agent.fp_pool[(origin_airport_uid, destination_airport_uid,
-												   self.agent.dict_fp_ac_icao_ac_model.get(ac_type, ac_type))]
+												   self.agent.dict_fp_ac_icao_ac_model.get(ac_icao, ac_icao))]
 		except:
 			print('COICOIN', list(self.agent.fp_pool.keys()))
 			raise
@@ -984,7 +985,7 @@ class AirlineFlightPlanner(Role):
 			fp.sibt = aoc_flight_info['sibt']
 			fp.exot = np.round(self.agent.aoc_airports_info[origin_airport_uid]['avg_taxi_out_time'], 2)
 			fp.exit = np.round(self.agent.aoc_airports_info[destination_airport_uid]['avg_taxi_in_time'], 2)
-			fp.ac_performance_model = self.agent.dict_fp_ac_icao_ac_model.get(ac_type, ac_type)
+			fp.ac_performance_model = self.agent.dict_fp_ac_icao_ac_model.get(ac_icao, ac_icao)
 			fp.flight_uid = aoc_flight_info['flight_uid']
 			fp.fuel_price = self.agent.fuel_price
 			fp.compute_eibt()
@@ -3835,7 +3836,7 @@ class TurnaroundOperations(Role):
 
 		ac_ready_at_time = self.agent.env.now + tt
 
-		# print(ac_ready_at_time, self.agent.aoc_flights_info[flight_uid]['aircraft'].ac_icao_code_performance_model)
+		# print(ac_ready_at_time, self.agent.aoc_flights_info[flight_uid]['aircraft'].ac_icao)
 
 		reactionar_del = max(0., ac_ready_at_time-self.agent.aoc_flights_info[flight_uid]['sobt'])
 

@@ -934,17 +934,12 @@ class World:
 										uid=self.uid,
 										registration=row['registration'],
 										seats=row['max_seats'],
-										ac_type=row['aircraft_type'],
-										ac_icao_code_performance_model=self.sc.dict_ac_icao_ac_model.get(row['aircraft_type']),
+										ac_icao=row['aircraft_type'],
+										performances=self.sc.dict_ac_icao_perf.get(row['aircraft_type']),
 										rs=self.rs)
-				if aircraft.ac_icao_code_performance_model is None:
-					aprint("Aircraft performances missing for ", row['aircraft_type'])
-					raise Exception()
-
-				aircraft.performances = self.sc.dict_ac_model_perf.get(aircraft.ac_icao_code_performance_model)
 
 				if aircraft.performances is None:
-					aprint("Aircraft Performance Model missing for ", aircraft.ac_icao_code_performance_model)
+					aprint("Aircraft performances missing for ", row['aircraft_type'])
 					raise Exception()
 
 				if aircraft.performances.wtc is None:
