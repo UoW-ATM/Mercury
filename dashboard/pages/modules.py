@@ -137,11 +137,11 @@ layout = html.Div([
                         html.Div(
                             [html.H3('Module specifications'),
                              html.P('Select modules on the left'),
-                             html.Div(dash_table.DataTable(form,[{'name': i, 'id': i} for i in ['module','parameter_name','subcat','sub2','sub3','value']],editable=False, style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},style_data={'whiteSpace': 'normal',},id='module_specs_table'),id='module_specs_box'),
+                            listed,
                         ],
                             className="pretty_container",
                         ),
-                            listed,
+
                     ],
                     id="right-column",
                     className="eight columns",
@@ -185,7 +185,7 @@ def func(n_clicks,form,case_study_name,module_names):
     return 'Save'
 
 @callback(
-    [Output('module_datatable', 'data'),Output('module_specs_table', 'data'),Output('listed','children')],
+    [Output('module_datatable', 'data'),Output('listed','children')],
     [Input("dropdown_modules", "value"),Input('row_button', 'n_clicks')],
     [State('module_datatable', 'data'),State('module_datatable', 'columns')],
     prevent_initial_call=True,
@@ -196,12 +196,12 @@ def mod_func(module_names,n_clicks,form,columns):
     if trigger == 'dropdown_modules':
         print_log('module_names', module_names)
         (form,form_ids,keys) = create_form_df({m: module_configs[m] for m in module_configs if m in module_names})
-        (form2,form_ids,keys) = create_form_df2({m: module_specs[m] for m in module_specs if m in module_names})
+        #(form2,form_ids,keys) = create_form_df2({m: module_specs[m] for m in module_specs if m in module_names})
         module_list = []
         for m in module_names:
             module_list.append(html.H3(str(m)))
             module_list.append(dict_to_list(module_specs[m]))
-        return [form,form2,module_list]
+        return [form,module_list]
     elif trigger == 'row_button':
         form.append({c['id']: '' for c in columns})
         data = {'form':form}

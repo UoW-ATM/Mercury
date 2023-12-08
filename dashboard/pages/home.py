@@ -145,6 +145,7 @@ def stats_fp(fp):
     print_log(fp_pool_m)
     dropdown_icao_orig = dcc.Dropdown(id='dropdown_icao_orig',options=fp_pool_m['icao_orig'].unique(),multi=False,value='')
     dropdown_icao_dest = dcc.Dropdown(id='dropdown_icao_dest',options=fp_pool_m['icao_dest'].unique(),multi=False,value='')
+    dropdown_fp_ac_type = dcc.Dropdown(id='dropdown_fp_ac_type',options=fp_pool_m['bada_code_ac_model'].unique(),multi=False,value='')
     #dropdown_route_pool_id = dcc.Dropdown(id='dropdown_route_pool_id',options=fp_pool_m.head()['route_pool_id'].unique(),multi=False,value='')
 
     fp_pool_m_table = dash_table.DataTable(fp_pool_m.head().to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_m.columns],id='fp_pool_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
@@ -163,7 +164,7 @@ def stats_fp(fp):
 
     paras_table = dash_table.DataTable(paras,[{'name': 'parameter_name', 'id': 'parameter_name'},{'name': 'value', 'id': 'value'}],id='fp_paras_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.P('Select origin'),dropdown_icao_orig,html.P('Select destination'),dropdown_icao_dest,dcc.Graph(figure=fig,id='route_pool_plot'),html.P('fp_pool_m'),html.Div(fp_pool_m_table,id='fp_pool_m_table'),html.P('Select flight plan'),dropdown_fp_pool_id,html.P('fp_pool_point_m'),html.Div(fp_pool_point_m_table,id='fp_pool_point_m_table'),dcc.Graph(figure=fig2),html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
+    return html.Div([html.P('Select origin'),dropdown_icao_orig,html.P('Select destination'),dropdown_icao_dest,html.P('fp_pool_m'),html.Div(fp_pool_m_table,id='fp_pool_m_table'),html.P('Select AC type'),dropdown_fp_ac_type,dcc.Graph(figure=fig,id='route_pool_plot'),html.P('Select flight plan'),dropdown_fp_pool_id,html.P('fp_pool_point_m'),html.Div(fp_pool_point_m_table,id='fp_pool_point_m_table'),dcc.Graph(figure=fig2),html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
 
 def stats_airports(airports):
 
@@ -339,10 +340,11 @@ def plot_fps(fp):
             previous_row = row
             continue
         if row['fp_pool_id'] != previous_row['fp_pool_id']:
+            previous_row = row
             continue
         if row['fp_pool_id'] not in nr_routes:
             break
-
+        #print(row['fp_pool_id'])
         lats.append(row['lat'])
         lats.append(previous_row['lat'])
         lats.append(None)
@@ -795,11 +797,29 @@ def add_row_manual_regulations(n_clicks, rows, columns):
     return rows
 
 @callback(
-    [Output('fp_pool_m_table', 'children'),Output('route_pool_plot','figure'),Output('dropdown_fp_pool_id', 'options')],
+    [Output('dropdown_icao_dest', 'options')],
+    [Input("dropdown_icao_orig", "value"),],
+    prevent_initial_call=True,
+)
+def icao_dest_update(icao_orig):
+    #print_log('icao',icao_orig,icao_dest)
+
+    fp=input_man.get_case_study_fp()
+    fp_pool, fp_pool_point = fp['flight_plans_pool']
+
+    #print_log(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
+
+    icao_dest = fp_pool[(fp_pool['icao_orig']==icao_orig)]['icao_dest'].unique()
+
+
+    return [icao_dest]
+
+@callback(
+    [Output('fp_pool_m_table', 'children'),Output('dropdown_fp_ac_type', 'options')],
     [Input("dropdown_icao_orig", "value"),Input("dropdown_icao_dest", "value")],
     prevent_initial_call=True,
 )
-def fp_func(icao_orig,icao_dest):
+def fp_ac(icao_orig,icao_dest):
     #print_log('icao',icao_orig,icao_dest)
 
     fp=input_man.get_case_study_fp()
@@ -808,14 +828,35 @@ def fp_func(icao_orig,icao_dest):
 
     df_fp2 = fp_pool_point.merge(fp_pool,how='left',left_on='fp_pool_id', right_on='id')
     print_log(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
-    #fig = plot_routes(df_fp[(df_fp['icao_orig']==icao_orig) & (df_fp['icao_dest']==icao_dest)])
-    fig = plot_fps(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
 
-    fp_pool_m = fp_pool[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)]
+    fp_pool_m = fp_pool[fp_pool['id'].isin(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)]['fp_pool_id'])]
     fp_pool_m_table = dash_table.DataTable(fp_pool_m.to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_m.columns],id='fp_pool_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
+    fp_ac_types = fp_pool_m['bada_code_ac_model'].unique()
+
+    return [fp_pool_m_table,fp_ac_types]
+
+@callback(
+    [Output('route_pool_plot','figure'),Output('dropdown_fp_pool_id', 'options')],
+    [Input("dropdown_fp_ac_type", "value"),],
+    [State("dropdown_icao_orig", "value"),State("dropdown_icao_dest", "value")],
+    prevent_initial_call=True,
+)
+def fp_func(fp_ac_type,icao_orig,icao_dest):
+    #print_log('icao',icao_orig,icao_dest)
+
+    fp=input_man.get_case_study_fp()
+    fp_pool, fp_pool_point = fp['flight_plans_pool']
+
+
+    df_fp2 = fp_pool_point.merge(fp_pool,how='left',left_on='fp_pool_id', right_on='id')
+
+    fig = plot_fps(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest) & (df_fp2['bada_code_ac_model']==fp_ac_type)])
+    #print_log('df_fp2')
+    fp_pool_m = fp_pool[fp_pool['id'].isin(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest) & (df_fp2['bada_code_ac_model']==fp_ac_type)]['fp_pool_id'])]
+
     fp_pool_ids = fp_pool_m['id'].unique()
 
-    return [fp_pool_m_table,fig,fp_pool_ids]
+    return [fig,fp_pool_ids]
 
 
 @callback(

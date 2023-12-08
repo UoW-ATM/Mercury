@@ -67,7 +67,7 @@ def print_log(*args,level='debug'):
 class Input_manager:
     def __init__(self, scenario_path=None):
         self.scenario_path = scenario_path
-        self.case_study_config = {'case_study':{},'parameters':{},'data':{'schedules':{}},'agents_configuration':{}}
+        self.case_study_config = {'info':{},'case_study':{},'parameters':{},'data':{'schedules':{}},'agents_configuration':{}}
         self.experiment_config = {}
 
         self.stochastic_airport_regulations = 'R'
