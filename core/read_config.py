@@ -89,7 +89,8 @@ def flatten_paras_dict(paras_unflattened):
 
 def update_scenario_paras_based_on_case_study(scenario_paras, case_study_paras):
 	for k, v in case_study_paras.items():
-		scenario_paras[k] = v
+		for kk, vv in v.items():
+			scenario_paras[k][kk] = vv
 
 	return scenario_paras
 
