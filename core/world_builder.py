@@ -26,6 +26,7 @@ from Mercury.libs.performance_trajectory.unit_conversions import *
 
 from Mercury.agents.airline_operating_centre import AirlineOperatingCentre
 from Mercury.agents.ground_airport import GroundAirport
+from Mercury.agents.ground_handler import  GroundHandler
 from Mercury.agents.eaman import EAMAN
 from Mercury.agents.aman import AMAN
 from Mercury.agents.dman import DMAN
@@ -358,6 +359,7 @@ class World:
 		# Put all agents in a list for easy access
 
 		self.agents = list(self.airports.values())
+		self.agents += list(self.groundhandlers.values())
 		self.agents += list(self.eamans.values())
 		self.agents += list(self.dmans.values())
 		self.agents += self.aocs.values()
@@ -647,6 +649,7 @@ class World:
 
 		self.airports_per_icao = {}  # keys are ICAO
 
+
 		for i, row in list(df.iterrows()):
 			min_tt = self.sc.paras['airports__minimum_taxi_time']
 
@@ -676,6 +679,8 @@ class World:
 							rs=self.rs,
 							module_agent_modif=self.module_agent_modif.get('GroundAirport', {}))
 
+			self.uid += 1
+
 			# Taxi out estimation
 			mu, sig = row['mean_taxi_out'], row['std_taxi_out']
 			mu, sig = mu*self.sc.dict_scn['taxi_time_modifier'], sig*self.sc.dict_scn['taxi_time_modifier']
@@ -702,11 +707,6 @@ class World:
 			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
 			airport.give_taxi_time_add_dist(dists)
 
-			# Turnaround times`
-			dists = {k: {kk: expon(loc=vv, scale=self.sc.dict_scn['lambda_tat'])
-							for kk, vv in v.items()}
-						for k, v in dic_mtt[row['size']].items()}
-			airport.give_turnaround_time_dists(dists)
 
 			# Connecting times
 			mct_q = self.sc.paras['airports__mct_q']
@@ -722,12 +722,41 @@ class World:
 				dists['flex'][k] = lognorm(loc=0., scale=scale, s=s)
 
 			airport.give_connecting_time_dist(dists, mct_q=mct_q)
+
+
 			self.airports_per_icao[row['icao_id']] = airport
 
+
 			self.cr.register_mcts(airport)
+
+
+		# Create ground handlers (one per airport)
+		self.groundhandlers_per_icao = {}  # keys are ICAO
+		for i, row in list(df.iterrows()):
+
+			groundhandler = GroundHandler(self.postman,
+										  idd=i,
+										  uid=self.uid,
+										  icao=row['icao_id'],
+										  env=self.env,
+										  mcolor=self.paras['print_colors__airport'],
+										  acolor=self.paras['print_colors__alert'],
+										  verbose=self.paras['computation__verbose'],
+										  log_file=self.log_file_it,  # TODO: remove
+										  rs=self.rs,
+										  module_agent_modif=self.module_agent_modif.get('GroundHander', {}))
+
 			self.uid += 1
 
+			# Turnaround times
+			dists = {k: {kk: expon(loc=vv, scale=self.sc.dict_scn['lambda_tat'])
+						 for kk, vv in v.items()}
+					 for k, v in dic_mtt[row['size']].items()}
+			groundhandler.set_turnaround_time_dists(dists)
+			self.groundhandlers_per_icao[row['icao_id']] = groundhandler
+
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
+		self.groundhandlers = {groundhandler.uid: groundhandler for groundhandler in self.groundhandlers_per_icao.values()}
 
 	def create_AMANs(self):
 		"""
@@ -910,8 +939,9 @@ class World:
 										self.sc.dict_np_cost_fit[row['AO_type']])
 
 			# TODO: only register relevant airports!
-			for airport in self.airports_per_icao.values():
-				aoc.register_airport(airport)
+			for icao, airport in self.airports_per_icao.items():
+				aoc.register_airport(airport, groundhandler_uid=self.groundhandlers_per_icao[icao].uid)
+
 
 			# TODO: only register relevant fp for this given AOC
 			aoc.register_fp_pool(self.fp_pool, self.sc.dict_fp_ac_icao_ac_model)

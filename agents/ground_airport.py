@@ -27,7 +27,7 @@ class GroundAirport(Agent):
 	"""
 
 	# Dictionary with roles contained in the Agent
-	dic_role = {"GroundHandler": "gh", 			# Providing turnaround times and doing the turnaround process
+	dic_role = {#"GroundHandler": "gh", 			# Providing turnaround times and doing the turnaround process
 				"ProvideConnectingTime": "pct",  # Providing connecting times for passengers
 				"TaxiOutEstimator": "toe",		# Estimating taxi-out times
 				"TaxiOutProvider": "top",		# Providing taxi-out times
@@ -41,7 +41,6 @@ class GroundAirport(Agent):
 		self.dman_uid = None   # UID of Departure manager at the airport
 
 		# Roles
-		self.gh = GroundHandler(self)
 		self.pct = ProvideConnectingTime(self)
 		self.toe = TaxiOutEstimator(self)
 		self.top = TaxiOutProvider(self)
@@ -83,21 +82,6 @@ class GroundAirport(Agent):
 
 		global mprint 
 		mprint = build_col_print_func(self.mcolor, verbose=self.verbose, file=log_file)
-
-	def give_turnaround_time_dists(self, dists):
-		"""
-		Initialise the turnaround time distributions in the agent
-		dists is a two-layer dict with ac_icao, ao_type
-		keys.
-		"""
-		self.turnaround_time_dists = dists
-
-		self.tats = {}
-		for ac_wake, dic in dists.items():
-			for ao_type, dist in dic.items():
-				if ac_wake not in self.tats.keys():
-					self.tats[ac_wake] = {}
-				self.tats[ac_wake][ao_type] = dist.stats('m')
 
 	def give_taxi_out_time_estimation_dist(self, dists):
 		"""
@@ -168,13 +152,8 @@ class GroundAirport(Agent):
 		"""
 		Receive and distribute messages within the Agent
 		"""
-		if msg['type'] == 'turnaround_time_request':
-			self.gh.wait_for_turnaround_time_request(msg)
 
-		if msg['type'] == 'turnaround_request':
-			self.gh.wait_for_turnaround_request(msg)
-
-		elif msg['type'] == 'connecting_times_request':
+		if msg['type'] == 'connecting_times_request':
 			self.pct.wait_for_connecting_times_request(msg)
 
 		elif msg['type'] == 'taxi_out_time_estimation_request':
@@ -187,7 +166,8 @@ class GroundAirport(Agent):
 			self.tip.wait_for_taxi_in_request(msg)
 
 		else:
-			aprint('WARNING: unrecognised message type received by', self, ':', msg['type'])
+			print('WARNING: unrecognised message type received by', self, ':', msg['type'])
+
 
 	def register_eaman(self, eaman=None):
 		"""
@@ -214,76 +194,6 @@ class GroundAirport(Agent):
 		Provide textual id of the Airport
 		"""
 		return "Airport " + str(self.uid)+" "+str(self.icao)
-
-
-class GroundHandler(Role):
-	"""
-	GH: Ground Handler
-
-	Description:
-		- Provides the turnaround time for an aircraft and
-		- Does the turnaround process by blocking the aircraft resource while the
-		turnaround is happening.
-	"""
-	
-	def compute_turnaround_time(self, ac_wake, ao_type):
-		"""
-		Provides turnaround time as a function of aircraft category (wake turbulence) and airline type (FSC, LCC, etc.)
-		"""
-		turnaround_time = self.agent.turnaround_time_dists[ac_wake][ao_type].rvs(random_state=self.agent.rs)
-		return turnaround_time
-
-	def do_turnaround(self, aircraft, tt):
-		"""
-		Block the aircraft resource is blocked while the turnaround process it taking place at the airport
-		"""
-		mprint(aircraft, 'waits at', self.agent, 'for', tt, 'minutes starting at t=', self.agent.env.now)
-		# Wait turnaround is finished
-		yield self.agent.env.timeout(tt)
-
-		# Release resource for next flight
-		aircraft.release(aircraft.users[0])
-		mprint(self.agent, 'releases', aircraft, 'at t=', self.agent.env.now)
-
-	def send_turnaround_time(self, aoc_uid, flight_uid, tt):
-		mprint(self.agent, 'sends turnaround time for flight', flight_uid, ':', tt)
-		if flight_uid in flight_uid_DEBUG:
-			print("{} send turnaround time for flight {}".format(self.agent, flight_uid))
-		msg_back = Letter()
-		msg_back['to'] = aoc_uid
-		msg_back['type'] = 'turnaround_time'
-		msg_back['body'] = {'flight_uid': flight_uid,
-							'turnaround_time': tt}
-		self.send(msg_back)        
-	
-	def wait_for_turnaround_request(self, msg):
-		"""
-		Do the turnaround for a given aircraft
-		"""
-		mprint(self.agent, 'received turnaround request from AOC', msg['from'])
-
-		if msg['body']['flight_uid'] in flight_uid_DEBUG:
-			print("{} receives turnaround_time request for flight {}".format(self.agent, msg['body']['flight_uid']))
-
-		aircraft = msg['body']['aircraft']
-
-		mprint('Flight', msg['body']['flight_uid'], 'waits for turnaround of', aircraft)
-		tt = self.compute_turnaround_time(aircraft.performances.wtc, msg['body']['ao_type'])
-		
-		self.agent.env.process(self.do_turnaround(aircraft, tt))
-
-		# This is normal, message gets transferred by flight to AOC afterwards.
-		aoc_uid = aircraft.get_next_flight()
-
-		self.send_turnaround_time(aoc_uid,
-									msg['body']['flight_uid'],
-									tt)
-
-	def wait_for_turnaround_time_request(self, msg):
-		mprint(self.agent, 'received turnaround time request from AOC', msg['from'])
-
-		tt = self.compute_turnaround_time(msg['body']['ac_icao'], msg['body']['ao_type'])
-		self.send_turnaround_time(msg['from'], msg['body']['flight_uid'], tt)
 
 
 class ProvideConnectingTime(Role):

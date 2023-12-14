@@ -176,7 +176,7 @@ class ParametriserStandard(Parametriser):
 					loc, l = alpha * loc, alpha * l
 					new_dists[k][kk] = expon(loc=loc, scale=l)
 
-			airport.give_turnaround_time_dists(new_dists)
+			airport.set_turnaround_time_dists(new_dists)
 
 	def apply_alpha_mct(self, alpha):
 		"""

@@ -358,7 +358,7 @@ class AirlineOperatingCentre(Agent):
 		"""
 		self.aircraft_list[aircraft.uid] = aircraft
 
-	def register_airport(self, airport):
+	def register_airport(self, airport, groundhandler_uid):
 		"""
 		Add one airport to the list of airports in the AOC
 
@@ -367,7 +367,8 @@ class AirlineOperatingCentre(Agent):
 		mct = mcts[(self.aoc_flights_info[flight_uid1]['international'], self.aoc_flights_info[flight_uid2]['international'])]
 		"""
 
-		self.aoc_airports_info[airport.uid] = {'mcts': airport.mcts,
+		self.aoc_airports_info[airport.uid] = { 'groundhandler_uid': groundhandler_uid,
+												'mcts': airport.mcts,
 												'tats': airport.tats,
 												'avg_taxi_out_time': airport.avg_taxi_out_time,
 												'avg_taxi_in_time': airport.avg_taxi_in_time,
@@ -3801,9 +3802,12 @@ class TurnaroundOperations(Role):
 		# self.send(msg) # uncomment this to use messaging server
 
 	def request_turnaround(self, aircraft, last_flight_uid, next_flight_uid):
+		mprint("REQUESTING TURNAROUND", self.agent.aoc_flights_info[last_flight_uid]['destination_airport_uid'])
 		msg = Letter()
 		msg['type'] = 'turnaround_request'
-		msg['to'] = self.agent.aoc_flights_info[last_flight_uid]['destination_airport_uid']
+		airport_uid = self.agent.aoc_flights_info[last_flight_uid]['destination_airport_uid']
+		groundhandler_uid = self.agent.aoc_airports_info[airport_uid]['groundhandler_uid']
+		msg['to'] = groundhandler_uid
 		msg['body'] = {'aircraft': aircraft,
 						'ao_type': self.agent.airline_type,
 						'flight_uid': next_flight_uid

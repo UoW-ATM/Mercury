@@ -415,12 +415,12 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 
 
 	def load_flight_plans(self, connection=None):
-		#Get flight plans
+		# Get flight plans
 		# Before allowing to use routes instead of FP and allowing
 		# the Dispacthers to compute the FP dynamically within Mercury
 		# option removed to keep only the use of FP pool
 
-		#Using flight plans
+		# Using flight plans
 		with clock_time(message_before='Getting flight plan pool...',
 					oneline=True, print_function=mprint):
 			self.load_flight_plan_pool(connection=connection)
@@ -472,7 +472,7 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 				# All ac needed are covered by the models provided
 				ac_models_needed = [self.dict_ac_icao_ac_model[a] for a in ac_icao_needed]
 			else:
-				# There are some AC ICAO models that are needed by no equivalent on peformance available
+				# There are some AC ICAO models that are needed by no equivalent on performance available
 				# Check default ac types
 				# Load default ac types if available (given in mercury_config.toml)
 				dict_default_ac_icao = self.paras['performance_model_params'].get('default_ac_icao', {})
