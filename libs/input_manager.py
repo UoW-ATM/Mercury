@@ -67,7 +67,7 @@ def print_log(*args,level='debug'):
 class Input_manager:
     def __init__(self, scenario_path=None):
         self.scenario_path = scenario_path
-        self.case_study_config = {'info':{},'case_study':{},'parameters':{},'data':{'schedules':{}},'agents_configuration':{}}
+        self.case_study_config = {'info':{},'case_study':{},'paras':{},'data':{'schedules':{}},'agents_configuration':{}}
         self.experiment_config = {}
 
         self.stochastic_airport_regulations = 'R'
@@ -574,16 +574,16 @@ class Input_manager:
 
         for k in kwargs:
             if k=='fuel_price':
-                self.case_study_config['parameters']['fuel_price'] = kwargs[k]
+                self.case_study_config['paras']['fuel_price'] = kwargs[k]
             print_log(k,kwargs[k])
 
     def update_case_study_config(self,data,subcat=None):
         for row in data:
             if self.scenario_config['paras'][subcat][row['parameter_name']] != row['value']:
-                if subcat not in self.case_study_config['parameters']:
-                    self.case_study_config['parameters'][subcat] = {}
+                if subcat not in self.case_study_config['paras']:
+                    self.case_study_config['paras'][subcat] = {}
 
-                self.case_study_config['parameters'][subcat][row['parameter_name']] = row['value']
+                self.case_study_config['paras'][subcat][row['parameter_name']] = row['value']
 
     def save_case_study(self, case_study_id='', description='', case_study_name=''):
 

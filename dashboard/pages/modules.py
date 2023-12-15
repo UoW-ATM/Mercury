@@ -169,15 +169,15 @@ def func(n_clicks,form,case_study_name,module_names):
     if case_study_name == 'none':
         return 'Save'
 
-    if 'modules' not in input_man.case_study_config:
-        input_man.case_study_config['modules'] = {}
-    input_man.case_study_config['modules']['modules_to_load'] = module_names
+    if 'modules' not in input_man.case_study_config['paras']:
+        input_man.case_study_config['paras']['modules'] = {}
+    input_man.case_study_config['paras']['modules']['modules_to_load'] = module_names
     for row in form:
 
-        if row['module'] not in input_man.case_study_config['modules']:
-            input_man.case_study_config['modules'][row['module']] = {}
+        if row['module'] not in input_man.case_study_config['paras']['modules']:
+            input_man.case_study_config['paras']['modules'][row['module']] = {}
 
-        input_man.case_study_config['modules'][row['module']][row['parameter_name']] = row['value']
+        input_man.case_study_config['paras']['modules'][row['module']][row['parameter_name']] = row['value']
 
     print_log(input_man.case_study_config)
     input_man.save_case_study_config(case_study_name)

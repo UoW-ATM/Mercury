@@ -584,7 +584,7 @@ def update(origin,destination,airline_type,date1,date2,start_hour,end_hour,block
     return [table,stats,'tab_1']
 
 @callback(
-    [Output('dropdown_origins', 'value'),Output('dropdown_destinations', 'value'),Output('dropdown_airline_type', 'value')],
+    [Output('dropdown_origins', 'value'),Output('dropdown_destinations', 'value'),Output('dropdown_airline_type', 'value'),Output('dropdown_origins', 'options'),Output('dropdown_destinations', 'options'),Output('dropdown_airline_type', 'options')],
     [Input("load_button", "n_clicks"),],
     [State('dropdown_case_studies','value')],
     prevent_initial_call=True,
@@ -593,7 +593,21 @@ def load(n_clicks,case_study):
     print_log('case_study',case_study)
     input_man.read_scenario_data(names=['schedules','pax','airports','delay','eaman','airlines','network_manager','flight_plans','costs'])
     input_man.read_case_study(case_study)
-    return [['all'],['all'],['all']]
+
+    schedules = input_man.get_schedules()
+    origins = [{'label': i, 'value': i} for i in schedules['origin'].unique()]
+    origins.sort(key=lambda x: x['label'])
+    origins=[{'label': 'All', 'value': 'all'}]+origins
+
+    destinations = [{'label': i, 'value': i} for i in schedules['destination'].unique()]
+    destinations.sort(key=lambda x: x['label'])
+    destinations=[{'label': 'All', 'value': 'all'}]+destinations
+
+    airline_types = [{'label': i, 'value': i} for i in schedules['airline_type'].unique()]
+    airline_types.sort(key=lambda x: x['label'])
+    airline_types=[{'label': 'All', 'value': 'all'}]+airline_types
+
+    return [['all'],['all'],['all'],origins,destinations,airline_types]
 
 
 @callback(
