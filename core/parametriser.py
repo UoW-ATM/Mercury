@@ -69,33 +69,33 @@ class ParametriserCapacity(Parametriser):
 
 class ParametriserStandard(Parametriser):
 	def __init__(self):
-		self.applications = {'alpha_tat_mean':self.apply_alpha_tat_mean,
-							'alpha_mct':self.apply_alpha_mct,
-							'delta_mct':self.apply_delta_mct,
-							'alpha_non_ATFM':self.apply_alpha_non_ATFM,
-							'anchor':self.apply_anchor,
-							'smoothness':self.apply_smoothness,
-							'claim_rate':self.apply_compensation_claim_rate,
-							'first_compensation_threshold':self.apply_first_compensation_threshold,
-							'second_compensation_threshold':self.apply_second_compensation_threshold,
-							'alpha_compensation_magnitude':self.apply_alpha_compensation_magnitude,
-							'alpha_doc_magnitude':self.apply_alpha_doc_magnitude,
-							'dci_min_threshold':self.apply_dci_min_threshold,
-							'dci_max_threshold':self.apply_dci_max_threshold,
-							#'dci_p_bias':self.apply_dci_p_bias,
-							#'wait_for_passenger_thr':self.apply_wait_for_passenger_thr,
-							'regulation_percentile_min':self.apply_regulation_percentile_min,
-							'regulation_percentile_max':self.apply_regulation_percentile_max,
-							'alpha_compensation_magnitude_short':self.apply_alpha_compensation_magnitude_short,
-							'alpha_compensation_magnitude_medium':self.apply_alpha_compensation_magnitude_medium,
-							'alpha_compensation_magnitude_long1':self.apply_alpha_compensation_magnitude_long1,
-							'alpha_compensation_magnitude_long2':self.apply_alpha_compensation_magnitude_long2,
-							'compensation_magnitude_short':self.apply_compensation_magnitude_short,
-							'compensation_magnitude_medium':self.apply_compensation_magnitude_medium,
-							'compensation_magnitude_long1':self.apply_compensation_magnitude_long1,
-							'compensation_magnitude_long2':self.apply_compensation_magnitude_long2,
-							'cruise_uncertainty_sigma':self.apply_cruise_uncertainty_sigma,
-							'eaman_planning_horizon':self.apply_eaman_planning_horizon,
+		self.applications = {'alpha_tat_mean': self.apply_alpha_tat_mean,
+							'alpha_mct': self.apply_alpha_mct,
+							'delta_mct': self.apply_delta_mct,
+							'alpha_non_ATFM': self.apply_alpha_non_ATFM,
+							'anchor': self.apply_anchor,
+							'smoothness': self.apply_smoothness,
+							'claim_rate': self.apply_compensation_claim_rate,
+							'first_compensation_threshold': self.apply_first_compensation_threshold,
+							'second_compensation_threshold': self.apply_second_compensation_threshold,
+							'alpha_compensation_magnitude': self.apply_alpha_compensation_magnitude,
+							'alpha_doc_magnitude': self.apply_alpha_doc_magnitude,
+							'dci_min_threshold': self.apply_dci_min_threshold,
+							'dci_max_threshold': self.apply_dci_max_threshold,
+							#'dci_p_bias': self.apply_dci_p_bias,
+							#'wait_for_passenger_thr': self.apply_wait_for_passenger_thr,
+							'regulation_percentile_min': self.apply_regulation_percentile_min,
+							'regulation_percentile_max': self.apply_regulation_percentile_max,
+							'alpha_compensation_magnitude_short': self.apply_alpha_compensation_magnitude_short,
+							'alpha_compensation_magnitude_medium': self.apply_alpha_compensation_magnitude_medium,
+							'alpha_compensation_magnitude_long1': self.apply_alpha_compensation_magnitude_long1,
+							'alpha_compensation_magnitude_long2': self.apply_alpha_compensation_magnitude_long2,
+							'compensation_magnitude_short': self.apply_compensation_magnitude_short,
+							'compensation_magnitude_medium': self.apply_compensation_magnitude_medium,
+							'compensation_magnitude_long1': self.apply_compensation_magnitude_long1,
+							'compensation_magnitude_long2': self.apply_compensation_magnitude_long2,
+							'cruise_uncertainty_sigma': self.apply_cruise_uncertainty_sigma,
+							'eaman_planning_horizon': self.apply_eaman_planning_horizon,
 							}
 		
 		self.parameters_pre_load = ['regulation_percentile']
@@ -122,38 +122,40 @@ class ParametriserStandard(Parametriser):
 
 		self.parameters = list(self.parameters_pre_load) + list(self.parameters_post_load)
 		
-		self.parameter_types = {'alpha_tat_mean':float,
-								'alpha_mct':float,
-								'delta_mct':float,
-								'alpha_non_ATFM':float,
-								'anchor':float,
-								'smoothness':float,
-								'claim_rate':float,
-								'first_compensation_threshold':float,
-								'second_compensation_threshold':float,
-								'alpha_doc_magnitude':float,
-								'alpha_compensation_magnitude':float,
-								'dci_min_threshold':float,
-								'dci_max_threshold':float,
-								#'dci_p_bias':float,
-								#'wait_for_passenger_thr':float,
-								'regulation_percentile_min':float,
-								'regulation_percentile_max':float,
-								'alpha_compensation_magnitude_short':float,
-								'alpha_compensation_magnitude_medium':float,
-								'alpha_compensation_magnitude_long1':float,
-								'alpha_compensation_magnitude_long2':float,
-								'compensation_magnitude_short':float,
-								'compensation_magnitude_medium':float,
-								'compensation_magnitude_long1':float,
-								'compensation_magnitude_long2':float,
-								'eaman_planning_horizon':float
+		self.parameter_types = {'alpha_tat_mean': float,
+								'alpha_mct': float,
+								'delta_mct': float,
+								'alpha_non_ATFM': float,
+								'anchor': float,
+								'smoothness': float,
+								'claim_rate': float,
+								'first_compensation_threshold': float,
+								'second_compensation_threshold': float,
+								'alpha_doc_magnitude': float,
+								'alpha_compensation_magnitude': float,
+								'dci_min_threshold': float,
+								'dci_max_threshold': float,
+								# 'dci_p_bias': float,
+								# 'wait_for_passenger_thr': float,
+								'regulation_percentile_min': float,
+								'regulation_percentile_max': float,
+								'alpha_compensation_magnitude_short': float,
+								'alpha_compensation_magnitude_medium': float,
+								'alpha_compensation_magnitude_long1': float,
+								'alpha_compensation_magnitude_long2': float,
+								'compensation_magnitude_short': float,
+								'compensation_magnitude_medium': float,
+								'compensation_magnitude_long1': float,
+								'compensation_magnitude_long2': float,
+								'eaman_planning_horizon': float
 								}
 
 	def initialise_parameters(self):
 		for airport in self.world.airports.values():
 			airport.tats_old = airport.turnaround_time_dists
-			airport.mcts_old = airport.connecting_time_dists
+
+		for airport_terminal in self.world.airport_terminals.values():
+			airport_terminal.mcts_old = airport_terminal.connecting_time_dists
 
 		for aoc in self.world.aocs.values():
 			aoc.non_atfm_old = aoc.non_atfm_delay_dist
@@ -183,11 +185,11 @@ class ParametriserStandard(Parametriser):
 		For now, pushes the distribution via loc.
 		"""
 
-		for airport in self.world.airports.values():
+		for airport_terminal in self.world.airport_terminals.values():
 			new_dists = {}
-			for pax_type in airport.mcts_old.keys():
+			for pax_type in airport_terminal.mcts_old.keys():
 				new_dists[pax_type] = {}
-				for connection, old_dist in airport.mcts_old[pax_type].items():
+				for connection, old_dist in airport_terminal.mcts_old[pax_type].items():
 					loc, scale, s = old_dist.kwds['loc'], old_dist.kwds['scale'], old_dist.kwds['s']
 					mu = old_dist.mean()
 					mu_p = alpha * mu
@@ -195,24 +197,24 @@ class ParametriserStandard(Parametriser):
 					
 					new_dists[pax_type][connection] = lognorm(loc=loc, scale=scale, s=s)
 
-			airport.give_connecting_time_dist(new_dists)
+			airport_terminal.set_connecting_time_dist(new_dists)
 
 	def apply_delta_mct(self, delta):
 		"""
 		For now, pushes the distribution via loc.
 		"""
 
-		for airport in self.world.airports.values():
+		for airport_terminal in self.world.airport_terminals.values():
 			new_dists = {}
-			for pax_type in airport.mcts_old.keys():
+			for pax_type in airport_terminal.mcts_old.keys():
 				new_dists[pax_type] = {}
-				for connection, old_dist in airport.mcts_old[pax_type].items():
+				for connection, old_dist in airport_terminal.mcts_old[pax_type].items():
 					loc, scale, s = old_dist.kwds['loc'], old_dist.kwds['scale'], old_dist.kwds['s']
 					loc += delta
 
 					new_dists[pax_type][connection] = lognorm(loc=loc, scale=scale, s=s)
 
-			airport.give_connecting_time_dist(new_dists)
+			airport_terminal.set_connecting_time_dist(new_dists)
 
 	def apply_alpha_non_ATFM(self, alpha):
 		"""
@@ -261,7 +263,7 @@ class ParametriserStandard(Parametriser):
 		
 		if not hasattr(self, 'df_compensation'):
 			self.df_compensation = self.df_compensation_old.copy()
-		self.df_compensation.loc[self.df_compensation.loc[:, 'delay_min_minutes']==180., 'delay_min_minutes'] = threshold
+		self.df_compensation.loc[self.df_compensation.loc[:, 'delay_min_minutes'] == 180., 'delay_min_minutes'] = threshold
 
 		# compensation_func = build_step_bivariate_function(df,
 		# 													add_lower_bound2=0.)
