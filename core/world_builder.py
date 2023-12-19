@@ -80,7 +80,7 @@ class World:
 					'weather_atfm_delay_dist',
 					'weather_prob_atfm',
 					'df_schedules',
-					'dict_scn',
+					'dict_delay',
 					'dict_cf',
 					'df_airport_data',
 					'df_airports_modif_data_due_cap',
@@ -312,7 +312,7 @@ class World:
 			self.create_airports()  # needs to be after the creation of unique agents
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
-		if (self.sc.manual_airport_regulations is not None) or (self.sc.stochastic_airport_regulations != 'N'):
+		if (self.sc.paras['regulations__manual_airport_regulations'] is not None) or (self.sc.paras['regulations__stochastic_airport_regulations'] != 'N'):
 			with clock_time(message_before='Creating explicit regulations at airports...',
 						oneline=True, print_function=mmprint):
 				self.create_atfm_at_airports()  # needs to be after airport creation
@@ -625,7 +625,7 @@ class World:
 			self.nm.register_atfm_regulation(reg)
 
 	def create_atfm_at_airports(self):
-		if self.sc.manual_airport_regulations is not None:
+		if self.sc.paras['regulations__manual_airport_regulations'] is not None:
 			self.define_regulations_airport(self.sc.df_dregs_airports_manual,
 											self.sc.regulations_day_manual)
 
@@ -653,10 +653,10 @@ class World:
 			# Capacity = declared arriva/dep capacity * modifier due to traffic different in sim than reality \
 			#            * capacity_modifier depending on delay in simulation * reduction due to use arrival/demand capacity segregated
 			airport_arrival_capacity = int(row['declared_capacity'] * df_m_dcap.get(row['icao_id'], 1.)
-									* self.sc.dict_scn['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_arrival_reduction'])
+									* self.sc.dict_delay['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_arrival_reduction'])
 
 			airport_departure_capacity = int(row['declared_capacity'] * df_m_dcap.get(row['icao_id'], 1.)
-									* self.sc.dict_scn['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_departure_reduction'])
+									* self.sc.dict_delay['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_departure_reduction'])
 
 			airport = GroundAirport(self.postman,
 							idd=i,
@@ -678,7 +678,7 @@ class World:
 
 			# Taxi out estimation
 			mu, sig = row['mean_taxi_out'], row['std_taxi_out']
-			mu, sig = mu*self.sc.dict_scn['taxi_time_modifier'], sig*self.sc.dict_scn['taxi_time_modifier']
+			mu, sig = mu*self.sc.dict_delay['taxi_time_modifier'], sig*self.sc.dict_delay['taxi_time_modifier']
 			if sig == 0.:
 				sig = 1.
 
@@ -690,7 +690,7 @@ class World:
 
 			# Taxi in estimation
 			mu, sig = row['mean_taxi_in'], row['std_taxi_in']
-			mu, sig = mu*self.sc.dict_scn['taxi_time_modifier'], sig*self.sc.dict_scn['taxi_time_modifier']
+			mu, sig = mu*self.sc.dict_delay['taxi_time_modifier'], sig*self.sc.dict_delay['taxi_time_modifier']
 			if sig == 0.:
 				sig = 1.
 
@@ -703,7 +703,7 @@ class World:
 			airport.give_taxi_time_add_dist(dists)
 
 			# Turnaround times`
-			dists = {k: {kk: expon(loc=vv, scale=self.sc.dict_scn['lambda_tat'])
+			dists = {k: {kk: expon(loc=vv, scale=self.sc.dict_delay['lambda_tat'])
 							for kk, vv in v.items()}
 						for k, v in dic_mtt[row['size']].items()}
 			airport.give_turnaround_time_dists(dists)
@@ -874,7 +874,7 @@ class World:
 										min_time_for_FP_recomputation=self.sc.paras['airlines__min_time_for_FP_recomputation'])
 			self.uid += 1 
 			dist = expon(loc=self.sc.paras['airlines__non_ATFM_delay_loc'],
-						scale=self.sc.dict_scn['non_ATFM_delay_lambda'])
+						scale=self.sc.dict_delay['non_ATFM_delay_lambda'])
 
 			aoc.give_delay_distr(dist)
 
@@ -980,7 +980,7 @@ class World:
 							ac_uid=aircraft.uid,
 							aircraft=aircraft,
 							prob_climb_extra=self.sc.prob_climb_extra.copy(),
-							extra_climb_tweak=self.sc.dict_scn['extra_climb_tweak'],
+							extra_climb_tweak=self.sc.dict_delay['extra_climb_tweak'],
 							prob_cruise_extra=self.sc.prob_cruise_extra.copy(),
 							dist_extra_cruise_if_dci=self.sc.dist_extra_cruise_if_dci.copy(),
 							use_trajectory_uncertainty = self.sc.paras['flights__use_trajectory_uncertainty'],
@@ -1760,8 +1760,8 @@ class World:
 	def get_general_simulation_results(self):
 		pouet = {}
 
-		pouet['manual_airport_regulations'] = [self.sc.manual_airport_regulations]
-		pouet['stochastic_airport_regulations'] = [self.sc.stochastic_airport_regulations]
+		pouet['manual_airport_regulations'] = [self.sc.paras['regulations__manual_airport_regulations']]
+		pouet['stochastic_airport_regulations'] = [self.sc.paras['regulations__stochastic_airport_regulations']]
 
 		if hasattr(self, 'regulations_day_dt'):
 			pouet['day_ref_regulations_airport'] = [self.regulations_day_dt.date()]

@@ -11,15 +11,15 @@ import numpy as np
 import datetime as dt
 
 from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func, clock_time
-from Mercury.libs.db_access_functions import read_fp_pool, read_dict_fp_ac_icao_ac_model, read_dict_ac_icao_wtc_engine, \
+from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao_ac_model, read_dict_ac_icao_wtc_engine, \
 										read_dict_ac_bada_code_ac_model, read_dict_ac_icao_ac_model, read_scenario, \
-										read_scenario_paras, read_schedules, read_iedf_atfm, read_prob_atfm, \
+										read_delay_paras, read_schedules, read_iedf_atfm, read_prob_atfm, \
 										read_ATFM_at_airports_days, read_airports_curfew_data, read_airports_data, \
 										read_airports_modif_data, read_turnaround_data, read_eamans_data, read_compensation_data, \
 										read_doc_data, read_non_pax_cost_data, read_non_pax_cost_fit_data, read_nonpax_cost_curfews, \
 										read_estimated_avg_costs_curfews, read_airlines_data, read_extra_cruise_if_dci, \
 										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports, \
-										read_all_regulation_days
+										read_all_regulation_days)
 from Mercury.libs.db_ac_performance import DataAccessPerformance
 from Mercury.libs.db_ac_performance_provider import get_data_access_performance
 
@@ -46,8 +46,6 @@ class ScenarioLoader:
 		self.scenario = info_scenario['scenario_id']
 		self.scenario_description = info_scenario['description']
 		self.case_study_conf = case_study_conf
-
-		# self.case_study_conf = case_study_conf
 
 		self.paras_paths = unfold_paras_dict(data_scenario, data_path=Path('data'))
 
@@ -113,7 +111,7 @@ class ScenarioLoaderSimple(ScenarioLoader):
 									path=path,
 									file_name=file_name)
 
-					if data_name == 'dict_scn':
+					if data_name == 'dict_delay':
 						data = {k: float(v) for k, v in data.items()}
 
 					setattr(self, data_name, data)
@@ -150,17 +148,17 @@ class ScenarioLoaderSimple(ScenarioLoader):
 			#self.define_regulations_airport(dregs_airports, regulations_day)
 
 	def draw_regulation_day(self):
-		if self.stochastic_airport_regulations=="R":
+		if self.paras['regulations__stochastic_airport_regulations']=="R":
 			#We should draw a random day to do the regulations of that day
 			self.regulations_day_all = self.dregs_airports_days.loc[
-								self.rs.choice(list(self.dregs_airports_days[(self.dregs_airports_days['percentile']>=self.dict_scn['perc_day_min'])
-														 & (self.dregs_airports_days['percentile']<=self.dict_scn['perc_day_max'])].index),1),'day_start']
+								self.rs.choice(list(self.dregs_airports_days[(self.dregs_airports_days['percentile']>=self.dict_delay['perc_day_min'])
+														 & (self.dregs_airports_days['percentile']<=self.dict_delay['perc_day_max'])].index),1),'day_start']
 			self.regulations_day_all = "'" + str(list(self.regulations_day_all)[0]).replace('datetime.date','').replace(",","-").replace("(","").replace(")","")+"'"
 			#mmprint("ATFM regulations at airports based on random historic day "+str(self.regulations_day_all))
 			print('regulations_day_all:', self.regulations_day_all)
-		elif self.stochastic_airport_regulations=="D":
+		elif self.paras['regulations__stochastic_airport_regulations']=="D":
 			pass
-		elif self.stochastic_airport_regulations=="N":
+		elif self.paras['regulations__stochastic_airport_regulations']=="N":
 			pass
 		else:
 			self.regulations_day_all = "'{}'".format(str(self.rs.choice(list(self.regulations_at_airport_df['day']))))
@@ -330,7 +328,7 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 						oneline=True, print_function=mprint):
 			self.load_atfm_regulations(connection=connection)
 
-		if self.stochastic_airport_regulations == 'R' or len(self.stochastic_airport_regulations) > 1:
+		if self.paras['regulations__stochastic_airport_regulations'] == 'R' or len(self.paras['regulations__stochastic_airport_regulations']) > 1:
 			with clock_time(message_before='Getting days regulations at airports...',
 							oneline=True, print_function=mprint):
 				self.load_days_possible_regulation_at_airports(connection=connection)
@@ -411,8 +409,6 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 					read_speeds = False
 				else:
 					raise(err)
-
-
 
 	def load_flight_plans(self, connection=None):
 		#Get flight plans
@@ -508,52 +504,41 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 		else:
 			self.dict_ac_icao_perf = self.dict_ac_model_perf
 
-
-
 	def load_scenario(self, connection=None):
-		df = read_scenario(connection,
-							scenario_table=self.paras_paths['input_scenario'],
-							scenario=self.scenario)
-
-		for col in df.columns:
-			if col not in ['id', 'scenario']:
-				setattr(self, col, df[col].iloc[0])
-
-		df_scn_paras = read_scenario_paras(connection,
-											scenario_table=self.paras_paths['input_scenario'],
-											delay_paras_table=self.paras_paths['input_delay_paras'],
+		df_delay_paras = read_delay_paras(connection,
+											delay_level=self.paras['general__delay_level'],
+										  	delay_paras_table=self.paras_paths['input_delay_paras'],
 											scenario=self.scenario)
 
-		# TODO: to modify when other parameter tables have been added
-		df_scn_paras = df_scn_paras[['para_name', 'value']]
-		self.dict_scn = df_scn_paras.set_index('para_name').to_dict()['value']
+		df_delay_paras = df_delay_paras[['para_name', 'value']]
+		self.dict_delay = df_delay_paras.set_index('para_name').to_dict()['value']
 
 	def load_atfm_regulations(self, connection=None):
 
-		if self.stochastic_airport_regulations!='N':
+		if self.paras['regulations__stochastic_airport_regulations']!='N':
 			post_fix = "_excluding_airports'"
 		else:
 			post_fix = "_all'"
 
 		self.non_weather_atfm_delay_dist = read_iedf_atfm(connection,
 									table=self.paras_paths['input_atfm_delay'],
-									where = "WHERE atfm_type='non_weather"+post_fix+" AND scenario_id=\'"+self.delays+"\'",
+									where = "WHERE atfm_type='non_weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
 									scipy_distr=True,
 									scenario=self.scenario)
 
 		self.non_weather_prob_atfm = read_prob_atfm(connection,
-									where = "WHERE atfm_type='non_weather"+post_fix+" AND scenario_id=\'"+self.delays+"\'",
+									where = "WHERE atfm_type='non_weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
 									table=self.paras_paths['input_atfm_prob'],
 									scenario=self.scenario)
 
 		self.weather_atfm_delay_dist = read_iedf_atfm(connection,
 									table=self.paras_paths['input_atfm_delay'],
-									where = "WHERE atfm_type='weather"+post_fix+" AND scenario_id=\'"+self.delays+"\'",
+									where = "WHERE atfm_type='weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
 									scipy_distr=True,
 									scenario=self.scenario)
 
 		self.weather_prob_atfm = read_prob_atfm(connection,
-									where="WHERE atfm_type='weather"+post_fix+" AND scenario_id=\'"+self.delays+"\'",
+									where="WHERE atfm_type='weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
 									table=self.paras_paths['input_atfm_prob'],
 									scenario=self.scenario)
 
@@ -620,7 +605,7 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 	def load_eaman_data(self, connection=None):
 		self.df_eaman_data = read_eamans_data(connection=connection,
 												eaman_table=self.paras_paths['input_eaman'],
-												uptake=self.uptake,
+												uptake=self.paras['general__eaman_uptake'],
 											  scenario=self.scenario)
 
 	def load_cost_data(self, connection=None):
@@ -732,16 +717,15 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 		# TODO: rename things here, it's quite confusing...
 		self.airports_already_with_reg_list = []
 
-		if self.manual_airport_regulations is not None:
-			if np.isnan(self.manual_airport_regulations):
-				self.manual_airport_regulations=None
-		if self.manual_airport_regulations is not None:
+		if self.paras['regulations__manual_airport_regulations'] is not None:
+			if np.isnan(self.paras['regulations__manual_airport_regulations']):
+				self.paras['regulations__manual_airport_regulations']=None
+		if self.paras['regulations__manual_airport_regulations'] is not None:
 			#We have regulations at airports manually defined
-			#mmprint("Reading ATFM reg. in DB for manually defined", self.manual_airport_regulations)
-
+			
 			self.df_dregs_airports_manual = read_ATFM_at_airports_manual(connection,
 														regulation_at_airport_table=self.paras['input_atfm_regulation_at_airport_manual'],
-														scenario="'"+self.manual_airport_regulations+"'")
+														scenario="'"+self.paras['regulations__manual_airport_regulations']+"'")
 
 			self.regulations_day_manual = "'" + str(self.df_dregs_airports_manual.loc[0, 'reg_period_start']).split(' ')[0]+"'"
 
@@ -751,13 +735,13 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 
 		self.regulations_day_all = None
 
-		if self.stochastic_airport_regulations=="R":
+		if self.paras['regulations__stochastic_airport_regulations']=="R":
 			self.draw_regulation_day()
-		elif self.stochastic_airport_regulations=="D":
+		elif self.paras['regulations__stochastic_airport_regulations']=="D":
 			#We have specify a day we want to model
 			#mmprint("ATFM regulations at airports based on "+str(self.regulations_airport_day))
 			self.regulations_day_all = "'" + str(self.regulations_airport_day)+"'"
-		elif self.stochastic_airport_regulations=="N":
+		elif self.paras['regulations__stochastic_airport_regulations']=="N":
 			pass
 		else:
 			# Take regulations that apply to an airport in particular
@@ -766,13 +750,13 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 				regulation_at_airport_table=self.paras_paths['input_atfm_regulation_at_airport'],
 				scenario=self.scenario)
 
-			self.regulations_at_airport_df = self.all_regulation_days.loc[self.all_regulation_days['icao_id']==self.stochastic_airport_regulations, ['day']]
+			self.regulations_at_airport_df = self.all_regulation_days.loc[self.all_regulation_days['icao_id']==self.paras['regulations__stochastic_airport_regulations'], ['day']]
 			# read_regulation_days_at_an_airport(connection,
 			# 										regulation_at_airport_table=self.paras['input_atfm_regulation_at_airport'],
-			# 										airport_icao=self.stochastic_airport_regulations)
+			# 										airport_icao=self.paras['regulations__stochastic_airport_regulations'])
 
 			# # Select regulation days within the desired percentile of severity
-			# dg = df[(df['p']>self.dict_scn['perc_day_min']) && (df['p']<=self.dict_scn['perc_day_max'])]
+			# dg = df[(df['p']>self.dict_delay['perc_day_min']) && (df['p']<=self.dict_delay['perc_day_max'])]
 
 			# Select a day at random
 			# Note : we don't do it using the percentile because this way naturally draw more
@@ -798,16 +782,16 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 			#self.define_regulations_airport(dregs_airports, regulations_day)
 
 	def draw_regulation_day(self):
-		if self.stochastic_airport_regulations=="R":
+		if self.paras['regulations__stochastic_airport_regulations']=="R":
 			#We should draw a random day to do the regulations of that day
 			self.regulations_day_all = self.dregs_airports_days.loc[
-								self.rs.choice(list(self.dregs_airports_days[(self.dregs_airports_days['percentile']>=self.dict_scn['perc_day_min'])
-														 & (self.dregs_airports_days['percentile']<=self.dict_scn['perc_day_max'])].index),1),'day_start']
+								self.rs.choice(list(self.dregs_airports_days[(self.dregs_airports_days['percentile']>=self.dict_delay['perc_day_min'])
+														 & (self.dregs_airports_days['percentile']<=self.dict_delay['perc_day_max'])].index),1),'day_start']
 			self.regulations_day_all = "'" + str(list(self.regulations_day_all)[0]).replace('datetime.date','').replace(",","-").replace("(","").replace(")","").replace(' 00:00:00','')+"'"
 			#mmprint("ATFM regulations at airports based on random historic day "+str(self.regulations_day_all))
-		elif self.stochastic_airport_regulations=="D":
+		elif self.paras['regulations__stochastic_airport_regulations']=="D":
 			pass
-		elif self.stochastic_airport_regulations=="N":
+		elif self.paras['regulations__stochastic_airport_regulations']=="N":
 			pass
 		else:
 			self.regulations_day_all = "'{}'".format(str(self.rs.choice(list(self.regulations_at_airport_df['day']))))

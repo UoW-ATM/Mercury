@@ -34,17 +34,9 @@ def read_scenario(connection, scenario_table="scenario", scenario=None):
 	return df
 
 
-def read_scenario_paras(connection, scenario_table="scenario",
-	delay_paras_table=None, scenario=None):
-	# sql = "SELECt * \
-	# 		FROM " + str(scenario_table) + " AS s \
-	# 		JOIN " + str(delay_paras_table) +\
-	# 		" AS hdp ON hdp.delay_level=s.delays"
+def read_delay_paras(connection, delay_level='D', delay_paras_table=None, scenario=None):
 
-	sql = "SELECt * FROM {} AS s JOIN {} AS hdp ON hdp.delay_level=s.delays".format(scenario_table, delay_paras_table)
-
-	if scenario is not None:
-		sql += " WHERE s.id ={}".format(scenario)
+	sql = "SELECt * FROM {} AS hdp WHERE hdp.delay_level='{}'".format(delay_paras_table, delay_level)
 
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
@@ -450,9 +442,7 @@ def read_route_pool(connection, route_pool_table="route_pool", condition_source=
 	if condition_source is not None:
 		sql = sql + " WHERE " + condition_source
 
-	#print(sql)
 	d_route_pool = read_data(connection=connection, query=sql)
-	# d_route_pool = read_mysql(query=sql, engine=engine)
 	return d_route_pool
 
 def read_coord_trajectory_route(connection, route_pool_table="route_pool",
