@@ -25,8 +25,8 @@ from Mercury.libs.uow_tool_belt.connection_tools import write_data
 from Mercury.libs.performance_trajectory.unit_conversions import *
 
 from Mercury.agents.airline_operating_centre import AirlineOperatingCentre
-from Mercury.agents.ground_airport import GroundAirport
-from Mercury.agents.ground_handler import  GroundHandler
+from Mercury.agents.airport_operating_centre import AirportOperatingCentre
+from Mercury.agents.airport_terminal import AirportTerminal
 from Mercury.agents.eaman import EAMAN
 from Mercury.agents.aman import AMAN
 from Mercury.agents.dman import DMAN
@@ -359,7 +359,7 @@ class World:
 		# Put all agents in a list for easy access
 
 		self.agents = list(self.airports.values())
-		self.agents += list(self.groundhandlers.values())
+		self.agents += list(self.airport_terminals.values())
 		self.agents += list(self.eamans.values())
 		self.agents += list(self.dmans.values())
 		self.agents += self.aocs.values()
@@ -635,78 +635,31 @@ class World:
 			self.define_regulations_airport(self.sc.df_dregs_airports_all,
 											self.sc.regulations_day_all)
 
-	def create_airports(self):
+	def create_airport_terminals(self):
+		"""
+		Create AirportTerminal --> one per airport for pax connecting times and pax processes on the
+		land side (kerb-to-gate, gate-to-kerb).
+		"""
+
 		df = self.sc.df_airport_data
-		df_m_dcap = self.sc.df_airports_modif_data_due_cap
-		df_m_dcap = df_m_dcap.set_index('icao_id')['modif_cap_due_traffic_diff'].to_dict()
 
-		pouet = self.sc.df_mtt.groupby(['airport_size', 'wake']).mean()
-		dic_mtt = {size: {wake: {typ: pouet.loc[size].loc[wake][typ]
-				for typ in pouet.columns
-						} for wake in set(pouet.index.get_level_values(1))
-					} for size in set(pouet.index.get_level_values(0))
-			}
-
-		self.airports_per_icao = {}  # keys are ICAO
-
+		self.airport_terminals_per_icao = {}  # keys are ICAO
 
 		for i, row in list(df.iterrows()):
-			min_tt = self.sc.paras['airports__minimum_taxi_time']
 
-			# Capacity = declared arriva/dep capacity * modifier due to traffic different in sim than reality \
-			#            * capacity_modifier depending on delay in simulation * reduction due to use arrival/demand capacity segregated
-			airport_arrival_capacity = int(row['declared_capacity'] * df_m_dcap.get(row['icao_id'], 1.)
-									* self.sc.dict_scn['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_arrival_reduction'])
-
-			airport_departure_capacity = int(row['declared_capacity'] * df_m_dcap.get(row['icao_id'], 1.)
-									* self.sc.dict_scn['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_departure_reduction'])
-
-			airport = GroundAirport(self.postman,
-							idd=i,
-							uid=self.uid,
-							icao=row['icao_id'],
-							coords=(row['lat'], row['lon']),
-							arrival_capacity=airport_arrival_capacity,
-							departure_capacity=airport_departure_capacity,
-							curfew=self.sc.dict_cf.get(row['icao_id'], None),
-							exot=10.,
-							env=self.env,
-							min_tt=min_tt,
-							mcolor=self.paras['print_colors__airport'],
-							acolor=self.paras['print_colors__alert'],
-							verbose=self.paras['computation__verbose'],
-							log_file=self.log_file_it,  # TODO: remove
-							rs=self.rs,
-							module_agent_modif=self.module_agent_modif.get('GroundAirport', {}))
+			airport_terminal = AirportTerminal(self.postman,
+										  idd=i,
+										  uid=self.uid,
+										  icao=row['icao_id'],
+										  env=self.env,
+										  mcolor=self.paras['print_colors__airport'],
+										  acolor=self.paras['print_colors__alert'],
+										  verbose=self.paras['computation__verbose'],
+										  log_file=self.log_file_it,  # TODO: remove
+										  rs=self.rs,
+										  module_agent_modif=self.module_agent_modif.get('AirportTerminal', {}))
 
 			self.uid += 1
-
-			# Taxi out estimation
-			mu, sig = row['mean_taxi_out'], row['std_taxi_out']
-			mu, sig = mu*self.sc.dict_scn['taxi_time_modifier'], sig*self.sc.dict_scn['taxi_time_modifier']
-			if sig == 0.:
-				sig = 1.
-
-			scale, s = scale_and_s_from_mean_sigma_lognorm(mu-min_tt, sig)
-			if scale < 0. or s < 0.:
-				print('PROBLEM:', row['icao_id'], scale, s)
-			dists = lognorm(loc=min_tt, scale=scale, s=s)
-			airport.give_taxi_out_time_estimation_dist(dists)
-
-			# Taxi in estimation
-			mu, sig = row['mean_taxi_in'], row['std_taxi_in']
-			mu, sig = mu*self.sc.dict_scn['taxi_time_modifier'], sig*self.sc.dict_scn['taxi_time_modifier']
-			if sig == 0.:
-				sig = 1.
-
-			scale, s = scale_and_s_from_mean_sigma_lognorm(mu-min_tt, sig)
-			dists = lognorm(loc=min_tt, scale=scale, s=s)
-			airport.give_taxi_in_time_estimation_dist(dists)
-
-			# Changes to taxi in/out estimation
-			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
-			airport.give_taxi_time_add_dist(dists)
-
 
 			# Connecting times
 			mct_q = self.sc.paras['airports__mct_q']
@@ -721,42 +674,115 @@ class World:
 				dists['economy'][k] = lognorm(loc=0., scale=scale, s=s)
 				dists['flex'][k] = lognorm(loc=0., scale=scale, s=s)
 
-			airport.give_connecting_time_dist(dists, mct_q=mct_q)
+			airport_terminal.set_connecting_time_dist(dists, mct_q=mct_q)
 
+			self.airport_terminals_per_icao[row['icao_id']] = airport_terminal
 
-			self.airports_per_icao[row['icao_id']] = airport
+		self.airport_terminals = {airport_terminal.uid: airport_terminal for airport_terminal in self.airport_terminals_per_icao.values()}
 
+	def create_airports(self):
+		# In future read GroundHanlders and AirsideMobility (if split as Agents)
 
-			self.cr.register_mcts(airport)
+		# Read all AirportTerminals
+		self.create_airport_terminals()
 
+		# Create APOCs (including GroundHandlers and Airside Mobility roles inside)
 
-		# Create ground handlers (one per airport)
-		self.groundhandlers_per_icao = {}  # keys are ICAO
+		df = self.sc.df_airport_data
+
+		# Capacity data at airports
+		df_m_dcap = self.sc.df_airports_modif_data_due_cap
+		df_m_dcap = df_m_dcap.set_index('icao_id')['modif_cap_due_traffic_diff'].to_dict()
+
+		# Read dictionary of MTT (minimum turnaround times)
+		pouet = self.sc.df_mtt.groupby(['airport_size', 'wake']).mean()
+		dic_mtt = {size: {wake: {typ: pouet.loc[size].loc[wake][typ]
+								 for typ in pouet.columns
+								 } for wake in set(pouet.index.get_level_values(1))
+						  } for size in set(pouet.index.get_level_values(0))
+				   }
+
+		# Minimum taxi time
+		min_tt = self.sc.paras['airports__minimum_taxi_time']
+
+		# Dictionary to store all APOCs
+		self.airports_per_icao = {}  # keys are ICAO
+
 		for i, row in list(df.iterrows()):
 
-			groundhandler = GroundHandler(self.postman,
-										  idd=i,
-										  uid=self.uid,
-										  icao=row['icao_id'],
-										  env=self.env,
-										  mcolor=self.paras['print_colors__airport'],
-										  acolor=self.paras['print_colors__alert'],
-										  verbose=self.paras['computation__verbose'],
-										  log_file=self.log_file_it,  # TODO: remove
-										  rs=self.rs,
-										  module_agent_modif=self.module_agent_modif.get('GroundHander', {}))
+			# Capacity = declared arriva/dep capacity * modifier due to traffic different in sim than reality \
+			#            * capacity_modifier depending on delay in simulation * reduction due to use arrival/demand capacity segregated
+			airport_arrival_capacity = int(row['declared_capacity'] * df_m_dcap.get(row['icao_id'], 1.)
+										   * self.sc.dict_scn['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_arrival_reduction'])
+
+			airport_departure_capacity = int(row['declared_capacity'] * df_m_dcap.get(row['icao_id'], 1.)
+											 * self.sc.dict_scn['capacity_modifier'] * self.sc.paras['airports__cap_ratio_mix_use_departure_reduction'])
+
+			airport_apoc = AirportOperatingCentre(self.postman,
+													idd=i,
+													uid=self.uid,
+													icao=row['icao_id'],
+													coords=(row['lat'], row['lon']),
+												  	airport_terminal_uid = self.airport_terminals_per_icao[row['icao_id']].uid,
+												    arrival_capacity=airport_arrival_capacity,
+													departure_capacity=airport_departure_capacity,
+													curfew=self.sc.dict_cf.get(row['icao_id'], None),
+													env=self.env,
+													mcolor=self.paras['print_colors__airport'],
+													acolor=self.paras['print_colors__alert'],
+													verbose=self.paras['computation__verbose'],
+													log_file=self.log_file_it,  # TODO: remove
+													rs=self.rs,
+													module_agent_modif=self.module_agent_modif.get('GroundAirport', {}),
+												    min_tt=min_tt, # Default minimum taxi time (part of AirsideMobility)
+												    exot=10. # Default taxi out time (part of AirsideMobility)
+													)
 
 			self.uid += 1
 
+			# TAXI INFORMATION (to be part of AirsideMobility in future)
+			# Taxi out estimation
+			mu, sig = row['mean_taxi_out'], row['std_taxi_out']
+			mu, sig = mu * self.sc.dict_scn['taxi_time_modifier'], sig * self.sc.dict_scn['taxi_time_modifier']
+			if sig == 0.:
+				sig = 1.
+
+			scale, s = scale_and_s_from_mean_sigma_lognorm(mu - min_tt, sig)
+			if scale < 0. or s < 0.:
+				print('PROBLEM:', row['icao_id'], scale, s)
+			dists = lognorm(loc=min_tt, scale=scale, s=s)
+			airport_apoc.set_taxi_out_time_estimation_dist(dists)
+
+			# Taxi in estimation
+			mu, sig = row['mean_taxi_in'], row['std_taxi_in']
+			mu, sig = mu * self.sc.dict_scn['taxi_time_modifier'], sig * self.sc.dict_scn['taxi_time_modifier']
+			if sig == 0.:
+				sig = 1.
+
+			scale, s = scale_and_s_from_mean_sigma_lognorm(mu - min_tt, sig)
+			dists = lognorm(loc=min_tt, scale=scale, s=s)
+			airport_apoc.set_taxi_in_time_estimation_dist(dists)
+
+			# Changes to taxi in/out estimation
+			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
+			airport_apoc.set_taxi_time_add_dist(dists)
+
+			# TURNAROUND INFORMATION (to be part of GroundHandler in the future)
 			# Turnaround times
 			dists = {k: {kk: expon(loc=vv, scale=self.sc.dict_scn['lambda_tat'])
 						 for kk, vv in v.items()}
 					 for k, v in dic_mtt[row['size']].items()}
-			groundhandler.set_turnaround_time_dists(dists)
-			self.groundhandlers_per_icao[row['icao_id']] = groundhandler
+			airport_apoc.set_turnaround_time_dists(dists)
+
+
+			# Save APOC in dictionary of airports
+			self.airports_per_icao[row['icao_id']] = airport_apoc
+
+			self.cr.register_mcts(airport_apoc.uid, self.airport_terminals_per_icao[airport_apoc.icao].mcts)
 
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
-		self.groundhandlers = {groundhandler.uid: groundhandler for groundhandler in self.groundhandlers_per_icao.values()}
+
+
 
 	def create_AMANs(self):
 		"""
@@ -940,8 +966,11 @@ class World:
 
 			# TODO: only register relevant airports!
 			for icao, airport in self.airports_per_icao.items():
-				aoc.register_airport(airport, groundhandler_uid=self.groundhandlers_per_icao[icao].uid)
+				aoc.register_airport(airport, self.airport_terminals_per_icao[icao].uid)
 
+			# TODO: only register relevant airport terminals!
+			for airport_terminal in self.airport_terminals_per_icao.values():
+				aoc.register_airport_terminal(airport_terminal)
 
 			# TODO: only register relevant fp for this given AOC
 			aoc.register_fp_pool(self.fp_pool, self.sc.dict_fp_ac_icao_ac_model)
