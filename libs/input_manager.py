@@ -73,6 +73,7 @@ class Input_manager:
         self.stochastic_airport_regulations = 'R'
         self.delays = 'D'
         self.uptake = 'D'
+        self.atfm_regulation_at_airport_manual_changed = False
 
         self.input_path = Path(os.path.abspath(__file__)).parents[1] / Path(self.read_mercury_config()['read_profile']['path'])
         print_log('input_path', Path(self.input_path)/'scenario=0')
@@ -242,9 +243,17 @@ class Input_manager:
         elif which == 'base':
             df_delay = self.base_data_dict['delay']['input_delay_paras']
 
+        self.delays = delay_level
+
         df = df_delay[df_delay['delay_level']==delay_level]
 
         self.case_study_data_dict['delay']['input_delay_paras'] = df
+
+        if 'general' not in self.case_study_config['paras']:
+            self.case_study_config['paras']['general'] ={}
+
+        if delay_level != self.scenario_config['paras']['general']['delay_level']:
+            self.case_study_config['paras']['general']['delay_level'] = delay_level
 
         return df
 
@@ -261,6 +270,12 @@ class Input_manager:
 
         self.case_study_data_dict['eaman']['input_eaman'] = df
         self.uptake = uptake
+
+        if 'general' not in self.case_study_config['paras']:
+            self.case_study_config['paras']['general'] ={}
+
+        if uptake != self.scenario_config['paras']['general']['eaman_uptake']:
+            self.case_study_config['paras']['general']['eaman_uptake'] = uptake
 
         return df
 
@@ -313,8 +328,8 @@ class Input_manager:
 
         atfm_types = ['non_weather'+post_fix,'weather'+post_fix]
 
-        df1 = atfm_delay[(atfm_delay['scenario_id']==scenario) & (atfm_delay['atfm_type'].isin(atfm_types))]
-        df2 = atfm_prob[(atfm_prob['scenario_id']==scenario) & (atfm_prob['atfm_type'].isin(atfm_types))]
+        df1 = atfm_delay[(atfm_delay['level']==scenario) & (atfm_delay['atfm_type'].isin(atfm_types))]
+        df2 = atfm_prob[(atfm_prob['level']==scenario) & (atfm_prob['atfm_type'].isin(atfm_types))]
 
         self.case_study_data_dict['network_manager']['input_atfm_delay'] = df1
         self.case_study_data_dict['network_manager']['input_atfm_prob'] = df2
@@ -515,7 +530,7 @@ class Input_manager:
 
     def set_regulations(self,scenario,stochastic_airport_regulations,regulations_airport_day,airport_id):
 
-        self.delays = scenario
+        #self.delays = scenario
         if stochastic_airport_regulations != 'Airport':
             self.stochastic_airport_regulations = stochastic_airport_regulations
         else:
@@ -525,6 +540,30 @@ class Input_manager:
             self.regulations_airport_day = regulations_airport_day
         else:
             self.regulations_airport_day = None
+
+        if 'regulations' not in self.case_study_config['paras']:
+            self.case_study_config['paras']['regulations'] ={}
+
+        if self.stochastic_airport_regulations != self.scenario_config['paras']['regulations']['stochastic_airport_regulations']:
+            self.case_study_config['paras']['regulations']['stochastic_airport_regulations'] = self.stochastic_airport_regulations
+        if self.regulations_airport_day != self.scenario_config['paras']['regulations']['regulations_airport_day']:
+            self.case_study_config['paras']['regulations']['regulations_airport_day'] = self.regulations_airport_day
+
+    def set_atfm_regulation_at_airport_manual(self,atfm_regulation_at_airport_manual,manual_reg_scenario_id):
+
+        self.atfm_regulation_at_airport_manual_changed = True
+        self.base_data_dict['network_manager']['input_atfm_regulation_at_airport_manual'] = atfm_regulation_at_airport_manual
+        self.case_study_data_dict['network_manager']['input_atfm_regulation_at_airport_manual'] = atfm_regulation_at_airport_manual
+
+        if 'network_manager' not in self.case_study_config['data']:
+            self.case_study_config['data']['network_manager'] = {}
+        self.case_study_config['data']['network_manager']['input_atfm_regulation_at_airport_manual'] = 'regulation_at_airport_manual'
+
+        if 'regulations' not in self.case_study_config['paras']:
+            self.case_study_config['paras']['regulations'] ={}
+
+        if manual_reg_scenario_id != self.scenario_config['paras']['regulations']['manual_airport_regulations']:
+            self.case_study_config['paras']['regulations']['manual_airport_regulations'] = manual_reg_scenario_id
 
     def get_fp(self):
 
@@ -615,6 +654,11 @@ class Input_manager:
 
             self.case_study_data_dict['delay']['input_delay_paras'].astype({'value': 'float64'}).to_parquet(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'delay' / str('delay_parameters'+'.parquet'))
             self.case_study_config['data']['delay'] = {'input_delay_paras':'delay_parameters'}
+
+        if self.atfm_regulation_at_airport_manual_changed == True:
+            if not (self.scenario_path / 'case_studies' / case_study_name / 'data' / 'network_manager').exists():
+                os.mkdir(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'network_manager')
+            self.case_study_data_dict['network_manager']['input_atfm_regulation_at_airport_manual'].astype({'capacity': 'int'}).to_parquet(self.scenario_path / 'case_studies' / case_study_name / 'data' / 'network_manager' / str('regulation_at_airport_manual'+'.parquet'))
 
         self.case_study_config['info']['case_study_id'] = case_study_id
         self.case_study_config['info']['description'] = description
