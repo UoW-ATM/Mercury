@@ -16,7 +16,7 @@ from Mercury.agents.commodities.flight_plan import FlightPlan
 from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func, clock_time
 from Mercury.libs.uow_tool_belt.connection_tools import write_data, read_data
 from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao_ac_model, read_dict_ac_icao_wtc_engine, \
-										read_dict_ac_bada_code_ac_model, read_dict_ac_icao_ac_model, read_scenario, \
+										read_dict_ac_bada_code_ac_model, read_ATFM_at_airports_manual,
 										read_delay_paras, read_schedules, read_iedf_atfm, read_prob_atfm, \
 										read_ATFM_at_airports_days, read_airports_curfew_data, read_airports_data, \
 										read_airports_modif_data, read_turnaround_data, read_eamans_data, read_compensation_data, \
@@ -448,20 +448,6 @@ class ScenarioLoader:
 		with clock_time(message_before='Creating flight plans...',
 					oneline=True, print_function=mprint):
 			self.create_flight_plans()
-
-	def load_bada_performances(self, connection=None):
-		"""
-		OLD DEPRECATED - TO BE REMOVED ONCE BADA4 capabilities brought back
-		"""
-		# Read BADA preformances
-		dab3 = DataAccessPerformance(db=self.paras['db_bada3'])
-		dab4 = DataAccessBADA4(db=self.paras['db_bada4'])
-		self.dict_ac_model_perf = dab3.read_ac_performances(connection=connection)
-		self.dict_ac_model_perf = dab4.read_ac_performances(connection=connection,
-																				dict_key="ac_model")
-
-		self.dict_ac_bada_code_ac_model = read_dict_ac_bada_code_ac_model(connection=connection,
-																			table=self.paras['input_aircraft_eq_badacomputed'])
 
 	def load_aircraft_performances(self, connection=None, ac_icao_needed=None):
 		# For these the connection needs to be adjusted as it's not in the input folder but whenever the paras_path has defined it
