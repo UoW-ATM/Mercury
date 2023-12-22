@@ -10,7 +10,11 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 
+from Mercury.core.read_config import unfold_paras_dict
+from Mercury.agents.commodities.flight_plan import FlightPlan
+
 from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func, clock_time
+from Mercury.libs.uow_tool_belt.connection_tools import write_data, read_data
 from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao_ac_model, read_dict_ac_icao_wtc_engine, \
 										read_dict_ac_bada_code_ac_model, read_dict_ac_icao_ac_model, read_scenario, \
 										read_delay_paras, read_schedules, read_iedf_atfm, read_prob_atfm, \
@@ -23,25 +27,58 @@ from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao
 from Mercury.libs.db_ac_performance import DataAccessPerformance
 from Mercury.libs.db_ac_performance_provider import get_data_access_performance
 
-from Mercury.core.read_config import unfold_paras_dict
-from Mercury.agents.commodities.flight_plan import FlightPlan
-from Mercury.model_version import model_version
+data_to_load = ['dict_ac_model_perf',
+				'dict_ac_model_perf',
+				'non_weather_atfm_delay_dist',
+				'non_weather_prob_atfm',
+				'weather_atfm_delay_dist',
+				'weather_prob_atfm',
+				'df_schedules',
+				'dict_delay',
+				'dict_cf',
+				'df_airport_data',
+				'df_airports_modif_data_due_cap',
+				'df_mtt',
+				'df_eaman_data',
+				'df_compensation',
+				'df_doc',
+				'dict_np_cost',
+				'dict_np_cost_fit',
+				'dict_curfew_nonpax_costs',
+				'dict_curfew_estimated_pax_avg_costs',
+				'df_airlines_data',
+				'dist_extra_cruise_if_dci',
+				'prob_climb_extra',
+				'prob_cruise_extra',
+				'dic_soft_cost',
+				'df_pax_data',
+				'regulations_day_all',
+				'reference_dt',
+				'dict_fp',
+				'df_dregs_airports_all',
+				'dregs_airports_all',
+				'dregs_airports_days',
+				'l_ids_propagate_to_curfew',
+				'airports_already_with_reg_list',
+				'dict_fp_ac_icao_ac_model',
+				'dict_ac_icao_perf'
+				]
 
-
-class ScenarioLoaderSelector:
-	def __init__(self):
-		self.available_loaders = {'ScenarioLoaderSimple': ScenarioLoaderSimple,
-								  'ScenarioLoaderStandardLocal': ScenarioLoaderStandardLocal}
-
-	def select(self, name_loader):
-		return self.available_loaders[name_loader]
+optional_data_to_load = ['df_dregs_airports_manual',
+						 'regulations_day_manual',
+						 'regulations_at_airport_df']
 
 
 class ScenarioLoader:
+	"""
+	This loader is used to load things from parquet files
+	following the structure specified in OpenMercury.
+	It inherits from ScenarioLoaderStandard as it is a
+	simplified version (same steps but reading data in a given
+	pre-arrange structure form)
+	"""
 	def __init__(self, case_study_conf=None, info_scenario=None, data_scenario=None, paras_scenario=None,
 				 log_file=None, print_color_info=None):
-		# TODO add aprint
-
 		# This dictionary is just for data stuff (path to parquet, sql, etc)
 		self.scenario = info_scenario['scenario_id']
 		self.scenario_description = info_scenario['description']
@@ -71,108 +108,6 @@ class ScenarioLoader:
 		mprint = build_col_print_func(print_color_info,
 									file=log_file)
 
-	def load_all_data(self):
-		pass
-
-
-class ScenarioLoaderSimple(ScenarioLoader):
-	"""
-	This loader is used to load pickle files created by the download_tables.py script.
-	"""
-	def load_all_data(self, data_to_load=[], connection=None, process=None,
-		profile_paras={}, verbose=True, rs=None, **garbage):
-
-		if rs is not None:
-			self.rs = rs
-		else:
-			self.rs = RandomState()
-
-		self.process = process
-		if verbose:
-			mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
-
-		if connection is not None and connection['type'] == 'mysql':
-			raise Exception('MySQL connection should not be used with the simplified Scenarioloader.')
-
-		dir_name = '_'.join([str(model_version),
-										str(self.paras['scenario'])])
-
-		path = Path(profile_paras['path']) / dir_name
-
-		if path.exists():
-			print('Loading all data with ScenarioLoaderSimple from', path)
-			for data_name in data_to_load:
-				file_name = data_name + '.pic'
-				fmt = 'pickle'
-
-				try:
-					data = read_data(fmt=fmt,
-									connection=connection,
-									path=path,
-									file_name=file_name)
-
-					if data_name == 'dict_delay':
-						data = {k: float(v) for k, v in data.items()}
-
-					setattr(self, data_name, data)
-
-					if data_name == 'df_schedules':
-						self.df_schedules['sobt'] = pd.to_datetime(self.df_schedules['sobt'])
-				except FileNotFoundError:
-					print('Could not find file', path / file_name, ', proceeding...')
-				except:
-					raise
-		else:
-			raise Exception("Can't find folder {} to load the scenario!".format(path))
-		# Comment the line below if you want always the same day on the first iteration
-		self.reload()
-
-	def reload(self, connection=None):
-		"""
-		This is used to draw some new variables at random, not reload
-		all data.
-		"""
-
-		self.draw_regulation_day()
-		self.compute_dregs_airports()
-
-	def compute_dregs_airports(self):
-		if self.regulations_day_all is not None:
-			#mmprint("Reading ATFM reg. in DB for day", self.regulations_day_all)
-			# dregs_airports = read_ATFM_at_airports(connection,
-			# 										regulation_at_airport_table=self.paras['input_atfm_regulation_at_airport'],
-			# 										day=self.regulations_day_all)
-
-			dregs_airports = self.dregs_airports_all.loc[self.dregs_airports_all['day']==self.regulations_day_all.strip("'")]
-			self.df_dregs_airports_all = dregs_airports[~dregs_airports.icao_id.isin(self.airports_already_with_reg_list)]
-			#self.define_regulations_airport(dregs_airports, regulations_day)
-
-	def draw_regulation_day(self):
-		if self.paras['regulations__stochastic_airport_regulations']=="R":
-			#We should draw a random day to do the regulations of that day
-			self.regulations_day_all = self.dregs_airports_days.loc[
-								self.rs.choice(list(self.dregs_airports_days[(self.dregs_airports_days['percentile']>=self.dict_delay['perc_day_min'])
-														 & (self.dregs_airports_days['percentile']<=self.dict_delay['perc_day_max'])].index),1),'day_start']
-			self.regulations_day_all = "'" + str(list(self.regulations_day_all)[0]).replace('datetime.date','').replace(",","-").replace("(","").replace(")","")+"'"
-			#mmprint("ATFM regulations at airports based on random historic day "+str(self.regulations_day_all))
-			print('regulations_day_all:', self.regulations_day_all)
-		elif self.paras['regulations__stochastic_airport_regulations']=="D":
-			pass
-		elif self.paras['regulations__stochastic_airport_regulations']=="N":
-			pass
-		else:
-			self.regulations_day_all = "'{}'".format(str(self.rs.choice(list(self.regulations_at_airport_df['day']))))
-			print('Using regulations from', self.regulations_day_all)
-
-
-class ScenarioLoaderStandardLocal(ScenarioLoader):
-	"""
-	This loader is used to load things from parquet files
-	following the structure specified in OpenMercury.
-	It inherits from ScenarioLoaderStandard as it is a
-	simplified version (same steps but reading data in a given
-	pre-arrange structure form)
-	"""
 	def choose_reference_datetime(self):
 		# Compute earliest scheduled departure
 		earliest = self.df_schedules['sobt'].min()
@@ -235,7 +170,7 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 			alt_ft = row['alt_ft']
 			time_min = row['time_min']
 			if name == "landing" and row['dist_to_dest_nm'] != 0:
-				aprint("Routes which landing is wrong, manually fixed in code: ", origin, destination, ac_icao_code_performance_model)
+				# aprint("Routes which landing is wrong, manually fixed in code: ", origin, destination, ac_icao_code_performance_model)
 				dist_from_orig_nm = fp_distance_nm
 				dist_to_dest_nm = 0
 			else:
@@ -282,23 +217,109 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 
 			self.dict_fp[(origin, destination, ac_icao_code_performance_model, trajectory_pool_id, route_pool_id)] = fp
 
-	def load_all_data(self, rs=None, connection=None, profile_paras={}, **garbage):
-		dir_name = '_'.join([str(model_version), str(self.scenario)])
+	def load_all_data(self, connection=None, profile_paras={}, verbose=True, rs=None, process=None):
 
-		if 'path' in profile_paras:
-			path = Path(profile_paras['path'])
+		force_save_compiled_data = profile_paras['force_save_compiled_data']
+		load_compiled_data_if_exists = profile_paras['load_compiled_data_if_exists']
 
-			# if self.paras.get('case_studies') is not None:
-			# 	self.case_study_config = read_toml(str(path)+'/scenario='+str(self.paras['scenario'])\
-			# 									   +'/case_studies/'+self.paras['case_study'])
+		path_compiled_data = Path(profile_paras['path']) / 'scenario={}'.format(self.scenario) / 'case_studies' \
+							 / 'case_study={}'.format(self.case_study_conf['info']['case_study_id']) / 'consolidated_data'
 
-			if path.exists() and profile_paras['type'] ==' parquet':
-				print('Loading all data as parquet with ScenarioLoaderSimpleLocal from', path)
-				for k in self.paras:
-					if 'input_' in k:
-						self.paras[k] = 'read_parquet(\''+str(path)+'/scenario='+str(self.paras['scenario'])\
-										+'/scenario_data/'+self.paras[k]+'.parquet\')'
-						# read_parquet(\'../../input/regulation_at_airport_static_old1409.parquet\');'
+		if load_compiled_data_if_exists and path_compiled_data.exists():
+			self.load_compiled_data(connection=connection,
+									process=process,
+									path_compiled_data=path_compiled_data,
+									verbose=verbose,
+									rs=rs)
+
+			save_compiled_data = force_save_compiled_data
+
+		else:
+			self.load_uncompiled_data(connection=connection,
+									  rs=rs)
+
+			save_compiled_data = True
+
+		if save_compiled_data:
+			path_compiled_data.mkdir(parents=True, exist_ok=True)
+			print('Saving compiled data here:', path_compiled_data)
+
+			for ipt in data_to_load:
+				try:
+					stuff = getattr(self, ipt)
+				except AttributeError:
+					raise Exception('These data were not found:', ipt)
+
+				write_data(data=stuff,
+						   path=path_compiled_data,
+						   file_name=ipt + '.pic',
+						   fmt='pickle',
+						   how='replace',
+						   connection=connection)
+
+			for ipt in optional_data_to_load:
+				try:
+					stuff = getattr(self, ipt)
+				except AttributeError:
+					continue
+
+				write_data(data=stuff,
+						   path=path_compiled_data,
+						   file_name=ipt + '.pic',
+						   fmt='pickle',
+						   how='replace',
+						   connection=connection)
+
+	def load_compiled_data(self, connection=None, process=None,
+		path_compiled_data=None, verbose=True, rs=None):
+
+		"""
+		This method is used when one wants to load 'compiled data', i.e. data that have already been loaded (and saved)
+		by the scenario loader for this scenario/case study.
+		"""
+
+		if rs is not None:
+			self.rs = rs
+		else:
+			self.rs = RandomState()
+
+		self.process = process
+		if verbose:
+			mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
+
+		if connection is not None and connection['type'] == 'mysql':
+			raise Exception('MySQL connection are not supported anymore')
+
+		if path_compiled_data.exists():
+			print('Loading compiled data from', path_compiled_data)
+			for data_name in data_to_load:
+				file_name = data_name + '.pic'
+				fmt = 'pickle'
+
+				try:
+					data = read_data(fmt=fmt,
+									connection=connection,
+									path=path_compiled_data,
+									file_name=file_name)
+
+					if data_name == 'dict_delay':
+						data = {k: float(v) for k, v in data.items()}
+
+					setattr(self, data_name, data)
+
+					if data_name == 'df_schedules':
+						self.df_schedules['sobt'] = pd.to_datetime(self.df_schedules['sobt'])
+				except FileNotFoundError:
+					print('Could not find file', path_compiled_data / file_name, ', proceeding...')
+				except:
+					raise
+		else:
+			raise Exception("Can't find folder {} to load the scenario!".format(path_compiled_data))
+
+		# Comment the line below if you want always the same day on the first iteration
+		self.reload()
+
+	def load_uncompiled_data(self, rs=None, connection=None):
 		# Random state
 		if rs is not None:
 			self.rs = rs
@@ -309,74 +330,74 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 		self.process = psutil.Process(os.getpid())
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
-		with clock_time(message_before='Loading scenario...',
-						oneline=True, print_function=mprint):
-			self.load_scenario(connection=connection)
-
-		with clock_time(message_before="Getting schedules...",
-						oneline=True, print_function=mprint):
-			self.load_schedules(connection=connection)
-			self.choose_reference_datetime()
-
-		with clock_time(message_before='Getting aircraft performance models...',
-						oneline=True, print_function=mprint):
-
-			self.load_aircraft_performances(connection=connection,
-											ac_icao_needed=self.df_schedules.aircraft_type.drop_duplicates())
-
-		with clock_time(message_before='Getting ATFM probabilities...',
-						oneline=True, print_function=mprint):
-			self.load_atfm_regulations(connection=connection)
-
-		if self.paras['regulations__stochastic_airport_regulations'] == 'R' or len(self.paras['regulations__stochastic_airport_regulations']) > 1:
-			with clock_time(message_before='Getting days regulations at airports...',
+		with clock_time(message_before='Data loading', oneline=True, print_function=mprint):
+			with clock_time(message_before='Loading scenario...',
 							oneline=True, print_function=mprint):
-				self.load_days_possible_regulation_at_airports(connection=connection)
+				self.load_scenario(connection=connection)
 
-		with clock_time(message_before='Getting/Creating flight plans...',
-						oneline=True, print_function=mprint):
-			self.load_flight_plans(connection=connection)
+			with clock_time(message_before="Getting schedules...",
+							oneline=True, print_function=mprint):
+				self.load_schedules(connection=connection)
+				self.choose_reference_datetime()
 
-		with clock_time(message_before='Getting curfews...',
-						oneline=True, print_function=mprint):
-			self.load_curfews(connection=connection)
+			with clock_time(message_before='Getting aircraft performance models...',
+							oneline=True, print_function=mprint):
+				self.load_aircraft_performances(connection=connection,
+												ac_icao_needed=self.df_schedules.aircraft_type.drop_duplicates())
 
-		with clock_time(message_before='Getting airports data...',
-						oneline=True, print_function=mprint):
-			self.load_airport_data(connection=connection)
+			with clock_time(message_before='Getting ATFM probabilities...',
+							oneline=True, print_function=mprint):
+				self.load_atfm_regulations(connection=connection)
 
-		with clock_time(message_before='Getting EAMAN data...',
-						oneline=True, print_function=mprint):
-			self.load_eaman_data(connection=connection)
+			if self.paras['regulations__stochastic_airport_regulations'] == 'R' or len(self.paras['regulations__stochastic_airport_regulations']) > 1:
+				with clock_time(message_before='Getting days regulations at airports...',
+								oneline=True, print_function=mprint):
+					self.load_days_possible_regulation_at_airports(connection=connection)
 
-		with clock_time(message_before='Getting cost data...',
-						oneline=True, print_function=mprint):
-			self.load_cost_data(connection=connection)
+			with clock_time(message_before='Getting/Creating flight plans...',
+							oneline=True, print_function=mprint):
+				self.load_flight_plans(connection=connection)
 
-		with clock_time(message_before='Getting airline data...',
-						oneline=True, print_function=mprint):
-			self.load_airline_data(connection=connection)
+			with clock_time(message_before='Getting curfews...',
+							oneline=True, print_function=mprint):
+				self.load_curfews(connection=connection)
 
-		with clock_time(message_before='Getting flight uncertainty data...',
-						oneline=True, print_function=mprint):
-			self.load_flight_uncertainty(connection=connection)
+			with clock_time(message_before='Getting airports data...',
+							oneline=True, print_function=mprint):
+				self.load_airport_data(connection=connection)
 
-		with clock_time(message_before='Getting soft cost data...',
-						oneline=True, print_function=mprint):
-			self.load_soft_cost_data(connection=connection)
+			with clock_time(message_before='Getting EAMAN data...',
+							oneline=True, print_function=mprint):
+				self.load_eaman_data(connection=connection)
 
-		with clock_time(message_before='Getting pax data...',
-						oneline=True, print_function=mprint):
-			self.load_pax_data(connection=connection)
+			with clock_time(message_before='Getting cost data...',
+							oneline=True, print_function=mprint):
+				self.load_cost_data(connection=connection)
 
-		with clock_time(message_before='Getting ATFM data...',
-						oneline=True, print_function=mprint):
-			self.load_atfm_at_airports(connection=connection)
+			with clock_time(message_before='Getting airline data...',
+							oneline=True, print_function=mprint):
+				self.load_airline_data(connection=connection)
 
-		with clock_time(message_before='Computing flights can propagate curfew...',
-						oneline=True, print_function=mprint):
-			self.compute_list_flight_can_propagate_to_curfew()
-			mprint("Number of flights that can propagate to curfew:",len(self.l_ids_propagate_to_curfew))
+			with clock_time(message_before='Getting flight uncertainty data...',
+							oneline=True, print_function=mprint):
+				self.load_flight_uncertainty(connection=connection)
+
+			with clock_time(message_before='Getting soft cost data...',
+							oneline=True, print_function=mprint):
+				self.load_soft_cost_data(connection=connection)
+
+			with clock_time(message_before='Getting pax data...',
+							oneline=True, print_function=mprint):
+				self.load_pax_data(connection=connection)
+
+			with clock_time(message_before='Getting ATFM data...',
+							oneline=True, print_function=mprint):
+				self.load_atfm_at_airports(connection=connection)
+
+			with clock_time(message_before='Computing flights can propagate curfew...',
+							oneline=True, print_function=mprint):
+				self.compute_list_flight_can_propagate_to_curfew()
+				# mprint("Number of flights that can propagate to curfew:",len(self.l_ids_propagate_to_curfew))
 
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
@@ -722,14 +743,11 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 				self.paras['regulations__manual_airport_regulations']=None
 		if self.paras['regulations__manual_airport_regulations'] is not None:
 			#We have regulations at airports manually defined
-			
 			self.df_dregs_airports_manual = read_ATFM_at_airports_manual(connection,
 														regulation_at_airport_table=self.paras['input_atfm_regulation_at_airport_manual'],
 														scenario="'"+self.paras['regulations__manual_airport_regulations']+"'")
 
 			self.regulations_day_manual = "'" + str(self.df_dregs_airports_manual.loc[0, 'reg_period_start']).split(' ')[0]+"'"
-
-			#self.define_regulations_airport(dregs_airports, regulations_day)
 
 			self.airports_already_with_reg_list = self.df_dregs_airports_manual.icao_id.drop_duplicates().to_list()
 
@@ -739,7 +757,6 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 			self.draw_regulation_day()
 		elif self.paras['regulations__stochastic_airport_regulations']=="D":
 			#We have specify a day we want to model
-			#mmprint("ATFM regulations at airports based on "+str(self.regulations_airport_day))
 			self.regulations_day_all = "'" + str(self.regulations_airport_day)+"'"
 		elif self.paras['regulations__stochastic_airport_regulations']=="N":
 			pass
@@ -772,14 +789,8 @@ class ScenarioLoaderStandardLocal(ScenarioLoader):
 
 	def compute_dregs_airports(self):
 		if self.regulations_day_all is not None:
-			#mmprint("Reading ATFM reg. in DB for day", self.regulations_day_all)
-			# dregs_airports = read_ATFM_at_airports(connection,
-			# 										regulation_at_airport_table=self.paras['input_atfm_regulation_at_airport'],
-			# 										day=self.regulations_day_all)
-
 			dregs_airports = self.dregs_airports_all.loc[self.dregs_airports_all['day']==self.regulations_day_all.strip("'")]
 			self.df_dregs_airports_all = dregs_airports[~dregs_airports.icao_id.isin(self.airports_already_with_reg_list)]
-			#self.define_regulations_airport(dregs_airports, regulations_day)
 
 	def draw_regulation_day(self):
 		if self.paras['regulations__stochastic_airport_regulations']=="R":

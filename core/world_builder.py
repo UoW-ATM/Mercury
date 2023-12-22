@@ -15,7 +15,7 @@ import pickle
 
 from .delivery_system import Postman
 from .module_management import load_mercury_module
-from .scenario_loader import ScenarioLoaderSelector
+from .scenario_loader import ScenarioLoader
 
 from Mercury.libs.uow_tool_belt.general_tools import build_step_multi_valued_function, build_step_bivariate_function
 from Mercury.libs.uow_tool_belt.general_tools import clock_time
@@ -67,55 +67,6 @@ def trace(env, callback):
 
 
 class World:
-	# List of data needed to create the agents.
-	# Needed only if ScenarioLoaderSimple is used.
-	# TODO: add this in a toml file instead of hardcoded?
-
-	data_to_load = ['dict_ac_model_perf',
-					'dict_ac_model_perf',
-					'routes',
-					'manual_airport_regulations',
-					'stochastic_airport_regulations',
-					'non_weather_atfm_delay_dist',
-					'non_weather_prob_atfm',
-					'weather_atfm_delay_dist',
-					'weather_prob_atfm',
-					'df_schedules',
-					'dict_delay',
-					'dict_cf',
-					'df_airport_data',
-					'df_airports_modif_data_due_cap',
-					'df_mtt',
-					'df_eaman_data',
-					'df_compensation',
-					'df_doc',
-					'dict_np_cost',
-					'dict_np_cost_fit',
-					'dict_curfew_nonpax_costs',
-					'dict_curfew_estimated_pax_avg_costs',
-					'df_airlines_data',
-					'dist_extra_cruise_if_dci',
-					'prob_climb_extra',
-					'prob_cruise_extra',
-					'dic_soft_cost',
-					'df_pax_data',
-					'df_dregs_airports_manual',
-					'regulations_day_manual',
-					'regulations_day_all',
-					'reference_dt',
-					'dict_fp',
-					'df_dregs_airports_all',
-					'dregs_airports_all',
-					'dregs_airports_days',
-					'regulation_at_airport_table',
-					'l_ids_propagate_to_curfew',
-					'modules',
-					'airports_already_with_reg_list',
-					'regulations_at_airport_df'
-					]
-
-
-
 	def __init__(self, paras, log_file=None):
 		self.paras = paras
 
@@ -192,14 +143,13 @@ class World:
 		"""
 		This method does not need to be called at every iteration.
 		"""
-		sl = ScenarioLoaderSelector().select(self.paras['read_profile']['scenario_loader'])
-
+		
 		# Add into paras_scenario the information on ac performance which is in mercury paras (self.paras)
 		paras_scenario['ac_icao_wake_engine'] = self.paras['computation__ac_performance']['ac_icao_wake_engine']
 		paras_scenario['performance_model'] = self.paras['computation__ac_performance']['performance_model']
 		paras_scenario['performance_model_params'] = self.paras['computation__ac_performance'][paras_scenario['performance_model']]
 
-		self.sc = sl(info_scenario=info_scenario,
+		self.sc = ScenarioLoader(info_scenario=info_scenario,
 					 case_study_conf=case_study_conf,
 					 data_scenario=data_scenario,
 					paras_scenario=paras_scenario,
@@ -210,8 +160,7 @@ class World:
 							  connection=connection,
 							  profile_paras=self.paras['read_profile'],
 							  process=self.process,
-							  verbose=self.paras['computation__verbose'], # For ScenarioLoaderSimple
-							  data_to_load=self.data_to_load # For ScenarioLoaderSimple
+							  verbose=self.paras['computation__verbose'],
 							  )
 
 		# TODO: check incompatibilities between modules.

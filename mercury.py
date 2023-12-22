@@ -95,6 +95,11 @@ if __name__=='__main__':
 								required=False,
 								default=5556,
 								nargs='?')
+	parser.add_argument('-fl', '--fast_loading',
+								help='enables loading from compiled data',
+								required=False,
+								default=None,
+								nargs='?')
 
 	# Initialise a parametriser
 	parametriser = ParametriserSelector().select(parametriser_name)()
@@ -157,6 +162,17 @@ if __name__=='__main__':
 	scenarios = [int(sc) for sc in args.id_scenario]
 
 	case_studies = [int(cs) for cs in args.case_study]
+
+	# Fast loading allows you to load 'compiled' data instead of loading data from parquet, once you're sure your data are stable.
+	if args.fast_loading is not None:
+		if manual_bool_cast(args.fast_loading):
+			# Fast loading: load compiled data if exists and do not overwrite them
+			paras_simulation['read_profile']['load_compiled_data_if_exists'] = True
+			paras_simulation['read_profile']['force_save_compiled_data'] = False
+		else:
+			# Safe loading: load UNcompiled data, and overwrites the compiled data
+			paras_simulation['read_profile']['load_compiled_data_if_exists'] = False
+			paras_simulation['read_profile']['force_save_compiled_data'] = True
 	
 	# For all parameters that are included in the parametriser,
 	# check if the parser has this parameter and add it to the 
