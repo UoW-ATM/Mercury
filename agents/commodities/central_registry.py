@@ -54,6 +54,10 @@ class CentralRegistry:
 		return aoc.aoc_flights_info[flight_uid]['pax_to_board']
 
 	def get_mct(self, flight_uid1, flight_uid2, pax_type):
+		"""
+		Now information in airport_info as provided MCT per airport based on airport_uid. Maybe we want to change this
+		in the future to directly reflect the airport_terminal instead
+		"""
 		aoc1, aoc2 = self.airlines[self.registry[flight_uid1]]['aoc'], self.airlines[self.registry[flight_uid2]]['aoc']
 		airport_uid = self.get_destination(flight_uid1)
 		assert self.get_destination(flight_uid1) == self.get_origin(flight_uid2)
@@ -165,10 +169,13 @@ class CentralRegistry:
 	def register_alliance(self, alliance):
 		self.alliance_composition[alliance.uid] = alliance.aocs
 
-	def register_mcts(self, airport):
-		if airport.uid not in self.airports_info.keys():
-			self.airports_info[airport.uid] = {}
-		self.airports_info[airport.uid]['mcts'] = airport.mcts
+	def register_mcts(self, airport_uid, mcts):
+		"""
+		TODO: if MCT change after loading (e.g. due to parametriser, this won't be udpated
+		"""
+		if airport_uid not in self.airports_info.keys():
+			self.airports_info[airport_uid] = {}
+		self.airports_info[airport_uid]['mcts'] = mcts
 
 	def get_curfew_buffer(self, flight_uid):
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']

@@ -50,7 +50,7 @@ def stats_delay(delay):
     #(table,form_ids,keys) = create_form(df,editable=['value'],key_column='para_name')
     delay_table = dash_table.DataTable(delay.to_dict(orient='records'),[{'name': i, 'id': i} for i in delay.columns],id='delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.Div([html.P('Select delay:'),dropdown_delay],className="row flex-display"),html.Div(delay_table,id='delay_table'),html.Div([],style={'height':'50px'})])
+    return html.Div([html.Div([html.P('Select delay (Selecting will set the case study delay):'),dropdown_delay],className="row flex-display"),html.Div(delay_table,id='delay_table'),html.Div([],style={'height':'50px'})])
 
 def stats_eaman(eaman):
     case_study_eaman = input_man.get_case_study_eaman()
@@ -65,7 +65,7 @@ def stats_eaman(eaman):
 
     paras_table = dash_table.DataTable(paras,[{'name': 'parameter_name', 'id': 'parameter_name'},{'name': 'value', 'id': 'value'}],id='eaman_paras_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.Div([html.P('Select uptake:'),dropdown_eaman],className="row flex-display"),html.Div(eaman_table,id='eaman_table'),button,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
+    return html.Div([html.Div([html.P('Select uptake (Selecting will set case study uptake):'),dropdown_eaman],className="row flex-display"),html.Div(eaman_table,id='eaman_table'),button,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
 
 def stats_costs(costs):
 
@@ -108,12 +108,12 @@ def stats_costs(costs):
 def stats_regulations(regulations):
 
     atfm_delay,atfm_prob,regulation_at_airport_days,atfm_regulation_at_airport,atfm_regulation_at_airport_manual = regulations
-    atfm_delay = atfm_delay[['scenario_id','atfm_type','index','x','y','info']]
-    atfm_prob = atfm_prob[['scenario_id','atfm_type','p','info']]
+    atfm_delay = atfm_delay[['level','atfm_type','index','x','y','info']]
+    atfm_prob = atfm_prob[['level','atfm_type','p','info']]
 
     dropdown_stochastic_airport_regulations = dcc.Dropdown(id='dropdown_stochastic_airport_regulations',options=['R','D','N','Airport'],multi=False,value='R',clearable=False)
     #dropdown_atfm_type = dcc.Dropdown(id='dropdown_atfm_type',options=atfm_delay['atfm_type'].unique(),multi=False,value=atfm_delay['atfm_type'].unique()[0])
-    dropdown_atfm_scenario = dcc.Dropdown(id='dropdown_atfm_scenario',options=atfm_delay['scenario_id'].unique(),multi=False,value=atfm_delay['scenario_id'].unique()[0],clearable=False)
+    dropdown_atfm_scenario = dcc.Dropdown(id='dropdown_atfm_scenario',options=atfm_delay['level'].unique(),multi=False,value=atfm_delay['level'].unique()[0],clearable=False)
 
     #atfm_delay_table = dash_table.DataTable(atfm_delay.to_dict(orient='records'),[{'name': i, 'id': i} for i in atfm_delay.columns],id='aftm_delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
@@ -129,12 +129,13 @@ def stats_regulations(regulations):
     atfm_regulation_at_airport_manual_table = dash_table.DataTable(atfm_regulation_at_airport_manual.to_dict(orient='records'),[{'name': i, 'id': i} for i in atfm_regulation_at_airport_manual.columns],id='atfm_regulation_at_airport_manual_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},row_deletable=True)
 
     button = html.Button('Add Row', id='atfm_regulation_at_airport_manual_add_rows_button', n_clicks=0)
+    manual_reg_scenario=dcc.Input(id='manual_reg_scenario_input',type='text',value='None')
 
     paras = [{'parameter_name':k,'value':v} for k,v in input_man.scenario_config['paras']['network_manager'].items()]
 
     paras_table = dash_table.DataTable(paras,[{'name': 'parameter_name', 'id': 'parameter_name'},{'name': 'value', 'id': 'value'}],id='network_manager_paras_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.Div([html.P('Select Delays scenario:'),dropdown_atfm_scenario],className="row flex-display"),html.P('Select stochastic airport regulations scenario:'),dropdown_stochastic_airport_regulations,html.P('If stochastic airport regulations is D, select day:'),html.Div([dropdown_regulations_days],className=""),html.P('If stochastic airport regulations is Airport, input airport icao_id:'),input_airport_name,html.P('atfm delay:'),atfm_delay_plot,html.P('atfm probability:'),html.Div(atfm_prob_table,id='atfm_prob_table'),html.P('regulation_at_airport_days:'),regulation_at_airport_days_table,html.P('atfm_regulation_at_airport:'),atfm_regulation_at_airport_table,html.P('atfm_regulation_at_airport_manual:'),atfm_regulation_at_airport_manual_table,button,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
+    return html.Div([html.Div([html.P('Select Delays scenario:'),dropdown_atfm_scenario],className="row flex-display"),html.P('Select stochastic airport regulations scenario:'),dropdown_stochastic_airport_regulations,html.P('If stochastic airport regulations is D, select day:'),html.Div([dropdown_regulations_days],className=""),html.P('If stochastic airport regulations is Airport, input airport icao_id:'),input_airport_name,html.P('atfm delay:'),atfm_delay_plot,html.P('atfm probability:'),html.Div(atfm_prob_table,id='atfm_prob_table'),html.P('regulation_at_airport_days:'),regulation_at_airport_days_table,html.P('atfm_regulation_at_airport:'),atfm_regulation_at_airport_table,html.P('atfm_regulation_at_airport_manual:'),html.Div(atfm_regulation_at_airport_manual_table,id='atfm_regulation_at_airport_manual_table'),button,html.P('Input manual manual_reg_scenario_id:'),manual_reg_scenario,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
 
 def stats_fp(fp):
 
@@ -788,8 +789,8 @@ def non_pax_cost_fit_func(scenario):
 def atfm_func(scenario,stochastic_airport_regulations,regulations_airport_day,airport_id):
     #print_log('uptake',uptake)
     atfm_delay,atfm_prob = input_man.filter_atfm(which='base',scenario=scenario,stochastic_airport_regulations=stochastic_airport_regulations)
-    atfm_delay = atfm_delay[['scenario_id','atfm_type','index','x','y','info']]
-    atfm_prob = atfm_prob[['scenario_id','atfm_type','p','info']]
+    atfm_delay = atfm_delay[['level','atfm_type','index','x','y','info']]
+    atfm_prob = atfm_prob[['level','atfm_type','p','info']]
 
     #atfm_delay_table = dash_table.DataTable(atfm_delay.to_dict(orient='records'),[{'name': i, 'id': i} for i in atfm_delay.columns],id='aftm_delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
     fig = px.line(atfm_delay, x="y", y="x", color = 'atfm_type',title='ATFM delay Probability',range_x=(0,200))
@@ -801,14 +802,27 @@ def atfm_func(scenario,stochastic_airport_regulations,regulations_airport_day,ai
     return [fig,atfm_prob_table]
 
 @callback(
-    Output('atfm_regulation_at_airport_manual_datatable', 'data'),
-    Input('atfm_regulation_at_airport_manual_add_rows_button', 'n_clicks'),
-    State('atfm_regulation_at_airport_manual_datatable', 'data'),
-    State('atfm_regulation_at_airport_manual_datatable', 'columns'))
-def add_row_manual_regulations(n_clicks, rows, columns):
-    if n_clicks > 0:
-        rows.append({c['id']: '' for c in columns})
-    return rows
+    [Output('atfm_regulation_at_airport_manual_table', 'children')],
+    [Input('atfm_regulation_at_airport_manual_add_rows_button', 'n_clicks'),Input('atfm_regulation_at_airport_manual_datatable', 'data'),Input('manual_reg_scenario_input','value')],
+    [State('atfm_regulation_at_airport_manual_datatable', 'data'),State('atfm_regulation_at_airport_manual_datatable', 'columns'),State('manual_reg_scenario_input','value')],
+    prevent_initial_call=True,)
+def add_row_manual_regulations(n_clicks, data, manual_reg_scenario_id,rows, columns,manual_reg_scenario_id_):
+    trigger = ctx.triggered_id
+    print_log('trigger',trigger)
+
+    if trigger == 'atfm_regulation_at_airport_manual_add_rows_button':
+        if n_clicks > 0:
+            rows.append({c['id']: '' for c in columns})
+        atfm_regulation_at_airport_manual_table = dash_table.DataTable(rows,[{'name': i, 'id': i} for i in atfm_regulation_at_airport_manual.columns],id='atfm_regulation_at_airport_manual_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},row_deletable=True)
+
+        return [atfm_regulation_at_airport_manual_table]
+    elif trigger == 'atfm_regulation_at_airport_manual_datatable' or trigger == 'manual_reg_scenario_input':
+        df = pd.DataFrame.from_records(rows)
+        input_man.set_atfm_regulation_at_airport_manual(df,manual_reg_scenario_id_)
+        return [no_update]
+
+    else:
+        return [no_update]
 
 @callback(
     [Output('dropdown_icao_dest', 'options')],
