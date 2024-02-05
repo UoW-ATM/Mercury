@@ -81,6 +81,7 @@ class AirlineOperatingCentre(Agent):
 		self.alliance = None # Alliance for the arline. To be filled when registering airline into alliance
 
 		self.nm_uid = None  # NetworkManager Agent UID
+		self.pax_handler_uid = None #PaxHandler UID
 		self.cr = None  # Pointer to the Central Registry. To be filled when registering airline to CR
 
 		# Atributes passed on construction in init
@@ -418,6 +419,12 @@ class AirlineOperatingCentre(Agent):
 		Register NetworkManager
 		"""
 		self.nm_uid = nm.uid
+
+	def register_pax_handler(self, pax_handler):
+		"""
+		Register NetworkManager
+		"""
+		self.pax_handler_uid = pax_handler.uid
 	
 	def register_flight(self, flight):
 		"""
@@ -4239,6 +4246,16 @@ class AirlinePaxHandler(Role):
 			mprint(self.agent, 'is sending pax connection handling request for paxs:', paxs2)
 			self.send(new_msg)
 
+	def request_pax_rail_connection_handling(self, pax):
+		print('pax_handler_uid is', self.agent.pax_handler_uid)
+
+		new_msg = Letter()
+		new_msg['type'] = 'pax_rail_connection_handling'
+		new_msg['to'] = self.agent.pax_handler_uid
+		new_msg['body'] = {'pax': pax, 'airport_terminal_uid': self.agent.aoc_airports_info[pax.active_airport]['airport_terminal_uid']}
+		mprint(self.agent, 'is sending pax rail connection handling request for pax:', pax)
+		self.send(new_msg)
+
 	def handle_pax_connection(self, paxs):
 		mprint(self.agent, 'handles the paxs:', paxs)
 
@@ -4322,7 +4339,7 @@ class AirlinePaxHandler(Role):
 
 	def wait_for_process_arrival_pax_request(self, msg):
 		flight_uid = msg['body']['flight_uid']
-		mprint(self.agent, 'is considering arrival pax request for flight', flight_str(flight_uid))
+		print(self.agent, 'is considering arrival pax request for flight', flight_str(flight_uid))
 		connecting_pax_other_company = []
 		own_connecting_pax = []
 
@@ -4342,7 +4359,13 @@ class AirlinePaxHandler(Role):
 				else:
 					# Find the company operating the next flight
 					connecting_pax_other_company.append(pax)
+			elif pax.get_rail()['rail_post'] is not None:
+				print('pax has rail_post', pax.get_rail()['rail_post'])
+				self.request_pax_rail_connection_handling(pax)
+				self.arrive_pax(pax)
 			else:
+				print('arriving')
+
 				self.arrive_pax(pax)
 
 		mprint(self.agent, 'handles his own connecting paxs', own_connecting_pax, 'from', flight_str(flight_uid))

@@ -337,6 +337,14 @@ def read_itineraries_data(connection, table='pax_itineraries', flights=None, sce
 
 	return df
 
+#Multimodal GTFS
+def read_gtfs_data(connection, directory='gtfs', filenames=[], scenario=None):
+	print(directory, filenames)
+	filenames = ['gtfs_de.zip','gtfs_es.zip']
+
+	df = read_data(connection=connection, fmt='gtfs.zip', path=directory, filenames=filenames, scenario=scenario)
+
+	return df
 
 #Trajectories
 def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_pool_table',

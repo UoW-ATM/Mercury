@@ -58,9 +58,9 @@ batch_size = 0 # Put a positive number N to have a deep memory clean every N ite
 # Path is relative to main mercury folder (not paras or script)
 # Log file names will be automatically modified when there are several iterations.
 # Put None in log_file if you don't want logs.
-log_directory = "/home/xxx/Documents/xxx/logs"
+log_directory = "/home/michal/Documents/westminster/multimodx/results/logs/"
 add_model_version = true #Add Mercury version in the path of log_directory
-# log_file = None # 'log.txt' # None # 'log_test.txt'
+log_file = 'log.txt' # None # 'log_test.txt'
 
 
 [notification]

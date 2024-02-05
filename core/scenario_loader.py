@@ -23,7 +23,7 @@ from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao
 										read_doc_data, read_non_pax_cost_data, read_non_pax_cost_fit_data, read_nonpax_cost_curfews, \
 										read_estimated_avg_costs_curfews, read_airlines_data, read_extra_cruise_if_dci, \
 										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports, \
-										read_all_regulation_days)
+										read_all_regulation_days, read_gtfs_data)
 from Mercury.libs.db_ac_performance import DataAccessPerformance
 from Mercury.libs.db_ac_performance_provider import get_data_access_performance
 
@@ -399,6 +399,10 @@ class ScenarioLoader:
 				self.compute_list_flight_can_propagate_to_curfew()
 				# mprint("Number of flights that can propagate to curfew:",len(self.l_ids_propagate_to_curfew))
 
+			with clock_time(message_before='Getting GTFS data...',
+							oneline=True, print_function=mprint):
+				self.load_gtfs_data(connection=connection)
+
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
 	def load_flight_plan_pool(self, connection=None):
@@ -719,6 +723,19 @@ class ScenarioLoader:
 												table=self.paras_paths['input_itinerary'],
 												flights=self.flight_list,
 												scenario=self.scenario)
+
+	def load_gtfs_data(self, connection):
+		print(self.df_pax_data)
+		if 'rail_pre' in self.df_pax_data.columns and 'rail_post' in self.df_pax_data.columns:
+
+			filenames = pd.unique(self.df_pax_data[['gtfs_pre', 'gtfs_post']].values.ravel('K')).tolist()
+
+			filenames = [x for x in filenames if not pd.isna(x)]
+			self.df_gtfs = read_gtfs_data(connection,
+													directory=self.paras_paths['input_gtfs'],
+													filenames=filenames,
+													scenario=self.scenario)
+
 
 	def load_atfm_at_airports(self, connection=None):
 		# TODO: rename things here, it's quite confusing...

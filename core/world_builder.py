@@ -31,6 +31,9 @@ from Mercury.agents.eaman import EAMAN
 from Mercury.agents.aman import AMAN
 from Mercury.agents.dman import DMAN
 from Mercury.agents.flight import Flight
+from Mercury.agents.train import Train
+from Mercury.agents.train_operator import TrainOperator
+from Mercury.agents.pax_handler import PaxHandler
 from Mercury.agents.network_manager import NetworkManager
 from Mercury.agents.radar import Radar
 from Mercury.agents.commodities.central_registry import CentralRegistry
@@ -244,7 +247,7 @@ class World:
 
 	def build_agents(self, log_file=None):
 		self.build_print(log_file)
-
+		print('xxx')
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 		with clock_time(message_before='Freezing random state (RGN)...',
 						oneline=True, print_function=mmprint):
@@ -276,7 +279,7 @@ class World:
 		with clock_time(message_before='Creating EAMANs...',
 						oneline=True, print_function=mmprint):
 			self.create_AMANs()  # needs to be after the creation of airports
-		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes 
+		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
 		with clock_time(message_before='Creating DMANs...',
 						oneline=True, print_function=mmprint):
@@ -298,15 +301,23 @@ class World:
 			self.create_flights()
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
+		with clock_time(message_before='Creating Train Operators...',
+						oneline=True, print_function=mmprint):
+			self.create_train_opeators()
+		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
+
+		with clock_time(message_before='Creating Trains...',
+						oneline=True, print_function=mmprint):
+			self.create_trains()
+		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
+
 		with clock_time(message_before='Creating Pax...',
 						oneline=True, print_function=mmprint):
 			self.create_pax()
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
-
 		# self.check_consistency()
 
 		# Put all agents in a list for easy access
-
 		self.agents = list(self.airports.values())
 		self.agents += list(self.airport_terminals.values())
 		self.agents += list(self.eamans.values())
@@ -515,6 +526,18 @@ class World:
 							module_agent_modif=self.module_agent_modif.get('Radar', {}))
 		self.uid += 1
 
+		self.pax_handler = PaxHandler(self.postman,
+										env=self.env,
+										uid=self.uid,
+										mcolor=self.paras['print_colors__aoc'],
+										acolor=self.paras['print_colors__alert'],
+										verbose=self.paras['computation__verbose'],
+										log_file=self.log_file_it,
+										rs=self.rs,
+										module_agent_modif=self.module_agent_modif.get('PaxHandler', {}),
+										reference_dt=self.sc.reference_dt,
+										)
+		self.uid += 1
 		self.nm.register_radar(radar=self.radar)
 
 		# This is not an agent
@@ -609,7 +632,7 @@ class World:
 										  module_agent_modif=self.module_agent_modif.get('AirportTerminal', {}))
 
 			self.uid += 1
-
+			print(row['icao_id'])
 			# Connecting times
 			mct_q = self.sc.paras['airports__mct_q']
 			mcts = {'N-N': row['MCT_domestic'],
@@ -624,6 +647,16 @@ class World:
 				dists['flex'][k] = lognorm(loc=0., scale=scale, s=s)
 
 			airport_terminal.set_connecting_time_dist(dists, mct_q=mct_q)
+
+			# Gate 2 Kerb time
+			dists = {'economy': {}, 'flex': {}}
+			dist = lognorm(loc=10, scale=1, s=1)
+			dists['economy'] = dist
+			dists['flex'] = dist
+			airport_terminal.set_gate2kerb_time_dists(dists)
+
+			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
+			airport_terminal.set_gate2kerb_add_dists(dists)
 
 			self.airport_terminals_per_icao[row['icao_id']] = airport_terminal
 
@@ -886,6 +919,7 @@ class World:
 			self.aocs_uid[aoc.uid] = aoc
 
 			aoc.register_nm(self.nm)
+			aoc.register_pax_handler(self.pax_handler)
 			self.nm.register_airline(aoc)
 
 			# Duty of care
@@ -1021,6 +1055,161 @@ class World:
 		for aoc in self.aocs.values():
 			self.cr.register_airline(aoc)
 
+
+	def create_train_opeators(self):
+		self.train_operator = TrainOperator(self.postman,
+										env=self.env,
+										uid=self.uid,
+										mcolor=self.paras['print_colors__aoc'],
+										acolor=self.paras['print_colors__alert'],
+										verbose=self.paras['computation__verbose'],
+										log_file=self.log_file_it,
+										rs=self.rs,
+										module_agent_modif=self.module_agent_modif.get('TrainOperator', {}),
+										reference_dt=self.sc.reference_dt,
+										)
+		self.uid += 1
+
+	def gtfs_time_to_datetime(self,gtfs_date, gtfs_time):
+		if pd.isna(gtfs_time):
+			return gtfs_time
+		hours, minutes, seconds = tuple(
+			int(token) for token in gtfs_time.split(":")
+		)
+		return (
+			dt.datetime(gtfs_date.year,gtfs_date.month,gtfs_date.day) + dt.timedelta(
+			hours=hours, minutes=minutes, seconds=seconds
+			)
+		)
+
+	def get_stop_times(self,stop_id='',trip_id='',gtfs_name='',flight_time_before=None,flight_time_after=None,gtfs_data=None):
+
+			sch = gtfs_data['stop_times'][(gtfs_data['stop_times']['trip_id']==trip_id) & (gtfs_data['stop_times']['gtfs']==gtfs_name)]
+			#print(gtfs_data['stop_times'][['gtfs']])
+			#print('xxx',trip_id,gtfs_name,sch, gtfs_data['stop_times'][['trip_id']])
+			times = sch[sch['stop_id']==stop_id][['arrival_time','departure_time']]
+			#print(stop_id,times)
+			if flight_time_before is not None:
+				sobt = flight_time_before
+				stop = {'stop_id':stop_id,'arrival_time':self.gtfs_time_to_datetime(sobt,times.iloc[0,0]),'departure_time':self.gtfs_time_to_datetime(sobt,times.iloc[0,1])}
+				if stop['arrival_time'] > sobt:
+					stop['arrival_time'] = stop['arrival_time'] - pd.tseries.offsets.Day()
+				if stop['departure_time'] > sobt:
+					stop['departure_time'] = stop['departure_time'] - pd.tseries.offsets.Day()
+			if flight_time_after is not None:
+				sibt = flight_time_after
+				stop = {'stop_id':stop_id,'arrival_time':self.gtfs_time_to_datetime(sibt,times.iloc[0,0]),'departure_time':self.gtfs_time_to_datetime(sibt,times.iloc[0,1])}
+				if stop['arrival_time'] < sibt:
+					stop['arrival_time'] = stop['arrival_time'] + pd.tseries.offsets.Day()
+				if stop['departure_time'] < sibt:
+					stop['departure_time'] = stop['departure_time'] + pd.tseries.offsets.Day()
+
+			return stop
+
+	def create_trains(self):
+		print('creating trains')
+		self.trains = {}  # keys are GTFS trip ids
+		self.trains_uid = {}  # keys are uids.
+
+		pax_itineraries = self.sc.df_pax_data
+		#pax_itineraries=pd.read_csv('/home/michal/Documents/westminster/multimodx/input/scenario=9/case_studies/pax_mmx.csv',dtype={'rail_post':str,'rail_pre':str})
+		df_schedules = self.sc.df_schedules
+		#df_schedules = pd.read_parquet('/home/michal/Documents/westminster/multimodx/input/scenario=9/data/schedules/flight_schedule_old1409.parquet')
+
+		trips = {}
+		#print('xxxx',pax_itineraries.dtypes)
+
+		for i, row in pax_itineraries.iterrows():
+
+			#rail_pre
+			if (row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre']):
+				continue
+			schedule = []
+			print(row['rail_pre'])
+
+			#find out sobt of the first leg
+			sobt = df_schedules[df_schedules['nid']==row['leg1']]['sobt'].iloc[0]
+			print(sobt)
+
+			#origin1
+			stop = self.get_stop_times(stop_id=row['origin1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			#destination1
+			stop = self.get_stop_times(stop_id=row['destination1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			if row['rail_pre'] not in trips:
+				trips[row['rail_pre']] = schedule
+			else:
+
+				trips[row['rail_pre']] = trips[row['rail_pre']] + schedule
+				trips[row['rail_pre']] = trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
+
+		for i, row in pax_itineraries.iterrows():
+			#rail_post
+			if (row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post']):
+				continue
+			schedule = []
+			print(row['rail_post'], int(row['rail_post']))
+
+			#find out sibt of the last leg
+			for leg in ['leg1','leg2','leg3','leg4']:
+				if (row[leg] is None) or (row[leg] == '') or pd.isnull(row[leg]):
+					continue
+				sibt = df_schedules[df_schedules['nid']==row[leg]]['sibt'].iloc[0]
+			print('sibt',sibt)
+			#origin2
+			stop = self.get_stop_times(stop_id=row['origin2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			#destination2
+
+			stop = self.get_stop_times(stop_id=row['destination2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			if row['rail_post'] not in trips:
+				trips[row['rail_post']] = schedule
+			else:
+				#pax can take same train with different origin/destination
+				#combine schedules
+				trips[row['rail_post']] = trips[row['rail_post']] + schedule
+				#sort
+				trips[row['rail_post']].sort(key= lambda x: x['arrival_time'])
+				#remove duplicate stops
+				trips[row['rail_post']] = [dict(t) for t in {tuple(d.items()) for d in trips[row['rail_post']]}]
+
+		print('trips',trips)
+		for trip_id in trips:
+			print(trips[trip_id])
+			train = Train(self.postman,
+							first_arrival_time=(trips[trip_id][0]['arrival_time']-self.sc.reference_dt).total_seconds()/60.,
+							env=self.env,
+							trip_id=trip_id,
+							train_uid=self.uid,
+							uid=self.uid,
+							schedule=trips[trip_id],
+							times={x['stop_id']:x for x in trips[trip_id]},
+
+							mcolor=self.paras['print_colors__flight'],
+							acolor=self.paras['print_colors__alert'],
+							verbose=self.paras['computation__verbose'],
+							log_file=self.log_file_it,
+							train_operator_uid = self.train_operator.uid,
+							rs=self.rs,
+
+							module_agent_modif=self.module_agent_modif.get('Flight', {}),)
+
+			self.uid += 1
+			self.trains[trip_id] = train
+			self.trains_uid[train.uid] = train
+
+			self.train_operator.register_train(train)
+
 	def create_pax(self):
 		self.paxs = []
 		for i, row in self.sc.df_pax_data.iterrows():
@@ -1032,6 +1221,23 @@ class World:
 
 			airlines = set([self.aocs[f.aoc_info['ao_icao']] for f in it])
 
+			if not ((row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre'])):
+				rail_pre = self.trains[row['rail_pre']]
+				origin1 = row['origin1']
+				destination1 = row['destination1']
+			else:
+				rail_pre = None
+				origin1 = None
+				destination1 = None
+			if not ((row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post'])):
+				rail_post = self.trains[row['rail_post']]
+				origin2 = row['origin2']
+				destination2 = row['destination2']
+			else:
+				rail_post = None
+				origin2 = None
+				destination2 = None
+
 			ticket_type = str(row['ticket_type'])
 			pax = PaxItineraryGroup(n_pax=int(row['pax']),
 									pax_type=ticket_type,
@@ -1040,12 +1246,22 @@ class World:
 									destination_uid=it[-1].destination_airport_uid,
 									fare=row['avg_fare'],
 									dic_soft_cost=self.sc.dic_soft_cost,
-									rs=self.rs)
+									rs=self.rs,
+									rail={'rail_pre':rail_pre,'rail_post':rail_post},
+									origin1=origin1,destination1=destination1,origin2=origin2,destination2=destination2)
 
 			pax.give_itinerary([f.uid for f in it])
 			for airline in airlines:
 				airline.register_pax_itinerary_group(pax)
 			self.paxs.append(pax)
+
+			#register multimodal pax in PaxHandler
+			if not ((row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre'])):
+
+				print(row['rail_pre'])
+				#register train2flight
+			if not ((row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post'])):
+				self.pax_handler.register_pax_group_flight2train(pax)
 
 	def dump_all_results(self, n_iter, connection, profile, save_path):
 		with clock_time(message_before='Dumping everything...',

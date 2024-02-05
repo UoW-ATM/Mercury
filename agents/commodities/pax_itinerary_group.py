@@ -10,16 +10,22 @@ def func(x, k, k_p, a, b, c):
 
 class PaxItineraryGroup:
 	def __init__(self, n_pax=None, pax_type=None, idd=None, origin_uid=None,
-		destination_uid=None, fare=None, dic_soft_cost=None, rs=None):
+		destination_uid=None, fare=None, dic_soft_cost=None, rs=None, rail=None, origin1=None, destination1=None, origin2=None, destination2=None):
 		self.id = idd
 		self.original_id = idd
 		self.n_pax = n_pax
 		self.original_n_pax = n_pax
 		self.pax_type = pax_type
 		self.fare = fare
+		self.rail = rail
+		self.origin1 = origin1
+		self.origin2 = origin2
+		self.destination1 = destination1
+		self.destination2 = destination2
 
 		self.idx_last_flight = -1
 		self.itinerary = None
+		self.multimoda_itinerary = None
 		self.initial_sobt = None
 		self.final_sibt = None
 		self.sobts = []
@@ -98,6 +104,9 @@ class PaxItineraryGroup:
 
 	def get_itinerary(self):
 		return self.itinerary
+
+	def get_rail(self):
+		return self.rail
 
 	def get_itinerary_so_far(self):
 		"""
