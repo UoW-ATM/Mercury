@@ -23,8 +23,8 @@ from Mercury import Mercury
 from Mercury.libs.uow_tool_belt.general_tools import clock_time
 from Mercury.libs.uow_tool_belt.connection_tools import generic_connection, write_data
 from Mercury.core.parametriser import ParametriserSelector
-from Mercury.core.module_management import load_mercury_module, available_modules, get_module_paras
-from Mercury.core.read_config import read_mercury_config, read_scenario_config, read_toml, find_paras_categories
+from Mercury.core.module_management import available_modules, get_module_paras
+from Mercury.core.read_config import read_mercury_config, read_toml, find_paras_categories
 
 # Parametriser to use
 parametriser_name = 'ParametriserStandard'
@@ -43,9 +43,9 @@ profile_write_agg = {'type': 'file',  # 'file' or 'mysql'.
 					
 
 def manual_bool_cast(string):
-	if string in ['false', 'f', 'False', 'F']:
+	if string in ['false', 'f', 'False', 'F', False]:
 		return False
-	elif string in ['true', 't', 'True', 'T']:
+	elif string in ['true', 't', 'True', 'T', True]:
 		return True
 	else:
 		raise Exception("Can't cast {} to boolean".format(string))
@@ -98,8 +98,7 @@ if __name__=='__main__':
 	parser.add_argument('-fl', '--fast_loading',
 								help='enables loading from compiled data',
 								required=False,
-								default=None,
-								nargs='?')
+								action='store_true')
 
 	# Initialise a parametriser
 	parametriser = ParametriserSelector().select(parametriser_name)()
@@ -264,8 +263,9 @@ if __name__=='__main__':
 							base_path=profile_write_agg.get('path')) as connection:
 		
 		file_name = 'results.csv'
-		# file_name = paras_simulation['results_file_name']
-		
+
+		print('Saving summarised results here: {}'.format((Path(connection['base_path']) / file_name).resolve()))
+
 		write_data(data=results,
 					fmt=profile_write_agg['fmt'],
 					path=profile_write_agg['path'],
@@ -277,9 +277,12 @@ if __name__=='__main__':
 		for stuff, res in results_seq.items():
 			with generic_connection(profile=profile_write_agg['connection'],
 								typ=profile_write_agg['type']) as connection:
-			
+
 				file_name = 'results_seq_{}.csv'.format(stuff)
-				
+
+				print('Saving summarised additional results here: {}'.format(
+						(Path(connection['base_path']) / file_name).resolve()))
+
 				write_data(data=res,
 							fmt=profile_write_agg['fmt'],
 							path=profile_write_agg['path'],

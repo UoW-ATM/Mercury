@@ -2,6 +2,7 @@ import os
 import psutil
 from collections import OrderedDict
 from copy import deepcopy
+import shutil
 
 import datetime as dt
 import simpy
@@ -1048,6 +1049,7 @@ class World:
 			self.paxs.append(pax)
 
 	def dump_all_results(self, n_iter, connection, profile, save_path):
+		print('Saving full results to:', str(Path(save_path).resolve()))
 		with clock_time(message_before='Dumping everything...',
 						oneline=False,
 						print_function=mmprint):
@@ -1106,6 +1108,10 @@ class World:
 									how=profile['mode'])
 							
 							paras_written = True
+
+						# Copy a script to easily extract zip files
+						shutil.copyfile(Path(__file__).parent.parent.resolve() / Path('script') / 'unzip_results.py',
+										Path(save_path) / 'unzip_results.py')
 
 						if self.paras['outputs_handling__save_all_hotspot_data'] is None:
 							for reg_uid, v in self.hotspot_data.items():
