@@ -13,6 +13,7 @@ class CentralRegistry:
 
 		self.registry = {}
 		self.flight_registery = {}
+		self.gtfs = {}
 
 	def get_obt(self, flight_uid):
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
@@ -160,6 +161,18 @@ class CentralRegistry:
 		"""
 		nm.cr = self
 
+	def register_pax_handler(self, pax_handler):
+
+		pax_handler.cr = self
+
+	def register_train_operator(self, train_operator):
+
+		train_operator.cr = self
+
+	def register_gtfs(self, gtfs):
+
+		self.gtfs = gtfs
+
 	def register_agent(self, agent):
 		"""
 		Should not be used in theory....
@@ -217,6 +230,9 @@ class CentralRegistry:
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
 		return aoc.aoc_flights_info[flight_uid][attribute]
 
+	def get_gtfs(self):
+
+		return self.gtfs
 	# def get_flight_live_attribute(self, flight_uid, attribute):
 	# 	aoc = self.airlines[self.registry[flight_uid]]['aoc']
 	# 	if attribute=='sobt':

@@ -10,7 +10,8 @@ def func(x, k, k_p, a, b, c):
 
 class PaxItineraryGroup:
 	def __init__(self, n_pax=None, pax_type=None, idd=None, origin_uid=None,
-		destination_uid=None, fare=None, dic_soft_cost=None, rs=None, rail=None, origin1=None, destination1=None, origin2=None, destination2=None):
+		destination_uid=None, origin_airport_terminal_uid=None,
+		destination_airport_terminal_uid=None, origin_airport_icao=None, destination_airport_icao=None, fare=None, dic_soft_cost=None, rs=None, rail=None, origin1=None, destination1=None, origin2=None, destination2=None):
 		self.id = idd
 		self.original_id = idd
 		self.n_pax = n_pax
@@ -25,11 +26,13 @@ class PaxItineraryGroup:
 
 		self.idx_last_flight = -1
 		self.itinerary = None
-		self.multimoda_itinerary = None
+		self.multimodal_itinerary = None
 		self.initial_sobt = None
 		self.final_sibt = None
 		self.sobts = []
 		self.sibts = []
+		self.origin_airport_icao = origin_airport_icao
+		self.destination_airport_icao = destination_airport_icao
 		self.origin_airport = None
 		self.destination_airport = None
 		self.distance = None
@@ -43,8 +46,11 @@ class PaxItineraryGroup:
 		self.on_board = None
 		self.active_airport = None
 		self.time_at_gate = -10  # to be sure first pax are at gate when flight departs.
+		self.time_at_platform = -10  # to be sure first pax are at gate when flight departs.
 		self.origin_uid = origin_uid
 		self.destination_uid = destination_uid
+		self.origin_airport_terminal_uid = origin_airport_terminal_uid
+		self.destination_airport_terminal_uid = destination_airport_terminal_uid
 		self.old_itineraries = []
 		self.compensation = 0.
 		self.duty_of_care = 0.

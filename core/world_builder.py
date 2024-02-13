@@ -34,6 +34,7 @@ from Mercury.agents.flight import Flight
 from Mercury.agents.train import Train
 from Mercury.agents.train_operator import TrainOperator
 from Mercury.agents.pax_handler import PaxHandler
+from Mercury.agents.ground_mobility import GroundMobility
 from Mercury.agents.network_manager import NetworkManager
 from Mercury.agents.radar import Radar
 from Mercury.agents.commodities.central_registry import CentralRegistry
@@ -254,6 +255,10 @@ class World:
 			self.freeze_RNG()
 
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
+
+		with clock_time(message_before='Creating ground mobility...',
+						oneline=True, print_function=mmprint):
+			self.create_ground_mobility_agent()
 
 		with clock_time(message_before='Creating unique agents...',
 						oneline=True, print_function=mmprint):
@@ -492,6 +497,23 @@ class World:
 					print('The origin airport of', f2, 'is:', f2.origin_airport_uid)
 					raise
 
+	def create_ground_mobility_agent(self):
+		self.ground_mobility = GroundMobility(self.postman,
+										env=self.env,
+										uid=self.uid,
+										mcolor=self.paras['print_colors__aoc'],
+										acolor=self.paras['print_colors__alert'],
+										verbose=self.paras['computation__verbose'],
+										log_file=self.log_file_it,
+										rs=self.rs,
+										module_agent_modif=self.module_agent_modif.get('GroundMobility', {}),
+										reference_dt=self.sc.reference_dt,
+										)
+		#for now just create test dists
+
+
+		self.uid += 1
+
 	def create_unique_agents(self):
 		self.nm = NetworkManager(self.postman,
 								env=self.env,
@@ -536,6 +558,7 @@ class World:
 										rs=self.rs,
 										module_agent_modif=self.module_agent_modif.get('PaxHandler', {}),
 										reference_dt=self.sc.reference_dt,
+										ground_mobility_uid=self.ground_mobility.uid,
 										)
 		self.uid += 1
 		self.nm.register_radar(radar=self.radar)
@@ -545,6 +568,8 @@ class World:
 
 		# ONLY FOR TESTING
 		self.cr.register_network_manager(self.nm)
+		self.cr.register_pax_handler(self.pax_handler)
+
 
 	def define_regulations_airport(self, dregs_airports, regulations_day):
 		self.regulations_day_dt = (dt.datetime.strptime(regulations_day[1:-1], '%Y-%m-%d'))  # [1:-1] to remove the ' '
@@ -657,6 +682,16 @@ class World:
 
 			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
 			airport_terminal.set_gate2kerb_add_dists(dists)
+
+			#Kerb 2 Gate time
+			dists = {'economy': {}, 'flex': {}}
+			dist = lognorm(loc=10, scale=1, s=1)
+			dists['economy'] = dist
+			dists['flex'] = dist
+			airport_terminal.set_kerb2gate_time_dists(dists)
+
+			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
+			airport_terminal.set_kerb2gate_add_dists(dists)
 
 			self.airport_terminals_per_icao[row['icao_id']] = airport_terminal
 
@@ -1018,6 +1053,8 @@ class World:
 							uid=self.uid,
 							origin_airport_uid=self.airports_per_icao[row['origin']].uid,
 							destination_airport_uid=self.airports_per_icao[row['destination']].uid,
+							origin_airport_terminal_uid=self.airport_terminals_per_icao[row['origin']].uid,
+							destination_airport_terminal_uid=self.airport_terminals_per_icao[row['destination']].uid,
 							nm_uid=self.nm.uid,
 							ac_uid=aircraft.uid,
 							aircraft=aircraft,
@@ -1067,8 +1104,12 @@ class World:
 										rs=self.rs,
 										module_agent_modif=self.module_agent_modif.get('TrainOperator', {}),
 										reference_dt=self.sc.reference_dt,
+										train_operator_uid=self.pax_handler.uid,
 										)
 		self.uid += 1
+
+		self.cr.register_train_operator(self.train_operator)
+		self.cr.register_gtfs(self.sc.df_gtfs)
 
 	def gtfs_time_to_datetime(self,gtfs_date, gtfs_time):
 		if pd.isna(gtfs_time):
@@ -1117,6 +1158,8 @@ class World:
 		#df_schedules = pd.read_parquet('/home/michal/Documents/westminster/multimodx/input/scenario=9/data/schedules/flight_schedule_old1409.parquet')
 
 		trips = {}
+		trips_gtfs = {}
+
 		#print('xxxx',pax_itineraries.dtypes)
 
 		for i, row in pax_itineraries.iterrows():
@@ -1147,6 +1190,8 @@ class World:
 
 				trips[row['rail_pre']] = trips[row['rail_pre']] + schedule
 				trips[row['rail_pre']] = trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
+
+			trips_gtfs[row['rail_pre']] = row['gtfs_pre']
 
 		for i, row in pax_itineraries.iterrows():
 			#rail_post
@@ -1183,6 +1228,8 @@ class World:
 				#remove duplicate stops
 				trips[row['rail_post']] = [dict(t) for t in {tuple(d.items()) for d in trips[row['rail_post']]}]
 
+			trips_gtfs[row['rail_post']] = row['gtfs_post']
+
 		print('trips',trips)
 		for trip_id in trips:
 			print(trips[trip_id])
@@ -1200,6 +1247,7 @@ class World:
 							verbose=self.paras['computation__verbose'],
 							log_file=self.log_file_it,
 							train_operator_uid = self.train_operator.uid,
+							gtfs_name = trips_gtfs[trip_id],
 							rs=self.rs,
 
 							module_agent_modif=self.module_agent_modif.get('Flight', {}),)
@@ -1244,6 +1292,10 @@ class World:
 									idd=i,
 									origin_uid=it[0].origin_airport_uid,
 									destination_uid=it[-1].destination_airport_uid,
+									origin_airport_terminal_uid=it[0].origin_airport_terminal_uid,
+									destination_airport_terminal_uid=it[-1].destination_airport_terminal_uid,
+									origin_airport_icao=self.airports[it[0].origin_airport_uid].icao,
+									destination_airport_icao=self.airports[it[-1].destination_airport_uid].icao,
 									fare=row['avg_fare'],
 									dic_soft_cost=self.sc.dic_soft_cost,
 									rs=self.rs,
@@ -1259,9 +1311,16 @@ class World:
 			if not ((row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre'])):
 
 				print(row['rail_pre'])
+				self.train_operator.register_pax_itinerary_group(pax,rail_pre.train_uid,origin1,destination1)
 				#register train2flight
+				self.pax_handler.register_pax_group_train2flight(pax)
+
 			if not ((row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post'])):
 				self.pax_handler.register_pax_group_flight2train(pax)
+				self.train_operator.register_pax_itinerary_group(pax,rail_post.train_uid,origin2,destination2)
+
+			#register multimodal pax in train_operator
+
 
 	def dump_all_results(self, n_iter, connection, profile, save_path):
 		with clock_time(message_before='Dumping everything...',

@@ -99,7 +99,10 @@ class Train(Agent):
 			self.times = self.times
 		else:
 			self.times = {}
-
+		if hasattr(self, 'gtfs_name'):
+			self.gtfs_name = self.gtfs_name
+		else:
+			self.gtfs_name = None
 
 	def set_log_file(self, log_file):
 		"""

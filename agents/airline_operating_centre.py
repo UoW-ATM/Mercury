@@ -598,6 +598,9 @@ class AirlineOperatingCentre(Agent):
 		elif msg['type'] == 'request_hotspot_decision':
 			self.afp.wait_for_request_hotspot_decision(msg)
 
+		elif msg['type'] == 'request_time_at_gate_update_in_aoc':
+			self.aph.wait_for_time_at_gate_update_in_aoc_request(msg)
+
 		else:
 			hit = False
 			for receive_function in self.receive_module_functions:
@@ -3986,6 +3989,7 @@ class AirlinePaxHandler(Role):
 		for pax in self.agent.aoc_flights_info[flight_uid]['pax_to_board']:
 			if pax.in_transit_to == flight_uid and pax.time_at_gate <= self.agent.env.now:
 				# pax ready to board
+				print(pax, 'is ready to board:', flight_str(flight_uid), '; arrival time at gate:', pax.time_at_gate)
 				pax_to_remove.append(pax)
 				self.agent.aoc_flights_info[flight_uid]['pax_on_board'].append(pax)
 
@@ -4002,7 +4006,7 @@ class AirlinePaxHandler(Role):
 			else:
 				# pax not ready to board
 				# The passenger reallocation role picks them up and reallocate them
-				mprint(pax, 'is not ready to board:', flight_str(flight_uid), '; arrival time at gate:', pax.time_at_gate)
+				print(pax, 'is not ready to board:', flight_str(flight_uid), '; arrival time at gate:', pax.time_at_gate)
 				# pax.idx_current_flight -= 1
 				# pax.active_flight = pax.itinerary[pax.idx_current_flight]
 				# mprint(pax, 'active flight is reverted to previous one:', pax.active_flight)
@@ -4252,7 +4256,7 @@ class AirlinePaxHandler(Role):
 		new_msg = Letter()
 		new_msg['type'] = 'pax_rail_connection_handling'
 		new_msg['to'] = self.agent.pax_handler_uid
-		new_msg['body'] = {'pax': pax, 'airport_terminal_uid': self.agent.aoc_airports_info[pax.active_airport]['airport_terminal_uid']}
+		new_msg['body'] = {'pax': pax, 'airport_terminal_uid': self.agent.aoc_airports_info[pax.active_airport]['airport_terminal_uid'], 'airport_icao': self.agent.aoc_airports_info[pax.active_airport]['ICAO']}
 		mprint(self.agent, 'is sending pax rail connection handling request for pax:', pax)
 		self.send(new_msg)
 
@@ -4360,11 +4364,11 @@ class AirlinePaxHandler(Role):
 					# Find the company operating the next flight
 					connecting_pax_other_company.append(pax)
 			elif pax.get_rail()['rail_post'] is not None:
-				print('pax has rail_post', pax.get_rail()['rail_post'])
+				print(pax, 'pax has rail_post', pax.get_rail()['rail_post'])
 				self.request_pax_rail_connection_handling(pax)
 				self.arrive_pax(pax)
 			else:
-				print('arriving')
+				print(pax, 'arriving')
 
 				self.arrive_pax(pax)
 
@@ -4375,3 +4379,11 @@ class AirlinePaxHandler(Role):
 		mprint(self.agent, 'will request connection handling for the paxs', connecting_pax_other_company, 'from', flight_str(flight_uid))
 		if len(connecting_pax_other_company) > 0:
 			self.request_pax_connection_handling(connecting_pax_other_company)
+
+	def wait_for_time_at_gate_update_in_aoc_request(self, msg):
+		flight_uid = msg['body']['flight_uid']
+		time_at_gate = msg['body']['time_at_gate']
+		pax_id = msg['body']['pax_id']
+		print(self.agent, 'is updating time_at_gate for pax', pax_id, 'going to flight', flight_str(flight_uid))
+		idx = [pax.id for pax in self.agent.aoc_flights_info[flight_uid]['pax_to_board']].index(pax_id)
+		self.agent.aoc_flights_info[flight_uid]['pax_to_board'][idx].time_at_gate = time_at_gate

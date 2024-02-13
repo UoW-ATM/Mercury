@@ -42,6 +42,8 @@ class AirportTerminal(Agent):
 		self.connecting_time_dists = {}  # Connecting times distributions
 		self.gate2kerb_time_dists = {} # Gate to Kerb times distributions
 		self.gate2kerb_add_dists = {} # noise to add to the Gate to Kerb times distributions
+		self.kerb2gate_time_dists = {} # Gate to Kerb times distributions
+		self.kerb2gate_add_dists = {} # noise to add to the Gate to Kerb times distributions
 
 	def set_log_file(self, log_file):
 		"""
@@ -99,6 +101,19 @@ class AirportTerminal(Agent):
 		Initialise the gate2kerb 'noise' distribution for the agent
 		"""
 		self.gate2kerb_add_dists = dists
+	def set_kerb2gate_time_dists(self, dists):
+		"""
+		Initialise the kerb2gate time distribution in the agent
+		dists is a single layer dict with pax_type keys.
+		"""
+		self.kerb2gate_time_dists = dists
+
+
+	def set_kerb2gate_add_dists(self, dists):
+		"""
+		Initialise the kerb2gate 'noise' distribution for the agent
+		"""
+		self.kerb2gate_add_dists = dists
 
 	def receive(self, msg):
 		"""
@@ -111,9 +126,12 @@ class AirportTerminal(Agent):
 			self.peg2kt.wait_for_estimated_gate2kerb_times_request(msg)
 		elif msg['type'] == 'move_gate2kerb_times_request':
 			self.mg2kt.wait_for_move_gate2kerb_times_request(msg)
-
+		elif msg['type'] == 'estimated_kerb2gate_times_request':
+			self.peg2kt.wait_for_estimated_kerb2gate_times_request(msg)
+		elif msg['type'] == 'kerb2gate_times_request':
+			self.mg2kt.wait_for_move_kerb2gate_times_request(msg)
 		else:
-			aprint('WARNING: unrecognised message type received by', self, ':', msg['type'])
+			print('WARNING: unrecognised message type received by', self, ':', msg['type'])
 
 
 	def __repr__(self):
@@ -196,6 +214,32 @@ class ProvideEstimatedGate2KerbTime(Role):
 		msg_back['body'] = {'estimate_gate2kerb_time': estimate, 'pax':pax}
 		self.send(msg_back)
 
+	def wait_for_estimated_kerb2gate_times_request(self, msg):
+		mprint(self.agent, 'receives estimated kerb to gate times request from PAX handler', msg['from'],
+			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type)
+
+		estimate = self.estimate_kerb2gate_times(msg['body']['pax'].pax_type)
+
+		# print ('Estimated kerb2gate times:',estimate)
+
+		self.return_estimated_kerb2gate_times(msg['from'],
+									 msg['body']['pax'],
+									 estimate)
+
+	def estimate_kerb2gate_times(self, pax_type):
+		estimate = self.agent.kerb2gate_time_dists[str(pax_type)].rvs(random_state=self.agent.rs)
+		return estimate
+
+	def return_estimated_kerb2gate_times(self, pax_handler_uid, pax, estimate):
+		mprint(self.agent, 'sends estimated kerb to gate times to PAX handler', pax_handler_uid,
+			   'for pax', pax, ': estimated_kerb2gate_time=', estimate)
+
+		msg_back = Letter()
+		msg_back['to'] = pax_handler_uid
+		msg_back['type'] = 'estimate_kerb2gate_times'
+		msg_back['body'] = {'estimate_kerb2gate_time': estimate, 'pax':pax}
+		self.send(msg_back)
+
 class MoveGate2KerbTime(Role):
 	"""
 	MG2KT: Does Gate to Kerb Time transfer for multimodal Pax
@@ -204,30 +248,47 @@ class MoveGate2KerbTime(Role):
 	"""
 
 	def wait_for_move_gate2kerb_times_request(self, msg):
-		mprint(self.agent, 'receives move gate to kerb times request from PAX handler', msg['from'],
+		print(self.agent, 'receives move gate to kerb times request from PAX handler', msg['from'],
 			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated gate2kerb_time_estimation ', msg['body']['gate2kerb_time_estimation'])
 
 		start_time = self.agent.env.now
-		self.move_gate2kerb_times(msg['body']['pax'].pax_type, gate2kerb_time_estimation)
-
+		#self.move_gate2kerb_times(msg['body']['pax'], msg['body']['gate2kerb_time_estimation'])
+		gate2kerb_time = msg['body']['gate2kerb_time_estimation'] + self.agent.gate2kerb_add_dists.rvs(random_state=self.agent.rs)
 		# print ('Actual gate2kerb times:',gate2kerb_time)
-
-		self.return_gate2kerb_times(msg['from'],
+		self.agent.env.process(self.move_gate2kerb_times(msg['body']['pax'], gate2kerb_time, msg['body']['event']))
+		self.return_times(msg['from'],
 									 msg['body']['pax'],
-									 self.agent.env.now - start_time)
+									 gate2kerb_time, 'gate2kerb_time')
 
-	def move_gate2kerb_times(self, pax_type, gate2kerb_time_estimation):
-		gate2kerb_time = gate2kerb_time_estimation + self.agent.gate2kerb_add_dists.rvs(random_state=self.agent.rs)
+	def wait_for_move_kerb2gate_times_request(self, msg):
+		print(self.agent, 'receives move kerb to gate times request from PAX handler', msg['from'],
+			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated kerb2gate_time_estimation ', msg['body']['kerb2gate_time_estimation'])
 
-		yield self.agent.env.timeout(gate2kerb_time)
+		start_time = self.agent.env.now
+		#self.move_gate2kerb_times(msg['body']['pax'], msg['body']['gate2kerb_time_estimation'])
+		kerb2gate_time = msg['body']['kerb2gate_time_estimation'] + self.agent.kerb2gate_add_dists.rvs(random_state=self.agent.rs)
+		# print ('Actual gate2kerb times:',gate2kerb_time)
+		self.agent.env.process(self.move_gate2kerb_times(msg['body']['pax'], kerb2gate_time, msg['body']['event']))
+		self.return_times(msg['from'],
+									 msg['body']['pax'],
+									 kerb2gate_time, 'kerb2gate_time')
+
+	def move_gate2kerb_times(self, pax, actual_time, event):
+		#gate2kerb_time = gate2kerb_time_estimation + self.agent.gate2kerb_add_dists.rvs(random_state=self.agent.rs)
+		print(pax, 'starts moving gate-kerb at', self.agent.env.now)
+		yield self.agent.env.timeout(actual_time)
+
+		event.succeed()
 
 
-	def return_gate2kerb_times(self, pax_handler_uid, pax, gate2kerb_time):
-		mprint(self.agent, 'finished moving', pax, 'from gate to kerb for PAX handler', pax_handler_uid,
-			   'with actual gate2kerb_time=', gate2kerb_time)
+	def return_times(self, pax_handler_uid, pax, actual_time, direction):
+		print(self.agent, 'sends back', pax, 'from gate to kerb for PAX handler', pax_handler_uid,
+			   'with actual', direction,'=', actual_time)
 
 		msg_back = Letter()
-		msg_back['to'] = aoc_uid
-		msg_back['type'] = 'gate2kerb_times'
-		msg_back['body'] = {'gate2kerb_time': gate2kerb_time}
+		msg_back['to'] = pax_handler_uid
+		msg_back['type'] = direction
+		msg_back['body'] = {direction: actual_time, 'pax':pax}
 		self.send(msg_back)
+
+
