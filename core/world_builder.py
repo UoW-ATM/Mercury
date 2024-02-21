@@ -187,15 +187,12 @@ class World:
 		self.get_modules_results_functions = []
 		print('Modules to be loaded:', self.sc.paras['modules__modules_to_load'])
 		for module in self.sc.paras['modules__modules_to_load']:
-			# self.module_agent_paras[module] = copy(self.sc.paras[module])
-
 			# Load module
-			cred = load_mercury_module(path_module=self.path_module,
+			cred, mspecs = load_mercury_module(path_module=self.path_module,
 									   module_name=module)
 
 			# This allows modules to compute their proper metrics. For this they need to define a function called
 			# "get_metric" that has a single argument, the world builder.
-			mspecs = cred.__getattribute__('module_specs')
 			if not mspecs.get('get_metric', None) is None:
 				self.get_modules_results_functions.append(mspecs.get('get_metric'))
 
@@ -203,45 +200,61 @@ class World:
 			for agent, role_modif in mspecs.get('agent_modif', {}).items():
 				self.module_agent_paras[agent] = {'{}__{}'.format(module, para_name): self.sc.paras['{}__{}'.format(module, para_name)] for para_name in role_modif.get('new_parameters', [])}
 
-				if agent not in mspecs.get('apply_to', {}).keys():
-					if agent not in self.module_agent_modif.keys():
-						self.module_agent_modif[agent] = {}
+				if agent not in self.module_agent_modif.keys():
+					self.module_agent_modif[agent] = {}
 
-					for role, modif in role_modif.items():
-						if role != 'on_init':
-							if type(modif) == dict:
-								if role not in self.module_agent_modif[agent].keys():
-									self.module_agent_modif[agent][role] = {}
+				for role, modif in role_modif.items():
+					if role == 'on_init':
+						# Case where one needs to apply some stuff at the initialisation of the
+						# AGENT.
+						self.module_agent_modif[agent]['on_init'] = self.module_agent_modif[agent].get('on_init',
+																									   []) + [modif]
+					elif role == 'apply_to':
+						# The apply_to is then applied in the construction method
+						# TODO: currently only working with AOCs.
+						# TODO: Not sure this is working at all...
+						# if agent not in self.module_agent_modif_post.keys():
+						# 	self.module_agent_modif_post[agent] = []
+						# self.module_agent_modif_post[agent].append(mspecs)
+						if len(modif)>0:
+							raise Exception('Module {} is trying to apply agent modifications only to agents: {}, but'
+											'this is not support by Mercury at the time.'.format(module, modif))
+					else:
+						if type(modif) == dict:
+							if role not in self.module_agent_modif[agent].keys():
+								self.module_agent_modif[agent][role] = {}
 
-								for met1, met2 in modif.items():
-									if met1 != 'on_init':
-										self.module_agent_modif[agent][role][met1] = met2
-									else:
-										# Case where one needs to apply some stuff at the initialisation of the
-										# ROLE.
-										self.module_agent_modif[agent][role][met1] = self.module_agent_modif[agent][role].get(met1, []) + [met2]
-							else:
-								# role is not a Role but a method of the agent itself
-								self.module_agent_modif[agent][role] = modif
+							for met1, met2 in modif.items():
+								if met1 != 'on_init':
+									self.module_agent_modif[agent][role][met1] = met2
+								else:
+									# Case where one needs to apply some stuff at the initialisation of the
+									# ROLE.
+									self.module_agent_modif[agent][role][met1] = self.module_agent_modif[agent][role].get(met1, []) + [met2]
 						else:
-							# Case where one needs to apply some stuff at the initialisation of the
-							# AGENT.
-							self.module_agent_modif[agent]['on_init'] = self.module_agent_modif[agent].get('on_init', []) + [modif]
-				else:
-					# The apply_to is then applied in the construction method
-					# TODO: currently only working with AOCs.
-					# for agent, role_modif in mspecs.get('agent_modif', {}).items():
-					if agent not in self.module_agent_modif_post.keys():
-						self.module_agent_modif_post[agent] = []
-					self.module_agent_modif_post[agent].append(mspecs)
+							# role is not a Role but a method of the agent itself
+							self.module_agent_modif[agent][role] = modif
+
+				# else:
+				# 	# The apply_to is then applied in the construction method
+				# 	# TODO: currently only working with AOCs.
+				# 	if agent not in self.module_agent_modif_post.keys():
+				# 		self.module_agent_modif_post[agent] = []
+				# 	self.module_agent_modif_post[agent].append(mspecs)
 
 		# print('Module agent modifications:')
 		# for agent, modif in self.module_agent_modif.items():
-		# 	print(agent, modif)
+		# 	print (agent)
+		# 	for stuff, coin in modif.items():
+		# 		if type(coin) is dict:
+		# 			print (stuff)
+		# 			for k, v in coin.items():
+		# 				print(k, ':', v)
+		# 		else:
+		# 			print(stuff, ':', coin)
+		# 		print ()
 
 		# print('\nModule agent modifications post:', self.module_agent_modif_post)
-
-		# self.sc.give_data(self)
 
 	def build_agents(self, log_file=None):
 		self.build_print(log_file)
@@ -724,7 +737,6 @@ class World:
 					 for k, v in dic_mtt[row['size']].items()}
 			airport_apoc.set_turnaround_time_dists(dists)
 
-
 			# Save APOC in dictionary of airports
 			self.airports_per_icao[row['icao_id']] = airport_apoc
 
@@ -732,12 +744,9 @@ class World:
 
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
 
-
-
 	def create_AMANs(self):
 		"""
 		Creates all AMANs, including EAMANs.
-
 		"""
 		self.eamans = {}
 		for i, row in self.sc.df_eaman_data.iterrows():
@@ -758,13 +767,12 @@ class World:
 							rs=self.rs,
 							module_agent_modif=self.module_agent_modif.get('EAMAN', {}),
 							**self.module_agent_paras.get('EAMAN', {})
-							  )
+							)
 				eaman.reference_dt = self.sc.reference_dt
 				eaman.build()
-				# regulations_at_airport = self.nm.atfm_regulations.get(self.airports_per_icao[row['icao_id']].uid,None)
 
 				self.cr.register_agent(eaman)
-				eaman.register_airport(airport=self.airports_per_icao[row['icao_id']])  # ,regulations=regulations_at_airport)
+				eaman.register_airport(airport=self.airports_per_icao[row['icao_id']])
 				eaman.register_radar(radar=self.radar)
 				self.airports_per_icao[row['icao_id']].register_eaman(eaman=eaman)
 				self.eamans[eaman.uid] = eaman
@@ -786,10 +794,9 @@ class World:
 							log_file=self.log_file_it,
 							module_agent_modif=self.module_agent_modif.get('AMAN', {}))
 				eaman.build()
-				regulations_at_airport = self.nm.atfm_regulations.get(self.airports_per_icao[icao].uid, None)
 
 				self.cr.register_agent(eaman)
-				eaman.register_airport(airport=airport)  # ,regulations=regulations_at_airport)
+				eaman.register_airport(airport=airport)
 				eaman.register_radar(radar=self.radar)
 				airport.register_eaman(eaman=eaman)
 				self.eamans[eaman.uid] = eaman
@@ -820,7 +827,6 @@ class World:
 
 		self.aocs, self.aocs_uid, self.alliances = {}, {}, {}
 		for i, row in self.sc.df_airlines_data.iterrows():
-			# print('Creating AOC:', row['ICAO'])
 			# Apply module modification pertaining only to this agent
 			this_agent = 'AirlineOperatingCentre'
 			module_agent_modif = deepcopy(self.module_agent_modif.get(this_agent, {}))

@@ -53,6 +53,9 @@ def find_paras_categories(paras_dict):
 
 
 def read_toml(file):
+	"""
+	Read a toml file and render it as a dictionary. The dictionary has three levels maximum.
+	"""
 	with open(file, mode="rb") as fp:
 		conf = tomli.load(fp)
 
