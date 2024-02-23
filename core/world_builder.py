@@ -23,6 +23,7 @@ from Mercury.libs.uow_tool_belt.general_tools import scale_and_s_from_quantile_s
 from Mercury.libs.uow_tool_belt.general_tools import scale_and_s_from_mean_sigma_lognorm, build_col_print_func
 from Mercury.libs.uow_tool_belt.connection_tools import write_data
 from Mercury.libs.performance_trajectory.unit_conversions import *
+from Mercury.libs.other_tools import gtfs_time_to_datetime, get_stop_times
 
 from Mercury.agents.airline_operating_centre import AirlineOperatingCentre
 from Mercury.agents.airport_operating_centre import AirportOperatingCentre
@@ -799,6 +800,11 @@ class World:
 
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
 
+		#pairing of airport and gtfs stop_id
+		#TODO airport_stations should be read from file
+		airport_stations = {62102:'EDDB',318333:'EDDB'}
+		self.cr.register_airport_station(airport_stations)
+
 
 
 	def create_AMANs(self):
@@ -1104,48 +1110,15 @@ class World:
 										rs=self.rs,
 										module_agent_modif=self.module_agent_modif.get('TrainOperator', {}),
 										reference_dt=self.sc.reference_dt,
-										train_operator_uid=self.pax_handler.uid,
+										pax_handler_uid=self.pax_handler.uid,
+										postman_ref=self.postman,
 										)
 		self.uid += 1
 
 		self.cr.register_train_operator(self.train_operator)
 		self.cr.register_gtfs(self.sc.df_gtfs)
 
-	def gtfs_time_to_datetime(self,gtfs_date, gtfs_time):
-		if pd.isna(gtfs_time):
-			return gtfs_time
-		hours, minutes, seconds = tuple(
-			int(token) for token in gtfs_time.split(":")
-		)
-		return (
-			dt.datetime(gtfs_date.year,gtfs_date.month,gtfs_date.day) + dt.timedelta(
-			hours=hours, minutes=minutes, seconds=seconds
-			)
-		)
 
-	def get_stop_times(self,stop_id='',trip_id='',gtfs_name='',flight_time_before=None,flight_time_after=None,gtfs_data=None):
-
-			sch = gtfs_data['stop_times'][(gtfs_data['stop_times']['trip_id']==trip_id) & (gtfs_data['stop_times']['gtfs']==gtfs_name)]
-			#print(gtfs_data['stop_times'][['gtfs']])
-			#print('xxx',trip_id,gtfs_name,sch, gtfs_data['stop_times'][['trip_id']])
-			times = sch[sch['stop_id']==stop_id][['arrival_time','departure_time']]
-			#print(stop_id,times)
-			if flight_time_before is not None:
-				sobt = flight_time_before
-				stop = {'stop_id':stop_id,'arrival_time':self.gtfs_time_to_datetime(sobt,times.iloc[0,0]),'departure_time':self.gtfs_time_to_datetime(sobt,times.iloc[0,1])}
-				if stop['arrival_time'] > sobt:
-					stop['arrival_time'] = stop['arrival_time'] - pd.tseries.offsets.Day()
-				if stop['departure_time'] > sobt:
-					stop['departure_time'] = stop['departure_time'] - pd.tseries.offsets.Day()
-			if flight_time_after is not None:
-				sibt = flight_time_after
-				stop = {'stop_id':stop_id,'arrival_time':self.gtfs_time_to_datetime(sibt,times.iloc[0,0]),'departure_time':self.gtfs_time_to_datetime(sibt,times.iloc[0,1])}
-				if stop['arrival_time'] < sibt:
-					stop['arrival_time'] = stop['arrival_time'] + pd.tseries.offsets.Day()
-				if stop['departure_time'] < sibt:
-					stop['departure_time'] = stop['departure_time'] + pd.tseries.offsets.Day()
-
-			return stop
 
 	def create_trains(self):
 		print('creating trains')
@@ -1175,12 +1148,12 @@ class World:
 			print(sobt)
 
 			#origin1
-			stop = self.get_stop_times(stop_id=row['origin1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
+			stop = get_stop_times(stop_id=row['origin1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
 			print(stop)
 			schedule.append(stop)
 
 			#destination1
-			stop = self.get_stop_times(stop_id=row['destination1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
+			stop = get_stop_times(stop_id=row['destination1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
 			print(stop)
 			schedule.append(stop)
 
@@ -1207,13 +1180,13 @@ class World:
 				sibt = df_schedules[df_schedules['nid']==row[leg]]['sibt'].iloc[0]
 			print('sibt',sibt)
 			#origin2
-			stop = self.get_stop_times(stop_id=row['origin2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
+			stop = get_stop_times(stop_id=row['origin2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
 			print(stop)
 			schedule.append(stop)
 
 			#destination2
 
-			stop = self.get_stop_times(stop_id=row['destination2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
+			stop = get_stop_times(stop_id=row['destination2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
 			print(stop)
 			schedule.append(stop)
 
@@ -1250,7 +1223,7 @@ class World:
 							gtfs_name = trips_gtfs[trip_id],
 							rs=self.rs,
 
-							module_agent_modif=self.module_agent_modif.get('Flight', {}),)
+							module_agent_modif=self.module_agent_modif.get('Train', {}),)
 
 			self.uid += 1
 			self.trains[trip_id] = train

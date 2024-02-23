@@ -601,6 +601,9 @@ class AirlineOperatingCentre(Agent):
 		elif msg['type'] == 'request_time_at_gate_update_in_aoc':
 			self.aph.wait_for_time_at_gate_update_in_aoc_request(msg)
 
+		elif msg['type'] == 'reallocation_options_request':
+			self.pr.wait_for_reallocation_options_request(msg)
+
 		else:
 			hit = False
 			for receive_function in self.receive_module_functions:
@@ -3357,7 +3360,7 @@ class PassengerReallocation(Role):
 
 		return pax_needing_reallocation
 
-	def compute_reallocation_options(self, pax, from_time=None, from_airport=None):
+	def compute_reallocation_options(self, pax, from_time=None, from_airport=None, to_airport=None):
 		"""
 		Note: only direct flights and flights with one connection
 		are considered.
@@ -3370,6 +3373,8 @@ class PassengerReallocation(Role):
 			# List of outbound flights of the current airports departing after now.
 			# Added +1 in the now below to be sure that the pax does not select a flight which is departing
 			# now (like the one it missed).
+			if to_airport is None:
+				to_airport = pax.destination_uid
 			outbound_flights = [flight_uid for flight_uid, flight_info in self.agent.aoc_flights_info.items()
 										if (flight_info['origin_airport_uid']==from_airport)
 										and (self.agent.get_obt(flight_uid) > from_time + 1)
@@ -3377,7 +3382,7 @@ class PassengerReallocation(Role):
 
 			# First select direct itineraries
 			direct_itineraries = [((flight_uid, self.agent.uid), ) for flight_uid in outbound_flights
-											if (self.agent.aoc_flights_info[flight_uid]['destination_airport_uid']==pax.destination_uid)
+											if (self.agent.aoc_flights_info[flight_uid]['destination_airport_uid']==to_airport)
 											and self.agent.aoc_flights_info[flight_uid]['status']!='cancelled']
 
 			direct_itineraries = [it for it in direct_itineraries if self.agent.get_number_seats_itinerary(it)>0]
@@ -3394,7 +3399,7 @@ class PassengerReallocation(Role):
 				# Then search indirect itineraries
 				# List of inbound flights of the final destination departing after now.
 				inbound_flights = [flight_uid for flight_uid, flight_info in self.agent.aoc_flights_info.items()
-											if (flight_info['destination_airport_uid'] == pax.destination_uid)
+											if (flight_info['destination_airport_uid'] == to_airport)
 											and (self.agent.get_obt(flight_uid) >= from_time)
 											and flight_info['status'] != 'cancelled']
 
@@ -3438,7 +3443,7 @@ class PassengerReallocation(Role):
 
 				# Select direct flights
 				direct_itineraries = [((flight_uid, aoc2_uid), ) for flight_uid, aoc2_uid in outbound_flights
-												if (aoc2_uid != self.agent.uid) and (self.agent.get_destination(flight_uid) == pax.destination_uid)
+												if (aoc2_uid != self.agent.uid) and (self.agent.get_destination(flight_uid) == to_airport)
 												and self.agent.get_status(flight_uid) != 'cancelled']
 				direct_itineraries = [it for it in direct_itineraries if self.agent.get_number_seats_itinerary(it) > 0]
 
@@ -3455,7 +3460,7 @@ class PassengerReallocation(Role):
 					inbound_flights = [(flight_uid, aoc_uid2)
 											for aoc_uid2 in self.agent.get_airlines_in_alliance()
 											 for flight_uid in self.agent.get_flights(aoc_uid2)
-												if (self.agent.get_destination(flight_uid) == pax.destination_uid)
+												if (self.agent.get_destination(flight_uid) == to_airport)
 												and (self.agent.get_obt(flight_uid) >= from_time)
 												and self.agent.get_status(flight_uid) != 'cancelled']
 
@@ -3486,7 +3491,7 @@ class PassengerReallocation(Role):
 							# for flight_uid, flight_info in self.airlines[aoc2_uid]['aoc'].aoc_flights_info.items():
 							for flight_uid in self.agent.get_flights(aoc2_uid):
 								if (self.agent.get_origin(flight_uid) == from_airport)\
-									and (self.agent.get_destination(flight_uid) == pax.destination_uid)\
+									and (self.agent.get_destination(flight_uid) == to_airport)\
 									and (self.agent.get_obt(flight_uid) >= from_time)\
 									and self.agent.get_status(flight_uid) != 'cancelled':
 										if self.agent.get_number_seats_itinerary(((flight_uid, aoc2_uid), )) > 0:
@@ -3715,6 +3720,25 @@ class PassengerReallocation(Role):
 		# self.agent.env.process(self.do_reallocation(msg['body']['paxs']))
 		self.do_reallocation(msg['body']['paxs'])
 
+
+	def wait_for_reallocation_options_request(self, msg):
+		"""
+		provide reallocation options to PaxHandler
+		"""
+		print('reallocation options request received for paxs:',
+				msg['body']['pax'], 'from', msg['from'], 'at t=', self.agent.env.now)
+
+		options = self.compute_reallocation_options(msg['body']['pax'], from_time=msg['body']['from_time'], from_airport=msg['body']['from_airport'], to_airport=msg['body']['to_airport'])
+
+		self.return_reallocation_options(msg['body']['pax'], options, msg['from'])
+
+	def return_reallocation_options(self, pax, options, pax_handler_uid):
+		msg = Letter()
+		msg['to'] = pax_handler_uid
+		msg['from'] = self.agent.uid
+		msg['type'] = 'air_reallocation_options'
+		msg['body'] = {'options': options, 'pax': pax}
+		self.send(msg)
 
 class TurnaroundOperations(Role):
 	"""

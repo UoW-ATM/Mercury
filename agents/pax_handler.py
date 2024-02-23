@@ -4,6 +4,7 @@ import simpy
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import compress
+import datetime as dt
 
 from Mercury.core.delivery_system import Letter
 from Mercury.libs.other_tools import clone_pax, flight_str
@@ -166,6 +167,12 @@ class PaxHandler(Agent):
 		"""
 		return self.cr.registry[flight_uid]
 
+	def get_station_airport(self, stop_id):
+		"""
+		Get airline for a given flight. Using central registry.
+		"""
+		return self.cr.get_station_airport(stop_id)
+
 	def register_pax_group_flight2train(self, pax):
 		"""
 		Register a flight in the AOC.
@@ -296,6 +303,10 @@ class PaxHandler(Agent):
 			self.ach.wait_for_kerb2gate_time(msg)
 		elif msg['type'] == 'rail_reallocation_options':
 			self.pr.wait_for_rail_reallocation_options(msg)
+		elif msg['type'] == 'new_train':
+			self.pr.wait_for_new_train(msg)
+		elif msg['type'] == 'air_reallocation_options':
+			self.pr.wait_for_air_reallocation_options(msg)
 		else:
 			hit = False
 			for receive_function in self.receive_module_functions:
@@ -345,6 +356,7 @@ class RailConnectionHandler(Role):
 		print('estimate_gate2kerb_time2 is', self.agent.pax_info_post[pax_id]['gate2kerb_time_estimation'])
 		print('estimated_ground_mobility is', self.agent.pax_info_post[pax_id]['ground_mobility_estimation'])
 		print('est train time from origin2 is', self.agent.pax_info_post[pax_id]['estimate_departure_information'])
+		print('time now is', self.agent.env.now, self.agent.reference_dt+dt.timedelta(minutes=self.agent.env.now))
 
 		pax_arrival_to_platform_event = self.agent.pax_info_post[pax_id]['pax_arrival_to_platform_event']
 		pax_arrival_to_kerb_event = self.agent.pax_info_post[pax_id]['pax_arrival_to_kerb_event']
@@ -739,13 +751,119 @@ class PassengerReallocation(Role):
 		self.agent.env.process(self.do_reallocation(pax_id, origin, destination, train_operator_uid, gtfs_name))
 
 	def do_reallocation(self, pax_id, origin, destination, train_operator_uid, gtfs_name):
-		self.received_rail_reallocation_options_event = simpy.Event(self.agent.env)
+		self.agent.pax_info_post[pax_id]['received_rail_reallocation_options_event'] = simpy.Event(self.agent.env)
 
 		self.request_rail_reallocation_options(pax_id, origin, destination, train_operator_uid, gtfs_name)
 
-		yield self.received_rail_reallocation_options_event
+		yield self.agent.pax_info_post[pax_id]['received_rail_reallocation_options_event']
 
-		self.rebook(pax_id)
+		self.agent.pax_info_post[pax_id]['received_air_reallocation_options_event'] = simpy.Event(self.agent.env)
+
+		aoc_uid = self.agent.get_airline_of_flight(self.agent.pax_info_post[pax_id]['pax'].get_last_flight())
+		pax = self.agent.pax_info_post[pax_id]['pax']
+		from_time = self.agent.env.now
+		from_airport = self.agent.pax_info_post[pax_id]['airport_icao']
+		to_airport = self.agent.get_station_airport(self.agent.pax_info_post[pax_id]['pax'].destination2)
+		self.request_air_reallocation_options(aoc_uid, pax, from_time, from_airport, to_airport)
+
+		yield self.agent.pax_info_post[pax_id]['received_air_reallocation_options_event']
+
+
+		reallocation_options = self.agent.pax_info_post[pax_id]['reallocation_options']
+		train_operator_uid = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].train_operator_uid
+		train_uid = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].uid
+		stop_id = self.agent.pax_info_post[pax_id]['pax'].origin2
+		print('Options for reallocation for', pax_id, ':', reallocation_options)
+		print('Capacities of pot. new itineraries for', pax_id, ':', reallocation_options['capacity'])
+		if len(reallocation_options) > 0:
+			self.reallocate_pax(pax_id, reallocation_options)
+		else:
+			print(self.agent, 'could not find any other itineraries for pax', pax_id)
+			# Remove passengers from boarding lists of all remaining trains.
+
+			self.send_remove_pax_from_boarding_list_request(self.agent.pax_info_post[pax_id]['pax'], train_uid, train_operator_uid, stop_id)
+			#self.agent.aph.arrive_pax(pax, overnight=True)
+			print(pax, 'arrived in PaxHandler')
+
+	def reallocate_pax(self, pax_id, reallocation_options):
+		print(self.agent, 'reallocates', pax_id)
+		everyone_allocated = False
+		pax = self.agent.pax_info_post[pax_id]['pax']
+
+		for i,row in reallocation_options.iterrows():
+			print('Available seats for itinerary', row['trip_id'], ' before update:', row['capacity'], 'for', pax)
+			available_seats = row['capacity']
+
+
+			if available_seats > 0:
+				if available_seats >= pax.n_pax:
+					# All remaining passengers can be fitted into this itinerary
+					print('Putting all remaining pax in', pax, 'in itinerary', row['trip_id'])
+					pax_to_consider = pax
+					new = False
+					everyone_allocated = True
+				else:
+					# Split passengers
+					new_pax = clone_pax(pax, available_seats)
+					self.agent.new_paxs.append(new_pax)
+					pax.n_pax -= available_seats
+					mprint('Splitting pax. New clone of', pax, 'is', new_pax)
+					mprint('Remaining pax:', pax.n_pax, 'in', pax)
+
+					pax_to_consider = new_pax
+					new = True
+
+				self.agent.env.process(self._reallocate_pax_to_itinerary(pax_to_consider, row, new=new))
+
+				#if pax_to_consider.blame_transfer_cost_on is None:
+					#mprint(pax_to_consider, 'now blames transfer costs on flight', last_flight)
+					#pax_to_consider.blame_transfer_cost_on = last_flight
+
+				#transfer_cost = transfer_costs_pp[i] * pax_to_consider.n_pax
+				#self.agent.aph.pay_pax_cost(pax_to_consider, transfer_cost, 'transfer_cost')
+
+				if everyone_allocated:
+					break
+
+	def _reallocate_pax_to_itinerary(self, pax, df, new=False):
+		# Take out aoc_uids from itinerary
+		#itinerary_flights = list(zip(*itinerary))[0]
+
+		print(self.agent, 'is reallocating', pax, 'to itinerary', df, 'at t=', self.agent.env.now)
+
+		# Reallocate pax to option
+		#pax.time_at_gate = -10  # to make sure that they don't miss the new flight
+		#pax.old_itineraries = list(pax.old_itineraries) + [copy(pax.itinerary)]
+
+		# Remove passengers from boarding listing of trains in old itinerary
+		# which have not departed already.
+		pax_id = pax.id
+		train_operator_uid = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].train_operator_uid
+		train_uid = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].uid
+		origin = self.agent.pax_info_post[pax_id]['pax'].origin2
+		destination = self.agent.pax_info_post[pax_id]['pax'].destination2
+
+		if not new:
+			self.send_remove_pax_from_boarding_list_request(pax, train_uid, train_operator_uid, origin, destination)
+
+		# aprint('old itinerary:', pax.itinerary)
+		#pax.rail['rail_post']
+
+		# aprint('DEBUG', 'new itinerary:', list(pax.itinerary[:pax.idx_current_flight]) + list(itinerary_flights))
+
+		# pax.active_flight = itinerary_flights[0]
+		#pax.in_transit_to = pax.get_next_flight()
+
+		#allocate pax to new train
+		#we are passing trip_id
+		origin = self.agent.pax_info_post[pax_id]['pax'].origin2
+		destination = self.agent.pax_info_post[pax_id]['pax'].destination2
+
+		self.agent.pax_info_post[pax_id]['received_new_train_event'] = simpy.Event(self.agent.env)
+
+		self.request_new_train_boarding(df, origin, destination, pax, train_operator_uid)
+
+		yield self.agent.pax_info_post[pax_id]['received_new_train_event']
 
 	def rebook(self, pax_id):
 		options = self.agent.pax_info_post[pax_id]['reallocation_options']
@@ -764,6 +882,19 @@ class PassengerReallocation(Role):
 
 		self.send(msg)
 
+
+	def request_air_reallocation_options(self, aoc_uid, pax, from_time, from_airport, to_airport):
+		print(self.agent, 'sends air reallocation options request to', aoc_uid)
+
+
+		msg = Letter()
+		msg['to'] = aoc_uid
+		msg['type'] = 'reallocation_options_request'
+		msg['body'] = {'pax': pax, 'from_time': from_time, 'from_airport':from_airport, 'to_airport':to_airport}
+
+		self.send(msg)
+
+
 	def wait_for_rail_reallocation_options(self, msg):
 		"""
 		Receive taxi out time estimation and update FP with info
@@ -772,4 +903,47 @@ class PassengerReallocation(Role):
 		pax_id = msg['body']['pax_id']
 		self.agent.pax_info_post[pax_id]['reallocation_options'] = msg['body']['reallocation_options']
 
-		self.received_rail_reallocation_options_event.succeed()
+		self.agent.pax_info_post[pax_id]['received_rail_reallocation_options_event'].succeed()
+
+	def wait_for_air_reallocation_options(self, msg):
+		"""
+		Receive taxi out time estimation and update FP with info
+		"""
+		print('air reallocation options are', msg['body']['options'])
+		pax_id = msg['body']['pax'].id
+		self.agent.pax_info_post[pax_id]['air_reallocation_options'] = msg['body']['options']
+
+		self.agent.pax_info_post[pax_id]['received_air_reallocation_options_event'].succeed()
+
+	def send_remove_pax_from_boarding_list_request(self, pax, train_uid, train_operator_uid, origin, destination):
+		print(self.agent, 'sends a remove from boarding list request for',
+				pax, 'for', flight_str(train_uid), 'to train_operator', train_operator_uid)
+		msg = Letter()
+		msg['to'] = train_operator_uid
+		msg['type'] = 'remove_pax_from_boarding_list'
+		msg['body'] = {'pax': pax,
+						'train_uid': train_uid, 'origin': origin, 'destination':destination}
+
+		self.send(msg)
+
+	def request_new_train_boarding(self, df, origin, destination, pax, train_operator_uid):
+		print(self.agent, 'sends new boarding request to', train_operator_uid, 'for', pax)
+
+
+		msg = Letter()
+		msg['to'] = train_operator_uid
+		msg['type'] = 'new_train_boarding_request'
+		msg['body'] = {'df': df, 'pax':pax, 'origin':origin, 'destination': destination}
+
+		self.send(msg)
+
+	def wait_for_new_train(self, msg):
+		"""
+		Receive taxi out time estimation and update FP with info
+		"""
+		print('PaxHandler received new train', msg['body']['new_train'].uid)
+		pax_id = msg['body']['pax_id']
+		new_train = msg['body']['new_train']
+		self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'] = new_train
+
+		self.agent.pax_info_post[pax_id]['received_new_train_event'].succeed()

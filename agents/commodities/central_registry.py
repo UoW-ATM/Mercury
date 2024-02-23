@@ -14,6 +14,7 @@ class CentralRegistry:
 		self.registry = {}
 		self.flight_registery = {}
 		self.gtfs = {}
+		self.airport_stations = {}
 
 	def get_obt(self, flight_uid):
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
@@ -245,3 +246,13 @@ class CentralRegistry:
 	# 		return aoc.aoc_flights_info[flight_uid]['FP'].get_ibt()
 	# 	else:
 	# 		self.get_flight_attribute(flight_uid, attribute)
+
+	def register_airport_station(self, airport_stations):
+		self.airport_stations = airport_stations
+
+	def get_station_airport(self, stop_id):
+
+		if stop_id in self.airport_stations:
+			return self.airport_stations[stop_id]
+		else:
+			return None
