@@ -130,6 +130,8 @@ results/
 
 *.zip
 
-libs/performance_trajectory/performance_models/bada/bada3/
-
 docs/source/generated
+
+# bada performance files
+libs/performance_trajectory/performance_models/bada/bada3/
+libs/performance_trajectory/performance_models/bada/bada4_2/
