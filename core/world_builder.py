@@ -146,9 +146,11 @@ class World:
 		"""
 		
 		# Add into paras_scenario the information on ac performance which is in mercury paras (self.paras)
-		paras_scenario['ac_icao_wake_engine'] = self.paras['computation__ac_performance']['ac_icao_wake_engine']
-		paras_scenario['performance_model'] = self.paras['computation__ac_performance']['performance_model']
-		paras_scenario['performance_model_params'] = self.paras['computation__ac_performance'][paras_scenario['performance_model']]
+		paras_scenario['ac_performance'] = self.paras['computation__ac_performance']
+		#paras_scenario['ac_icao_wake_engine'] = self.paras['computation__ac_performance']['ac_icao_wake_engine']
+		#paras_scenario['performance_model'] = self.paras['computation__ac_performance']['performance_model']
+		#paras_scenario['performance_model_params'] = self.paras['computation__ac_performance'][paras_scenario['performance_model']]
+
 
 		self.sc = ScenarioLoader(info_scenario=info_scenario,
 					 case_study_conf=case_study_conf,
@@ -743,6 +745,7 @@ class World:
 			self.cr.register_mcts(airport_apoc.uid, self.airport_terminals_per_icao[airport_apoc.icao].mcts)
 
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
+
 
 	def create_AMANs(self):
 		"""
