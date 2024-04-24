@@ -30,14 +30,17 @@ batch_size = 0 # Put a positive number N to have a deep memory clean every N ite
 	[computation.ac_performance]
 		# Table with relationship between AC ICAO code, wake turbulence category and engine type
 		ac_icao_wake_engine = "libs/performance_trajectory/performance_models/ac_icao_wake_engine"
+
 		performance_model = "bada3"  # Performance model to be used (bada3, bada4, openap)
 
-		[computation.ac_performance.bada3]  # BADA3 parameters
-			# Table with relationship between AC ICAO code and performance model codes
-			# Relationship AC ICAO and ac model used to compute FPs
-			perf_models_path = "libs/performance_trajectory/performance_models/bada/bada3/"  # Path to performance models
+		# Class with functions to generate dictionaries with performance models
+		performance_model_data_access = 'DataAccessPerformanceBADA3'
+		# Path to performance implementation folder (can be relative from Mercury or absolute)
+		performance_model_data_access_path = "libs/performance_trajectory/ac_perf_bada3/db_access_performance"
 
-			[computation.ac_performance.bada3.default_ac_icao]
+		perf_models_path = "libs/performance_trajectory/performance_models/bada/bada3/"  # Path to performance models
+
+		[computation.ac_performance.default_ac_icao]
 			# Default ac types to be used if ac needed not available
 			L_JET = 'C510'
 			M_JET = 'A320'
@@ -46,10 +49,6 @@ batch_size = 0 # Put a positive number N to have a deep memory clean every N ite
 			L_PISTON = 'PA27'
 			L_TURBOPROP = 'BE99'
 			M_TURBOPROP = 'AT72'
-
-		[computation.ac_performance.bada4]  # BADA4 parameters
-			# Table with relationship between AC ICAO code and performance model codes
-			perf_models_path = "libs/performance_trajectory/performance_models/bada/bada4/"  # Path to performance models
 
 
 [logging]

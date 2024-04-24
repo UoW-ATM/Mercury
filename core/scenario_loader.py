@@ -24,7 +24,6 @@ from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao
 										read_estimated_avg_costs_curfews, read_airlines_data, read_extra_cruise_if_dci, \
 										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports, \
 										read_all_regulation_days)
-from Mercury.libs.db_ac_performance import DataAccessPerformance
 from Mercury.libs.db_ac_performance_provider import get_data_access_performance
 
 data_to_load = ['dict_ac_model_perf',
@@ -92,8 +91,14 @@ class ScenarioLoader:
 		case_study_paras_paths = unfold_paras_dict(case_study_conf['data'], data_path=cs_data_path)
 
 		# Add information on performance models paths
-		case_study_paras_paths['ac_icao_wake_engine'] = Path(paras_scenario['ac_icao_wake_engine'])
-		case_study_paras_paths['perf_models_path'] = Path(paras_scenario['performance_model_params']['perf_models_path'])
+		case_study_paras_paths['ac_icao_wake_engine'] = Path(paras_scenario['ac_performance']['ac_icao_wake_engine'])
+		paras_scenario['ac_performance']['ac_icao_wake_engine'] = Path(paras_scenario['ac_performance']['ac_icao_wake_engine'])
+		case_study_paras_paths['perf_models_path'] = Path(paras_scenario['ac_performance']['perf_models_path'])
+		paras_scenario['ac_performance']['perf_models_path'] = Path(paras_scenario['ac_performance']['perf_models_path'])
+		paras_scenario['ac_performance']['perf_models_path'] = Path(
+			paras_scenario['ac_performance']['perf_models_path'])
+		paras_scenario['ac_performance']['performance_model_data_access_path'] = Path(
+			paras_scenario['ac_performance']['performance_model_data_access_path'])
 
 		# update data paths from case study:
 		for stuff, path in case_study_paras_paths.items():
@@ -460,8 +465,7 @@ class ScenarioLoader:
 
 		# Read aircraft performance
 		# Get DataAccessPerformance for model used
-		daap = get_data_access_performance(model=self.paras['performance_model'],
-										   models_path=self.paras_paths['perf_models_path'])
+		daap = get_data_access_performance(ac_performance_paras=self.paras['ac_performance'])
 
 		# Read conversion between AC ICAO code and AC Model to be used for Performance model
 		# Note that if the DataAccessPerformance does not implement this function it will return a {} dictionary
@@ -478,7 +482,7 @@ class ScenarioLoader:
 				# There are some AC ICAO models that are needed by no equivalent on performance available
 				# Check default ac types
 				# Load default ac types if available (given in mercury_config.toml)
-				dict_default_ac_icao = self.paras['performance_model_params'].get('default_ac_icao', {})
+				dict_default_ac_icao = self.paras['ac_performance'].get('default_ac_icao', {})
 
 				# Iterate over ac_icao_needed to get model code
 				for a in ac_icao_needed:
@@ -492,11 +496,11 @@ class ScenarioLoader:
 								# Add model to list
 								self.dict_ac_icao_ac_model[a] = a_model
 								if a_model is None:
-									raise("Default ac for ", wt['wake']+'_'+wt['engine_type'], " not available")
+									raise ("Default ac for ", wt['wake']+'_'+wt['engine_type'], " not available")
 							else:
-								raise("WTC not available for ac", a)
+								raise ("WTC not available for ac", a)
 						else:
-							raise("AC type not available for performance model", a)
+							raise ("AC type not available for performance model", a)
 
 					ac_models_needed.add(a_model)
 

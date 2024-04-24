@@ -2,16 +2,16 @@ from pathlib import Path
 from math import asin
 from math import pi
 
-from .db_ac_performance import DataAccessPerformance
+from Mercury.libs.performance_trajectory.db_ac_performance import DataAccessPerformance
 
-from .uow_tool_belt.connection_tools import read_data
-from .performance_trajectory import ac_performances as bap
-from .performance_trajectory import unit_conversions as uc
+from Mercury.libs.uow_tool_belt.connection_tools import read_data
+from Mercury.libs.performance_trajectory import unit_conversions as uc
+from Mercury.libs.performance_trajectory.ac_perf_bada3 import ac_performances as bap
 
 class DataAccessPerformanceBADA3(DataAccessPerformance):
 
-	def __init__(self, models_path):
-		self.db_path = models_path
+	def __init__(self, perf_models_path, **kwargs):
+		self.db_path = perf_models_path
 		self.db_in_parquet = isinstance(self.db_path, type(Path()))
 
 	def combine_db_table(self, table_name):
