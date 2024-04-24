@@ -49,7 +49,7 @@ class ParametriserCapacity(Parametriser):
 	def __init__(self):
 		self.parameters_post_load = ['alpha_C']
 		self.parameters_pre_load = []
-		self.applications = {'alpha_C':self.apply_capacity_reduction}
+		self.applications = {'alpha_C': self.apply_capacity_reduction}
 
 		self.parameters = list(self.parameters_pre_load) + list(self.parameters_post_load)
 

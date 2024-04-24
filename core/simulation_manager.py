@@ -66,10 +66,11 @@ class Mercury:
 			print('Building world...')
 
 			world = World(paras_simulation,
-							log_file=f
-							)
+						  log_file=f
+						  )
 
 			paras_scenario['others__pc'] = paras_simulation['computation__pc']
+
 			world.load_scenario(info_scenario=info_scenario,
 								case_study_conf=case_study_conf,
 								 data_scenario=data_scenario,
@@ -208,6 +209,7 @@ class Mercury:
 		in the scenario generation (like days of regulation etc) are redrawn by default when the world is reset.
 		"""
 		# TODO: put this in the world builder
+
 		paras_scenario = self.post_process_paras(paras_scenario)
 
 		# If the results are supposed to go in files (not in mysql), we check

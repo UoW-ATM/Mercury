@@ -220,7 +220,7 @@ if __name__=='__main__':
 		paras_simulation['computation__pc'] = int(args.n_proc)
 
 	if args.batch_size is not None:
-		paras_simulation['computation_batch_size'] = int(args.batch_size)
+		paras_simulation['computation__batch_size'] = int(args.batch_size)
 
 	if args.no_notifications != 'not_given':
 		paras_simulation['notification__notifications'] = False
