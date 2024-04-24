@@ -526,25 +526,25 @@ class ScenarioLoader:
 
 	def load_atfm_regulations(self, connection=None):
 
-		if self.paras['regulations__stochastic_airport_regulations']!='N':
+		if self.paras['regulations__stochastic_airport_regulations'] != 'N':
 			post_fix = "_excluding_airports'"
 		else:
 			post_fix = "_all'"
 
 		self.non_weather_atfm_delay_dist = read_iedf_atfm(connection,
-									table=self.paras_paths['input_atfm_delay'],
-									where = "WHERE atfm_type='non_weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
+								    table=self.paras_paths['input_atfm_delay'],
+									where="WHERE atfm_type='non_weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
 									scipy_distr=True,
 									scenario=self.scenario)
 
 		self.non_weather_prob_atfm = read_prob_atfm(connection,
-									where = "WHERE atfm_type='non_weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
+									where="WHERE atfm_type='non_weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
 									table=self.paras_paths['input_atfm_prob'],
 									scenario=self.scenario)
 
 		self.weather_atfm_delay_dist = read_iedf_atfm(connection,
 									table=self.paras_paths['input_atfm_delay'],
-									where = "WHERE atfm_type='weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
+									where="WHERE atfm_type='weather"+post_fix+" AND level=\'"+self.paras['general__delay_level']+"\'",
 									scipy_distr=True,
 									scenario=self.scenario)
 
