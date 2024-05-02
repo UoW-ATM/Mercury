@@ -97,13 +97,15 @@ class GroundMobility(Agent):
 
 
 
-	def set_connection(self, origin, destination, dist, dist_add):
+	def set_connection(self, origin='', destination='', dist=None, dist_add=None):
 		"""
 		Register a connection between two points.
 		"""
-
-		if destination not in self.connecting_times[origin]:
+		if origin not in self.connecting_times:
 			self.connecting_times[origin] = {}
+
+		#if destination not in self.connecting_times[origin]:
+			#self.connecting_times[origin] = {}
 
 		self.connecting_times[origin][destination] = {
 									'dist': dist,
@@ -197,6 +199,8 @@ class ConnectingTimeProvider(Role):
 		if origin not in self.agent.connecting_times:
 			print(origin, 'not recognised in ground_mobility_estimation')
 			return 30.0
+		#print('connecting_times', self.agent.connecting_times)
+		#print((str(destination) in self.agent.connecting_times[origin]))
 		estimate = self.agent.connecting_times[origin][destination]['dist'].rvs(random_state=self.agent.rs)
 		return estimate
 

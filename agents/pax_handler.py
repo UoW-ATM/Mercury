@@ -32,15 +32,16 @@ class PaxHandler(Agent):
 				'TurnaroundOperations': 'tro',  # Turnaround management (incl. FP recomputation and pax management)
 				'AirlinePaxHandler': 'aph',  # Handling of passengers (arrival)
 				'DynamicCostIndexComputer': 'dcic',  # Dynamic cost index computation to compute if speed up flights
-				'RailConnectionHandler': 'rch'}  # Selection of flight plan (flight plan dispatching)
+				'Air2RailHandler': 'rch',
+				'Rail2AirHandler': 'ach'}  # Selection of flight plan (flight plan dispatching)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
 		# Roles
 
-		self.rch = RailConnectionHandler(self)
-		self.ach = AirConnectionHandler(self)
+		self.rch = Air2RailHandler(self)
+		self.ach = Rail2AirHandler(self)
 		self.pr = PassengerReallocation(self)
 
 		# Apply modifications due to modules
@@ -195,6 +196,7 @@ class PaxHandler(Agent):
 									'received_actual_train_departure_event': simpy.Event(self.env),
 									'airport_terminal_uid': None,
 									'airport_icao': None,
+									'departed':False
 									}
 
 
@@ -322,7 +324,7 @@ class PaxHandler(Agent):
 
 
 
-class RailConnectionHandler(Role):
+class Air2RailHandler(Role):
 	"""
 	RCH: handles flight to rail connections
 	"""
@@ -331,7 +333,12 @@ class RailConnectionHandler(Role):
 		pax = msg['body']['pax']
 		airport_terminal_uid = msg['body']['airport_terminal_uid']
 		airport_icao = msg['body']['airport_icao']
-		print(self.agent, 'receives rail connection request for', pax)
+		print(self.agent, 'receives rail connection request for', pax, 'at', airport_terminal_uid)
+		if pax.id not in self.agent.pax_info_post:
+			#new pax
+			self.agent.register_pax_group_flight2train(pax)
+
+
 		self.agent.pax_info_post[pax.id]['pax'] = pax
 		self.agent.pax_info_post[pax.id]['airport_terminal_uid'] = airport_terminal_uid
 		self.agent.pax_info_post[pax.id]['airport_icao'] = airport_icao
@@ -361,9 +368,12 @@ class RailConnectionHandler(Role):
 		pax_arrival_to_platform_event = self.agent.pax_info_post[pax_id]['pax_arrival_to_platform_event']
 		pax_arrival_to_kerb_event = self.agent.pax_info_post[pax_id]['pax_arrival_to_kerb_event']
 		#check which pax have missed their train
-
+		delay = self.agent.env.now + self.agent.pax_info_post[pax_id]['gate2kerb_time_estimation'] + self.agent.pax_info_post[pax_id]['ground_mobility_estimation'] - (self.agent.pax_info_post[pax_id]['estimate_departure_information'] - self.agent.reference_dt).total_seconds()/60.
+		from_time = self.agent.env.now + self.agent.pax_info_post[pax_id]['gate2kerb_time_estimation'] + self.agent.pax_info_post[pax_id]['ground_mobility_estimation']
+		print('delay for pax', pax_id, 'is', delay)
 		#rebook missed pax
-		self.agent.pr.wait_for_reallocation_request(pax_id)
+		if delay>0:
+			pass#self.agent.pr.wait_for_reallocation_request(pax_id, from_time)
 		#send to airport terminal
 		self.request_move_gate2kerb(self.agent.pax_info_post[pax_id]['pax'], self.agent.pax_info_post[pax_id]['airport_terminal_uid'], self.agent.pax_info_post[pax_id]['gate2kerb_time_estimation'])
 
@@ -385,26 +395,29 @@ class RailConnectionHandler(Role):
 		yield pax_arrival_to_platform_event
 		print("pax_arrival_to_platform_event for ", (pax_id), "triggered at", self.agent.env.now)
 		self.agent.pax_info_post[pax_id]['pax'].time_at_platform = self.agent.env.now
+		self.agent.pax_info_post[pax_id]['pax'].status = 'at_platform'
 
 		#check missed pax
 		#request actual departure time (latest estimate)
 		self.request_actual_train_departure(train_uid, stop_id, pax_id, train_operator_uid)
 		yield self.agent.pax_info_post[pax_id]['received_actual_train_departure_event']
 
-		if (self.agent.pax_info_post[pax_id]['estimate_departure_information'] - self.agent.reference_dt).total_seconds()/60. < self.agent.pax_info_post[pax_id]['pax'].time_at_platform:
+		#if (self.agent.pax_info_post[pax_id]['estimate_departure_information'] - self.agent.reference_dt).total_seconds()/60. < self.agent.pax_info_post[pax_id]['pax'].time_at_platform:
+		if self.agent.pax_info_post[pax_id]['departed']:
 			print('missed train connection for',  self.agent.pax_info_post[pax_id]['pax'], 'with time_at_platform', self.agent.pax_info_post[pax_id]['pax'].time_at_platform, 'train time', (self.agent.pax_info_post[pax_id]['estimate_departure_information'] - self.agent.reference_dt).total_seconds()/60.)
+			#rebook
+			self.agent.pr.wait_for_reallocation_request(pax_id, self.agent.env.now)
 		else:
 			print('on time train connection for',  self.agent.pax_info_post[pax_id]['pax'], 'with time_at_platform', self.agent.pax_info_post[pax_id]['pax'].time_at_platform, 'train time', (self.agent.pax_info_post[pax_id]['estimate_departure_information'] - self.agent.reference_dt).total_seconds()/60.)
 
-		#rebook
 
-		#send to train_operator to board train
+			#send to train_operator to board train
 
-		pax = self.agent.pax_info_post[pax_id]['pax']
-		self.request_train_boarding(train_uid, stop_id, pax, train_operator_uid)
+			pax = self.agent.pax_info_post[pax_id]['pax']
+			self.request_train_boarding(train_uid, stop_id, pax, train_operator_uid)
 
 	def request_estimated_gate2kerb_times(self, pax, airport_terminal_uid):
-		print(self.agent, 'sends estimated_gate2kerb_times request to', airport_terminal_uid)
+		print(self.agent, 'sends estimated_gate2kerb_times request to', airport_terminal_uid, 'for', pax)
 
 
 		msg = Letter()
@@ -551,11 +564,12 @@ class RailConnectionHandler(Role):
 		print('actual_train_departure is', msg['body']['estimate_departure_information'])
 		pax_id = msg['body']['pax_id']
 		self.agent.pax_info_post[pax_id]['estimate_departure_information'] = msg['body']['estimate_departure_information']
+		self.agent.pax_info_post[pax_id]['departed'] = msg['body']['departed']
 
 
 		self.agent.pax_info_post[pax_id]['received_actual_train_departure_event'].succeed()
 
-class AirConnectionHandler(Role):
+class Rail2AirHandler(Role):
 	"""
 	ACH: handles rail to flight connections
 	"""
@@ -616,16 +630,41 @@ class AirConnectionHandler(Role):
 
 		airport_terminal_uid = self.agent.pax_info_pre[pax_id]['airport_terminal_uid']
 		estimate_kerb2gate_time = self.agent.pax_info_pre[pax_id]['kerb2gate_time_estimation']
-		self.request_kerb2gate_time(pax, airport_terminal_uid, estimate_kerb2gate_time, received_kerb2gate_time_event)
+
+		#estimate late
+		remaining_time = self.agent.pax_info_pre[pax_id]['estimate_obt'] - self.agent.env.now - estimate_kerb2gate_time
+		print('delay for pax', pax_id, 'is', remaining_time)
+		if remaining_time < 0:
+			late = True
+		else:
+			late = False
+
+		self.request_kerb2gate_time(pax, airport_terminal_uid, estimate_kerb2gate_time, received_kerb2gate_time_event,late)
 
 		yield received_kerb2gate_time_event
 
 		print('actual_kerb2gate_time is', self.agent.pax_info_pre[pax_id]['kerb2gate_time'])
 
 		self.agent.pax_info_pre[pax_id]['pax'].time_at_gate = self.agent.env.now
+		self.agent.pax_info_pre[pax_id]['pax'].in_transit_to = self.agent.pax_info_pre[pax_id]['pax'].get_next_flight()
 		print(pax, 'time_at_gate is', self.agent.pax_info_pre[pax_id]['pax'].time_at_gate)
 		#self.request_move_gate2kerb(self.agent.pax_info_post[pax_id]['pax'], self.agent.pax_info_post[pax_id]['airport_terminal_uid'], self.agent.pax_info_post[pax_id]['gate2kerb_time_estimation'])
-		self.request_time_at_gate_update_in_aoc(self.agent.pax_info_pre[pax_id]['pax'].itinerary[0], pax_id)
+		print(pax, self.agent.pax_info_pre[pax_id]['pax'].itinerary, self.agent.pax_info_pre[pax_id]['pax'].old_itineraries)
+		#check if there are new split pax and update their time_at_gate
+		if len(self.agent.pax_info_pre[pax_id]['pax'].split_pax)>0:
+			for new_pax in self.agent.pax_info_pre[pax_id]['pax'].split_pax:
+				if len(new_pax.itinerary)>0:
+					self.agent.pax_info_pre[new_pax.id]={'pax':new_pax}
+					print('new_pax update time_at_gate', new_pax, new_pax.itinerary)
+					self.request_time_at_gate_update_in_aoc(new_pax.itinerary[0], new_pax.id)
+		if len(self.agent.pax_info_pre[pax_id]['pax'].itinerary) > 0:
+			self.request_time_at_gate_update_in_aoc(self.agent.pax_info_pre[pax_id]['pax'].itinerary[0], pax_id)
+
+
+		else:
+
+			pass
+		self.agent.pax_info_pre[pax_id]['pax'].status = 'at_airport'
 
 	def request_estimated_kerb2gate_times(self, pax, airport_terminal_uid):
 		print(self.agent, 'sends estimated_kerb2gate_times request to', airport_terminal_uid)
@@ -678,14 +717,14 @@ class AirConnectionHandler(Role):
 		self.agent.pax_info_pre[pax_id]['received_estimated_flight_departure_event'].succeed()
 
 
-	def request_kerb2gate_time(self, pax, airport_terminal_uid, estimate_kerb2gate_time, received_kerb2gate_time_event):
+	def request_kerb2gate_time(self, pax, airport_terminal_uid, estimate_kerb2gate_time, received_kerb2gate_time_event, late):
 		print(self.agent, 'sends kerb2gate_times_request to', airport_terminal_uid)
 
 
 		msg = Letter()
 		msg['to'] = airport_terminal_uid
 		msg['type'] = 'kerb2gate_times_request'
-		msg['body'] = {'pax': pax, 'kerb2gate_time_estimation': estimate_kerb2gate_time, 'event': received_kerb2gate_time_event}
+		msg['body'] = {'pax': pax, 'kerb2gate_time_estimation': estimate_kerb2gate_time, 'event': received_kerb2gate_time_event, 'late':late}
 
 		self.send(msg)
 
@@ -741,19 +780,19 @@ class PassengerReallocation(Role):
 	1. Check passenger that should have been in the flight that has left and have missed their connection
 	2. Rebook them onto following flights to destination, compensate compute_missed_connecting_paxand return them to destination, pay for care, and potentially put them in hotels by checking preferences with passengers.
 	"""
-	def wait_for_reallocation_request(self, pax_id):
+	def wait_for_reallocation_request(self, pax_id, from_time):
 		print('request for rail reallocation received at', self.agent.env.now)
 		train_operator_uid = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].train_operator_uid
 		origin = self.agent.pax_info_post[pax_id]['pax'].origin2
 		destination = self.agent.pax_info_post[pax_id]['pax'].destination2
 		gtfs_name = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].gtfs_name
 
-		self.agent.env.process(self.do_reallocation(pax_id, origin, destination, train_operator_uid, gtfs_name))
+		self.agent.env.process(self.do_reallocation(pax_id, origin, destination, from_time, train_operator_uid, gtfs_name))
 
-	def do_reallocation(self, pax_id, origin, destination, train_operator_uid, gtfs_name):
+	def do_reallocation(self, pax_id, origin, destination, from_time, train_operator_uid, gtfs_name):
 		self.agent.pax_info_post[pax_id]['received_rail_reallocation_options_event'] = simpy.Event(self.agent.env)
 
-		self.request_rail_reallocation_options(pax_id, origin, destination, train_operator_uid, gtfs_name)
+		self.request_rail_reallocation_options(pax_id, origin, destination, from_time, train_operator_uid, gtfs_name)
 
 		yield self.agent.pax_info_post[pax_id]['received_rail_reallocation_options_event']
 
@@ -761,7 +800,6 @@ class PassengerReallocation(Role):
 
 		aoc_uid = self.agent.get_airline_of_flight(self.agent.pax_info_post[pax_id]['pax'].get_last_flight())
 		pax = self.agent.pax_info_post[pax_id]['pax']
-		from_time = self.agent.env.now
 		from_airport = self.agent.pax_info_post[pax_id]['airport_icao']
 		to_airport = self.agent.get_station_airport(self.agent.pax_info_post[pax_id]['pax'].destination2)
 		self.request_air_reallocation_options(aoc_uid, pax, from_time, from_airport, to_airport)
@@ -773,7 +811,7 @@ class PassengerReallocation(Role):
 		train_operator_uid = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].train_operator_uid
 		train_uid = self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'].uid
 		stop_id = self.agent.pax_info_post[pax_id]['pax'].origin2
-		print('Options for reallocation for', pax_id, ':', reallocation_options)
+		print('Options for reallocation for', pax_id, ': from_time',from_time,self.agent.reference_dt+dt.timedelta(minutes=from_time), reallocation_options)
 		print('Capacities of pot. new itineraries for', pax_id, ':', reallocation_options['capacity'])
 		if len(reallocation_options) > 0:
 			self.reallocate_pax(pax_id, reallocation_options)
@@ -871,14 +909,13 @@ class PassengerReallocation(Role):
 		#select the first train
 		selected = options.iloc[0]
 
-	def request_rail_reallocation_options(self, pax_id, origin, destination, train_operator_uid, gtfs_name):
+	def request_rail_reallocation_options(self, pax_id, origin, destination, from_time, train_operator_uid, gtfs_name):
 		print(self.agent, 'sends reallocation options request to', train_operator_uid)
 
-		t = self.agent.env.now
 		msg = Letter()
 		msg['to'] = train_operator_uid
 		msg['type'] = 'reallocation_options_request'
-		msg['body'] = {'pax_id':pax_id, 'origin':origin, 'destination':destination, 't':t, 'gtfs_name':gtfs_name}
+		msg['body'] = {'pax_id':pax_id, 'origin':origin, 'destination':destination, 't':from_time, 'gtfs_name':gtfs_name}
 
 		self.send(msg)
 
@@ -944,6 +981,6 @@ class PassengerReallocation(Role):
 		print('PaxHandler received new train', msg['body']['new_train'].uid)
 		pax_id = msg['body']['pax_id']
 		new_train = msg['body']['new_train']
-		self.agent.pax_info_post[pax_id]['pax'].rail['rail_post'] = new_train
+		self.agent.pax_info_post[pax_id]['pax'].give_new_train(new_train, where='rail_post')
 
 		self.agent.pax_info_post[pax_id]['received_new_train_event'].succeed()

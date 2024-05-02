@@ -239,9 +239,9 @@ class World:
 						self.module_agent_modif_post[agent] = []
 					self.module_agent_modif_post[agent].append(mspecs)
 
-		# print('Module agent modifications:')
-		# for agent, modif in self.module_agent_modif.items():
-		# 	print(agent, modif)
+		print('Module agent modifications:')
+		for agent, modif in self.module_agent_modif.items():
+			print(agent, modif)
 
 		# print('\nModule agent modifications post:', self.module_agent_modif_post)
 
@@ -510,7 +510,18 @@ class World:
 										module_agent_modif=self.module_agent_modif.get('GroundMobility', {}),
 										reference_dt=self.sc.reference_dt,
 										)
-		#for now just create test dists
+		#initiate ground_mobility_connection_times dists
+		#print(self.sc.df_ground_mobility_connection_times.dtypes)
+		for i,row in self.sc.df_ground_mobility_connection_times.iterrows():
+			dist = norm(loc=row['mean'], scale=row['std'])
+			dist_add = norm(loc=0, scale=row['estimation_scale'])
+			self.ground_mobility.set_connection(origin=row['origin'], destination=row['destination'], dist=dist, dist_add=dist_add)
+			if row['origin'].isnumeric():
+				self.ground_mobility.set_connection(origin=float(row['origin']), destination=row['destination'], dist=dist, dist_add=dist_add)
+			if row['destination'].isnumeric():
+				self.ground_mobility.set_connection(origin=row['origin'], destination=float(row['destination']), dist=dist, dist_add=dist_add)
+			print('ground_mobility', row['origin'], row['destination'])
+
 
 
 		self.uid += 1
@@ -655,10 +666,10 @@ class World:
 										  verbose=self.paras['computation__verbose'],
 										  log_file=self.log_file_it,  # TODO: remove
 										  rs=self.rs,
-										  module_agent_modif=self.module_agent_modif.get('AirportTerminal', {}))
+										  module_agent_modif=self.module_agent_modif.get('airport_terminal', {}))
 
 			self.uid += 1
-			print(row['icao_id'])
+
 			# Connecting times
 			mct_q = self.sc.paras['airports__mct_q']
 			mcts = {'N-N': row['MCT_domestic'],
@@ -676,7 +687,7 @@ class World:
 
 			# Gate 2 Kerb time
 			dists = {'economy': {}, 'flex': {}}
-			dist = lognorm(loc=10, scale=1, s=1)
+			dist = norm(loc=row['gate2kerb_mean'], scale=row['gate2kerb_std'])
 			dists['economy'] = dist
 			dists['flex'] = dist
 			airport_terminal.set_gate2kerb_time_dists(dists)
@@ -686,7 +697,7 @@ class World:
 
 			#Kerb 2 Gate time
 			dists = {'economy': {}, 'flex': {}}
-			dist = lognorm(loc=10, scale=1, s=1)
+			dist = norm(loc=row['kerb2gate_mean'], scale=row['kerb2gate_std'])
 			dists['economy'] = dist
 			dists['flex'] = dist
 			airport_terminal.set_kerb2gate_time_dists(dists)
@@ -802,7 +813,8 @@ class World:
 
 		#pairing of airport and gtfs stop_id
 		#TODO airport_stations should be read from file
-		airport_stations = {62102:'EDDB',318333:'EDDB'}
+		airport_stations = {x['stop_id']:x['icao_id'] for x in self.sc.df_airport_stations.to_dict('records')}
+		#airport_stations = {62102:'EDDB',318333:'EDDB'}
 		self.cr.register_airport_station(airport_stations)
 
 
@@ -1159,11 +1171,15 @@ class World:
 
 			if row['rail_pre'] not in trips:
 				trips[row['rail_pre']] = schedule
+				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
 			else:
-
+				print('schedule',trips[row['rail_pre']],row['rail_pre'],trips)
 				trips[row['rail_pre']] = trips[row['rail_pre']] + schedule
-				trips[row['rail_pre']] = trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
-
+				#sort
+				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
+				#remove duplicate stops
+				trips[row['rail_pre']] = [dict(t) for t in {tuple(d.items()) for d in trips[row['rail_pre']]}]
+				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
 			trips_gtfs[row['rail_pre']] = row['gtfs_pre']
 
 		for i, row in pax_itineraries.iterrows():
@@ -1171,10 +1187,14 @@ class World:
 			if (row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post']):
 				continue
 			schedule = []
-			print(row['rail_post'], int(row['rail_post']))
+			print(row['rail_post'])
 
 			#find out sibt of the last leg
-			for leg in ['leg1','leg2','leg3','leg4']:
+			if 'leg4' in row:
+				legs = ['leg1','leg2','leg3','leg4']
+			else:
+				legs = ['leg1','leg2','leg3']
+			for leg in legs:
 				if (row[leg] is None) or (row[leg] == '') or pd.isnull(row[leg]):
 					continue
 				sibt = df_schedules[df_schedules['nid']==row[leg]]['sibt'].iloc[0]
@@ -1192,6 +1212,7 @@ class World:
 
 			if row['rail_post'] not in trips:
 				trips[row['rail_post']] = schedule
+				trips[row['rail_post']].sort(key= lambda x: x['arrival_time'])
 			else:
 				#pax can take same train with different origin/destination
 				#combine schedules
@@ -1200,6 +1221,7 @@ class World:
 				trips[row['rail_post']].sort(key= lambda x: x['arrival_time'])
 				#remove duplicate stops
 				trips[row['rail_post']] = [dict(t) for t in {tuple(d.items()) for d in trips[row['rail_post']]}]
+				trips[row['rail_post']].sort(key= lambda x: x['arrival_time'])
 
 			trips_gtfs[row['rail_post']] = row['gtfs_post']
 
@@ -1213,7 +1235,9 @@ class World:
 							train_uid=self.uid,
 							uid=self.uid,
 							schedule=trips[trip_id],
-							times={x['stop_id']:x for x in trips[trip_id]},
+							times={x['stop_id']:{'arrival_time':(x['arrival_time']-self.sc.reference_dt).total_seconds()/60., 'departure_time':(x['departure_time']-self.sc.reference_dt).total_seconds()/60.} for x in trips[trip_id]},
+							delay_dist = norm(loc=self.sc.paras['trains__delay_mean'], scale=self.sc.paras['trains__delay_std']),
+							delay_prob = self.sc.paras['trains__delay_prob'],
 
 							mcolor=self.paras['print_colors__flight'],
 							acolor=self.paras['print_colors__alert'],
@@ -1262,7 +1286,7 @@ class World:
 			ticket_type = str(row['ticket_type'])
 			pax = PaxItineraryGroup(n_pax=int(row['pax']),
 									pax_type=ticket_type,
-									idd=i,
+									idd=row['nid_x'],
 									origin_uid=it[0].origin_airport_uid,
 									destination_uid=it[-1].destination_airport_uid,
 									origin_airport_terminal_uid=it[0].origin_airport_terminal_uid,
@@ -1283,12 +1307,14 @@ class World:
 			#register multimodal pax in PaxHandler
 			if not ((row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre'])):
 
-				print(row['rail_pre'])
+				print('register_pax_group_train2flight', row['rail_pre'], pax, pax.itinerary)
 				self.train_operator.register_pax_itinerary_group(pax,rail_pre.train_uid,origin1,destination1)
 				#register train2flight
 				self.pax_handler.register_pax_group_train2flight(pax)
+				pax.status = 'at_platform'
 
 			if not ((row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post'])):
+				print('register_pax_group_flight2train', row['rail_post'], pax, pax.itinerary)
 				self.pax_handler.register_pax_group_flight2train(pax)
 				self.train_operator.register_pax_itinerary_group(pax,rail_post.train_uid,origin2,destination2)
 
@@ -1838,6 +1864,9 @@ class World:
 		to_get['tot_arrival_delay'] = 'tot_arrival_delay'
 		to_get['connecting_pax'] = 'connecting_pax'
 		to_get['final_destination_reached'] = 'final_destination_reached'
+		to_get['multimodal'] = 'multimodal'
+		to_get['missed_air2rail'] = 'missed_air2rail'
+		to_get['missed_rail2air'] = 'missed_rail2air'
 
 		# all_paxs = self.paxs + [new_pax for pax in self.paxs for new_pax in pax.clones]
 		all_paxs = self.paxs + [new_pax for aoc in self.aocs.values() for new_pax in aoc.new_paxs]
@@ -1944,6 +1973,19 @@ class World:
 					pouet[k][j] = getattr(pax, k)
 					icao = self.airports[pax.destination_uid].icao
 					pouet['destination'][j] = icao
+				elif k == 'missed_air2rail':
+					missed_air2rail = False
+					if 'rail_post' in pax.old_multimodal_itineraries:
+						missed_air2rail = True
+
+					pouet['missed_air2rail'][j] = missed_air2rail
+				elif k == 'missed_rail2air':
+					missed_rail2air = False
+					if pax.rail['rail_pre'] is not None:
+						if pouet['leg1'][j] != pouet['leg1_sch'][j]:
+							missed_rail2air = True
+
+					pouet['missed_rail2air'][j] = missed_rail2air
 				else:
 					pouet[k][j] = getattr(pax, k)
 

@@ -103,7 +103,14 @@ class Train(Agent):
 			self.gtfs_name = self.gtfs_name
 		else:
 			self.gtfs_name = None
-
+		if hasattr(self, 'delay_dist'):
+			self.delay_dist = self.delay_dist
+		else:
+			self.delay_dist = None
+		if hasattr(self, 'delay_prob'):
+			self.delay_prob = self.delay_prob
+		else:
+			self.delay_prob = 0
 	def set_log_file(self, log_file):
 		"""
 		Set log file for the Agent.
@@ -242,16 +249,22 @@ class OperateTrajectory(Role):
 		#wait for actual start time
 		print('waiting', self.agent.first_arrival_time,self.agent.env.now)
 		yield self.agent.env.timeout(max(0, self.agent.first_arrival_time-self.agent.env.now))
-		print('start', self.agent.schedule, self.agent.trip_id)
+		print('start', self.agent, self.agent.schedule, self.agent.trip_id)
+		#generate delay
+		initial_delay = 0
+		if self.agent.rs.rand() <= self.agent.delay_prob:
+			initial_delay = self.agent.delay_dist.rvs(random_state=self.agent.rs)
+			yield self.agent.env.timeout(max(0, initial_delay))
+		print('initial_delay=',initial_delay)
 		for i,station in enumerate(self.agent.schedule):
-			print("station",station['stop_id'],station['arrival_time'],station['departure_time'])
+			print("station",station['stop_id'],station['arrival_time'],station['departure_time'],self.agent.env.now)
 			self.agent.arrival_events[i].succeed()
 			#waiting at station
 			yield self.agent.env.timeout(max(0, (station['departure_time']-station['arrival_time']).total_seconds()/60))
 			self.agent.departure_events[i].succeed()
 			#moving to next station
 			if i < len(self.agent.schedule)-1:
-				yield self.agent.env.timeout(max(0, (self.agent.schedule[i+1]['departure_time']-station['departure_time']).total_seconds()/60))
+				yield self.agent.env.timeout(max(0, (self.agent.schedule[i+1]['arrival_time']-station['departure_time']).total_seconds()/60))
 
 
 	def check_taxi_out_done(self):

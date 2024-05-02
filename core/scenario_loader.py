@@ -403,6 +403,10 @@ class ScenarioLoader:
 							oneline=True, print_function=mprint):
 				self.load_gtfs_data(connection=connection)
 
+			with clock_time(message_before='Getting ground mobility data...',
+							oneline=True, print_function=mprint):
+				self.load_ground_mobility_connection_times(connection=connection)
+
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
 	def load_flight_plan_pool(self, connection=None):
@@ -500,6 +504,7 @@ class ScenarioLoader:
 							else:
 								raise("WTC not available for ac", a)
 						else:
+							print(a)
 							raise("AC type not available for performance model", a)
 
 					ac_models_needed.add(a_model)
@@ -731,11 +736,14 @@ class ScenarioLoader:
 			filenames = pd.unique(self.df_pax_data[['gtfs_pre', 'gtfs_post']].values.ravel('K')).tolist()
 
 			filenames = [x for x in filenames if not pd.isna(x)]
-			self.df_gtfs = read_gtfs_data(connection,
+			self.df_gtfs,self.df_airport_stations = read_gtfs_data(connection,
 													directory=self.paras_paths['input_gtfs'],
 													filenames=filenames,
 													scenario=self.scenario)
 
+	def load_ground_mobility_connection_times(self, connection):
+		self.df_ground_mobility_connection_times = read_data(connection=connection,
+												query="""SELECT * FROM {}""".format(self.paras_paths['input_ground_mobility_connection_times']), scenario=self.scenario)
 
 	def load_atfm_at_airports(self, connection=None):
 		# TODO: rename things here, it's quite confusing...

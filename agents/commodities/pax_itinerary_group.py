@@ -27,6 +27,7 @@ class PaxItineraryGroup:
 		self.idx_last_flight = -1
 		self.itinerary = None
 		self.multimodal_itinerary = None
+		self.old_multimodal_itineraries = {}
 		self.initial_sobt = None
 		self.final_sibt = None
 		self.sobts = []
@@ -65,6 +66,10 @@ class PaxItineraryGroup:
 		self.missed_flights = []
 		self.aobts = []
 		self.aibts = []
+		self.multimodal = False
+		self.ct = -10
+		self.mct = -10
+		self.split_pax = []
 		
 		self.rs = rs
 
@@ -101,6 +106,14 @@ class PaxItineraryGroup:
 		self.old_itineraries.append(copy(self.itinerary))
 
 		self.itinerary = itinerary
+
+	def give_new_train(self, new_train, where='rail_post'):
+		if where not in self.old_multimodal_itineraries:
+			self.old_multimodal_itineraries[where] = []
+		self.old_multimodal_itineraries[where].append(self.rail[where].uid)
+
+		self.rail[where] = new_train
+		self.modified_itinerary = True
 
 	def get_original_itinerary(self):
 		if len(self.old_itineraries) > 0:
@@ -152,7 +165,7 @@ class PaxItineraryGroup:
 		first_flight = flights[self.itinerary[0]]
 		last_flight = flights[self.itinerary[-1]]
 
-		# self.active_airport = first_flight.origin_airport_uid
+		self.active_airport = first_flight.origin_airport_uid
 		self.initial_sobt = first_flight.sobt
 
 		self.final_sibt = last_flight.sibt
@@ -160,8 +173,20 @@ class PaxItineraryGroup:
 		self.sobts = [flights[flight].sobt for flight in self.itinerary]
 		self.sibts = [flights[flight].sibt for flight in self.itinerary]
 
-		self.in_transit_to = self.itinerary[0]
+		if self.rail['rail_pre'] is None:
+			self.in_transit_to = self.itinerary[0]
+		else:
+			self.in_transit_to = self.itinerary[0]#self.rail['rail_pre'].uid
+			self.initial_sobt = self.rail['rail_pre'].times[self.origin1]['departure_time']
+			self.multimodal = True
+			self.time_at_gate = 9999999
 		
+		if self.rail['rail_post'] is None:
+			self.final_sibt = last_flight.sibt
+		else:
+			self.final_sibt = self.rail['rail_post'].times[self.destination2]['arrival_time']
+			self.multimodal = True
+
 		self.origin_airport = first_flight.origin_airport_uid
 		self.destination_airport = last_flight.destination_airport_uid
 		self.distance = distance_func(airports[self.origin_airport].coords,

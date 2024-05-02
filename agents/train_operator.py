@@ -180,12 +180,13 @@ class TrainOperator(Agent):
 									'departure_events': train.departure_events,
 									'times':train.times,
 									'first_arrival_time': copy(train.first_arrival_time),
-
+									'delay':0,
 
 									"pax_to_board_initial": {s['stop_id']:[] for s in train.schedule},
 									"pax_to_board": {s['stop_id']:[] for s in train.schedule},
 									"pax_to_unboard": {s['stop_id']:[] for s in train.schedule},
 									"pax_on_board": [],
+									"departed": {s['stop_id']:False for s in train.schedule},
 
 									# pax lists for waiting pax
 									"pax_ready_to_board_checklist": [],
@@ -290,7 +291,11 @@ class TurnaroundOperations(Role):
 			print("Waiting arrival event for ", flight_str(train_uid), ":", arrival_event)
 			yield arrival_event
 			print("Arrival event for ", flight_str(train_uid), "triggered at stop",  self.agent.trains_info[train_uid]['schedule'][i]['stop_id'])
-
+			arrival_time = (self.agent.trains_info[train_uid]['schedule'][i]['arrival_time'] - self.agent.reference_dt).total_seconds()/60.
+			delay = self.agent.env.now - arrival_time
+			print('Train',train_uid,'has delay',delay, self.agent.env.now)
+			#update delay info
+			self.agent.trains_info[train_uid]['delay'] = delay
 			departure_time = (self.agent.trains_info[train_uid]['schedule'][i]['departure_time'] - self.agent.reference_dt).total_seconds()/60.
 			stop_id = self.agent.trains_info[train_uid]['schedule'][i]['stop_id']
 
@@ -337,12 +342,21 @@ class TurnaroundOperations(Role):
 
 
 		for pax in self.agent.trains_info[train_uid]['pax_to_board'][stop_id]:
-			if self.agent.env.now >= pax.time_at_platform:
+			if self.agent.env.now >= pax.time_at_platform and pax.status == 'at_platform':
 				print(pax, 'boards the train', train_uid, 'at t=', self.agent.env.now, 'time_at_platform=', pax.time_at_platform)
 				self.agent.trains_info[train_uid]['pax_on_board'].append(pax)
+				#check if pax is in pax_to_unboard. this is for new pax who are not registered
+				if pax.destination1 in self.agent.trains_info[train_uid]['pax_to_unboard']:
+					if pax not in self.agent.trains_info[train_uid]['pax_to_unboard'][pax.destination1]:
+						self.agent.trains_info[train_uid]['pax_to_unboard'][pax.destination1].append(pax)
+				if pax.destination2 in self.agent.trains_info[train_uid]['pax_to_unboard']:
+					if pax not in self.agent.trains_info[train_uid]['pax_to_unboard'][pax.destination2]:
+						self.agent.trains_info[train_uid]['pax_to_unboard'][pax.destination2].append(pax)
+				pax.aobts.append(self.agent.env.now)
+				#pax.in_transit_to = pax.itinerary[0]
 			else:
 				print(pax, 'missed the train', train_uid)
-
+		self.agent.trains_info[train_uid]['departed'][stop_id] = True
 
 	def check_pax_ready_to_unboard(self, train_uid, stop_id, departure_time):
 
@@ -352,20 +366,63 @@ class TurnaroundOperations(Role):
 		print(self.agent, 'performs unboarding for pax in train', flight_str(train_uid), 'at t=', self.agent.env.now, stop_id)
 
 		for pax in self.agent.trains_info[train_uid]['pax_to_unboard'][stop_id]:
+			if pax in self.agent.trains_info[train_uid]['pax_on_board']:
+				print(pax, 'unboards the train', train_uid, 'at t=', self.agent.env.now)
+				pax.time_at_platform = self.agent.env.now
+				pax.unboard_from_flight(self.agent.env.now)
+				self.agent.trains_info[train_uid]['pax_on_board'].remove(pax)
 
-			print(pax, 'unboards the train', train_uid, 'at t=', self.agent.env.now)
-			pax.time_at_platform = self.agent.env.now
+				if pax.rail['rail_pre'] is not None:
+					if train_uid == pax.rail['rail_pre'].uid:
+						self.request_process_train2flight_pax(train_uid, stop_id, pax)
+					else:
+						self.arrive_pax(pax)
+						print(pax, 'arrived')
 
-			if pax.rail['rail_pre'] is not None:
-				if train_uid == pax.rail['rail_pre'].uid:
-					self.request_process_train2flight_pax(train_uid, stop_id, pax)
 				else:
-					print(pax, 'arrived')
+					self.arrive_pax(pax)
+					print(pax, 'arrived', pax.aibts)
 
-			else:
-				print(pax, 'arrived')
+	def arrive_pax(self, pax, overnight=False):
+		"""
+		If overnight is True, the passenger need to be cared for for the night.
+		WARNING: this method assumes that it is executed exactly when at the in-block
+		time of the last flight.
+		Note: paxs are paid first, then costs for airlines are computed.
+		"""
+		# Passengers arrived
+		pax.status = 'arrived'
+		print(pax, 'has finished their journey.')
 
+		if len(pax.aobts) > 0:
+			pax.initial_aobt = pax.aobts[0]
+			# mprint(pax, 'has an initial_aobt:', pax.initial_aobt)
+		else:
+			pax.initial_aobt = None
+			print(pax, 'has not taken any flight.')
 
+		if len(pax.aibts) > 0:
+			pax.final_aibt = pax.aibts[-1]
+			# mprint(pax, 'has an final_aibt:', pax.final_aibt)
+		else:
+			pax.final_aibt = None
+			# mprint(pax, 'has not taken any flight (bis).')
+		if overnight:
+			tot_arrival_delay = 10000
+			for i in range(len(pax.aobts), len(pax.itinerary)):
+				pax.aobts.append(None)
+				pax.aibts.append(None)
+
+			## Duty of care here (because there is no more flight!)
+			#self.do_pax_care(tot_arrival_delay, pax)
+			#pax.give_new_itinerary(it_so_far)
+		else:
+			tot_arrival_delay = self.agent.env.now - pax.final_sibt
+
+		pax.tot_arrival_delay = tot_arrival_delay
+		pax.final_destination_reached = True
+
+		pax.compensation = 0
 
 
 	def request_process_train2flight_pax(self, train_uid, stop_id, pax):
@@ -389,7 +446,7 @@ class ArrivalInformationProvider(Role):
 		print(self.agent, 'receives estimated train arrival time request from', msg['from'],
 			   'for train', msg['body']['train_uid'], 'pax', msg['body']['pax_id'])
 
-		estimate = self.provide_arrival_information(msg['body']['train_uid'],msg['body']['stop_id'])
+		estimate,departed = self.provide_arrival_information(msg['body']['train_uid'],msg['body']['stop_id'])
 
 
 
@@ -398,8 +455,9 @@ class ArrivalInformationProvider(Role):
 									 estimate)
 
 	def provide_arrival_information(self, train_uid, stop_id):
-		estimate = self.agent.trains_info[train_uid]['times'][stop_id]['departure_time']
-		return estimate
+		estimate = self.agent.reference_dt+dt.timedelta(minutes=self.agent.trains_info[train_uid]['times'][stop_id]['departure_time']) + dt.timedelta(minutes=self.agent.trains_info[train_uid]['delay'])
+		departed = self.agent.trains_info[train_uid]['departed'][stop_id]
+		return estimate, departed
 
 	def return_arrival_information(self, pax_handler_uid, train_uid, stop_id, pax_id, estimate):
 		print(self.agent, 'sends estimated train arrival time to PAX handler', pax_handler_uid,
@@ -419,23 +477,23 @@ class ArrivalInformationProvider(Role):
 		print(self.agent, 'receives actual train arrival time request from', msg['from'],
 			   'for train', msg['body']['train_uid'], 'pax', msg['body']['pax_id'])
 
-		estimate = self.provide_arrival_information(msg['body']['train_uid'],msg['body']['stop_id'])
+		estimate,departed = self.provide_arrival_information(msg['body']['train_uid'],msg['body']['stop_id'])
 
 
 
 		self.return_actual_departure_information(msg['from'],
 									 msg['body']['train_uid'],msg['body']['stop_id'],msg['body']['pax_id'],
-									 estimate)
+									 estimate,departed)
 
 
-	def return_actual_departure_information(self, pax_handler_uid, train_uid, stop_id, pax_id, estimate):
+	def return_actual_departure_information(self, pax_handler_uid, train_uid, stop_id, pax_id, estimate, departed):
 		print(self.agent, 'sends actual train arrival time to PAX handler', pax_handler_uid,
-			   'for train', train_uid, 'at stop', stop_id,': est dep_time=', estimate)
+			   'for train', train_uid, 'at stop', stop_id,': est dep_time=', estimate, 'departed:', departed)
 
 		msg_back = Letter()
 		msg_back['to'] = pax_handler_uid
 		msg_back['type'] = 'actual_departure_information'
-		msg_back['body'] = {'estimate_departure_information': estimate, 'train_uid':train_uid, 'stop_id':stop_id, 'pax_id':pax_id}
+		msg_back['body'] = {'estimate_departure_information': estimate, 'train_uid':train_uid, 'stop_id':stop_id, 'pax_id':pax_id, 'departed':departed}
 		self.send(msg_back)
 
 class TrainPassengerHandler(Role):
@@ -478,14 +536,17 @@ class TrainPassengerHandler(Role):
 		train_uid = msg['body']['train_uid']
 		pax = msg['body']['pax']
 		origin = msg['body']['origin']
-		self.agent.trains_info[train_uid]['pax_to_board'][origin].remove(pax)
+		if pax in self.agent.trains_info[train_uid]['pax_to_board'][origin]:
+			self.agent.trains_info[train_uid]['pax_to_board'][origin].remove(pax)
 
 		destination = origin = msg['body']['destination']
-		self.agent.trains_info[train_uid]['pax_to_unboard'][destination].remove(pax)
+		if pax in self.agent.trains_info[train_uid]['pax_to_unboard'][destination]:
+			self.agent.trains_info[train_uid]['pax_to_unboard'][destination].remove(pax)
 
 	def create_new_train(self, df, pax, origin, destination, old_train):
 		print('new train', df, origin, destination)
-		t = self.agent.reference_dt+dt.timedelta(minutes=df['departure_time'])
+		t = self.agent.reference_dt+dt.timedelta(minutes=df['sim_time']) #this is departure time. we need arrival time to determine the day
+		t = t - dt.timedelta(minutes=(gtfs_time_to_datetime(t,df['departure_time'])-gtfs_time_to_datetime(t,df['arrival_time'])).total_seconds()/60)
 		schedule = []
 		#origin
 		stop = get_stop_times(stop_id=origin,trip_id=df['trip_id'],gtfs_name=df['gtfs'],flight_time_before=None,flight_time_after=t,gtfs_data=self.agent.cr.get_gtfs())
@@ -506,7 +567,7 @@ class TrainPassengerHandler(Role):
 							train_uid=new_train_uid,
 							uid=new_train_uid,
 							schedule=schedule,
-							times={x['stop_id']:x for x in schedule},
+							times={x['stop_id']:{'arrival_time':(x['arrival_time']-self.agent.reference_dt).total_seconds()/60., 'departure_time':(x['departure_time']-self.agent.reference_dt).total_seconds()/60.} for x in schedule},
 
 
 							verbose=self.agent.verbose,
@@ -630,14 +691,15 @@ class PassengerReallocation(Role):
 		print(df[['trip_id','arrival_time','departure_time', 'service_id']])
 		df2 = df[df['service_id'].isin(services_for_day2['service_id'])]
 
-		df1['departure_time'] = df1.apply(lambda row: (gtfs_time_to_datetime(timestamp,row['departure_time']) - self.agent.reference_dt).total_seconds()/60.,axis=1)
-		df2['departure_time'] = df2.apply(lambda row: (gtfs_time_to_datetime(timestamp+dt.timedelta(days=1),row['departure_time']) - self.agent.reference_dt).total_seconds()/60.,axis=1)
+		df1['sim_time'] = df1.apply(lambda row: (gtfs_time_to_datetime(timestamp,row['departure_time']) - self.agent.reference_dt).total_seconds()/60.,axis=1)
+		df2['sim_time'] = df2.apply(lambda row: (gtfs_time_to_datetime(timestamp+dt.timedelta(days=1),row['departure_time']) - self.agent.reference_dt).total_seconds()/60.,axis=1)
 		df = pd.concat([df1,df2])
 		if df.empty:
 			return df
 		#filter trips which run after the given timestamp
 
-		df = df[df['departure_time']>=t].sort_values(by='departure_time')
+		df = df[df['sim_time']>=t].sort_values(by='sim_time')
+
 
 		print('options',df[['trip_id','arrival_time','departure_time']])
 		return df

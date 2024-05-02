@@ -1,0 +1,21 @@
+[module_specs]
+name = "airport_terminal_fast_track"
+description = "airport_terminal_fast_track for Multimodx project. Implements a faster kerb2gate time if a multimodal pax is delayed"
+incompatibilities = []
+requirements = []
+
+[agent_modif.airport_terminal]
+on_init = "on_init_agent"
+new_parameters = [
+]
+
+[agent_modif.airport_terminal.MoveGate2KerbTime]
+on_init = "on_init"
+wait_for_move_kerb2gate_times_request = "wait_for_move_kerb2gate_times_request_NEW"
+new = [
+
+]
+
+receive = "receive_new_messages"
+
+
