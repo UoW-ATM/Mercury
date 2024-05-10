@@ -508,6 +508,7 @@ class World:
 										log_file=self.log_file_it,
 										rs=self.rs,
 										module_agent_modif=self.module_agent_modif.get('GroundMobility', {}),
+										delay_dist = norm(loc=self.sc.paras['ground_mobility__delay_mean'], scale=self.sc.paras['ground_mobility__delay_std']),
 										reference_dt=self.sc.reference_dt,
 										)
 		#initiate ground_mobility_connection_times dists

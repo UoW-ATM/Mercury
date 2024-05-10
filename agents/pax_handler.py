@@ -651,20 +651,21 @@ class Rail2AirHandler(Role):
 		#self.request_move_gate2kerb(self.agent.pax_info_post[pax_id]['pax'], self.agent.pax_info_post[pax_id]['airport_terminal_uid'], self.agent.pax_info_post[pax_id]['gate2kerb_time_estimation'])
 		print(pax, self.agent.pax_info_pre[pax_id]['pax'].itinerary, self.agent.pax_info_pre[pax_id]['pax'].old_itineraries)
 		#check if there are new split pax and update their time_at_gate
-		if len(self.agent.pax_info_pre[pax_id]['pax'].split_pax)>0:
-			for new_pax in self.agent.pax_info_pre[pax_id]['pax'].split_pax:
-				if len(new_pax.itinerary)>0:
-					self.agent.pax_info_pre[new_pax.id]={'pax':new_pax}
-					print('new_pax update time_at_gate', new_pax, new_pax.itinerary)
-					self.request_time_at_gate_update_in_aoc(new_pax.itinerary[0], new_pax.id)
-		if len(self.agent.pax_info_pre[pax_id]['pax'].itinerary) > 0:
-			self.request_time_at_gate_update_in_aoc(self.agent.pax_info_pre[pax_id]['pax'].itinerary[0], pax_id)
+		#if len(self.agent.pax_info_pre[pax_id]['pax'].split_pax)>0:
+			#for new_pax in self.agent.pax_info_pre[pax_id]['pax'].split_pax:
+				#if len(new_pax.itinerary)>0:
+					#self.agent.pax_info_pre[new_pax.id]={'pax':new_pax}
+					#print('new_pax update time_at_gate', new_pax, new_pax.itinerary)
+					#self.request_time_at_gate_update_in_aoc(new_pax.itinerary[0], new_pax.id)
+		#if len(self.agent.pax_info_pre[pax_id]['pax'].itinerary) > 0:
 
-
-		else:
-
-			pass
 		self.agent.pax_info_pre[pax_id]['pax'].status = 'at_airport'
+		self.request_time_at_gate_update_in_aoc(self.agent.pax_info_pre[pax_id]['pax'].itinerary[0], pax_id)
+		self.request_pax_connection_handling(self.agent.pax_info_pre[pax_id]['pax'].itinerary[0],self.agent.pax_info_pre[pax_id]['pax'])
+
+
+
+
 
 	def request_estimated_kerb2gate_times(self, pax, airport_terminal_uid):
 		print(self.agent, 'sends estimated_kerb2gate_times request to', airport_terminal_uid)
@@ -769,6 +770,17 @@ class Rail2AirHandler(Role):
 		msg['to'] = aoc_uid
 		msg['type'] = 'request_time_at_gate_update_in_aoc'
 		msg['body'] = {'pax_id': pax_id, 'time_at_gate': time_at_gate, 'flight_uid':flight_uid}
+
+		self.send(msg)
+
+	def request_pax_connection_handling(self, flight_uid, pax):
+
+		aoc_uid = self.agent.get_airline_of_flight(flight_uid)
+
+		msg = Letter()
+		msg['to'] = aoc_uid
+		msg['type'] = 'pax_connection_handling'
+		msg['body'] = {'paxs': [pax]}
 
 		self.send(msg)
 

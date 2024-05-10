@@ -176,7 +176,7 @@ class PaxItineraryGroup:
 		if self.rail['rail_pre'] is None:
 			self.in_transit_to = self.itinerary[0]
 		else:
-			self.in_transit_to = self.itinerary[0]#self.rail['rail_pre'].uid
+			self.in_transit_to = None#self.itinerary[0]#self.rail['rail_pre'].uid
 			self.initial_sobt = self.rail['rail_pre'].times[self.origin1]['departure_time']
 			self.multimodal = True
 			self.time_at_gate = 9999999

@@ -4319,7 +4319,9 @@ class AirlinePaxHandler(Role):
 			int2 = self.agent.aoc_flights_info[next_flight]['international']
 			pax.previous_flight_international = int2
 
-			self.request_connecting_times(pax, (int1, int2))
+			if pax.idx_last_flight > 0:
+				#only for air-air connecting pax. rail-air pax will have idx_last_flight==-1
+				self.request_connecting_times(pax, (int1, int2))
 
 			# Check next flight has already departed or is cancelled.
 			if self.agent.aoc_flights_info[next_flight]['push_back_event'].processed \

@@ -42,7 +42,10 @@ class GroundMobility(Agent):
 		self.cr = None  # Pointer to the Central Registry. To be filled when registering airline to CR
 
 		# Atributes passed on construction in init
-
+		if hasattr(self, 'delay_dist'):
+			self.delay_dist = self.delay_dist
+		else:
+			self.delay_dist = None
 
 	def set_log_file(self, log_file):
 		"""
@@ -230,7 +233,7 @@ class ConnectingTimeProvider(Role):
 		if origin not in self.agent.connecting_times:
 			print(origin, 'not recognised in ground_mobility')
 			return 31.0
-		actual_ground_mobility = estimate + self.agent.connecting_times[origin][destination]['dist_add'].rvs(random_state=self.agent.rs)
+		actual_ground_mobility = estimate + self.agent.connecting_times[origin][destination]['dist_add'].rvs(random_state=self.agent.rs)+self.agent.delay_dist.rvs(random_state=self.agent.rs)
 		return actual_ground_mobility
 
 

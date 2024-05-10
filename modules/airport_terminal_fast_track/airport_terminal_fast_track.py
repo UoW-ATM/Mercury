@@ -39,7 +39,7 @@ def wait_for_move_kerb2gate_times_request_NEW(self, msg):
 
 	start_time = self.agent.env.now
 	if msg['body']['late'] == True: #missing connection
-		fast_track_speed_up = 0.6
+		fast_track_speed_up = 0.9
 		print('fast_track_speed_up:', fast_track_speed_up)
 	else:
 		fast_track_speed_up = 1
