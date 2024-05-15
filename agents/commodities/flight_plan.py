@@ -5,7 +5,7 @@ from copy import copy, deepcopy
 
 import matplotlib.pyplot as plt
 
-from Mercury.libs.performance_trajectory.unit_conversions import m2kt, nm2km
+from Mercury.libs.performance_tools.unit_conversions import m2kt, nm2km
 from Mercury.libs.uow_tool_belt.general_tools import distance_euclidean, haversine, alert_print
 
 # from .debug_flights import flight_uid_DEBUG

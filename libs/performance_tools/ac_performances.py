@@ -722,7 +722,7 @@ class AircraftPerformance(ABC):
 			if (traj.distance + dist_cruise_segment + error) < cruise_distance:
 				ff = self.compute_fuel_flow(fl_used, weight, m)
 				time_step = (d_dist / (uc.m2kt(m, fl_used) + avg_cruise_wind)) * 60
-				weight = weight + (ff * time_step)
+				weight = weight + (AircraftPerformanceAbstractff * time_step)
 				time_segment = time_segment + time_step
 				dist_cruise_segment = dist_cruise_segment + d_dist
 

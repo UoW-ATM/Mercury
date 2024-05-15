@@ -91,14 +91,29 @@ class ScenarioLoader:
 		case_study_paras_paths = unfold_paras_dict(case_study_conf['data'], data_path=cs_data_path)
 
 		# Add information on performance models paths
-		case_study_paras_paths['ac_icao_wake_engine'] = Path(paras_scenario['ac_performance']['ac_icao_wake_engine'])
-		paras_scenario['ac_performance']['ac_icao_wake_engine'] = Path(paras_scenario['ac_performance']['ac_icao_wake_engine'])
-		case_study_paras_paths['perf_models_path'] = Path(paras_scenario['ac_performance']['perf_models_path'])
-		paras_scenario['ac_performance']['perf_models_path'] = Path(paras_scenario['ac_performance']['perf_models_path'])
-		paras_scenario['ac_performance']['perf_models_path'] = Path(
-			paras_scenario['ac_performance']['perf_models_path'])
-		paras_scenario['ac_performance']['performance_model_data_access_path'] = Path(
-			paras_scenario['ac_performance']['performance_model_data_access_path'])
+		path_to_ac_icao_wake_engine = Path(paras_scenario['ac_performance']['path_to_performance_models']) / \
+										  paras_scenario['ac_performance']['performance_model'] / \
+										  'ac_icao_wake_engine'
+		case_study_paras_paths['ac_icao_wake_engine'] = path_to_ac_icao_wake_engine
+
+		paras_scenario['ac_performance']['ac_icao_wake_engine'] = path_to_ac_icao_wake_engine
+
+		perf_model_path = Path(
+								paras_scenario['ac_performance']['path_to_performance_models']) / \
+								paras_scenario['ac_performance']['performance_model'] / \
+								'ac_perf'
+
+		perf_models_data_path = Path(
+								paras_scenario['ac_performance']['path_to_performance_models']) / \
+								paras_scenario['ac_performance']['performance_model'] / \
+								'data'
+
+		# case_study_paras_paths['perf_models_path'] = Path(paras_scenario['ac_performance']['path_to_performance_models'])
+		case_study_paras_paths['perf_models_path'] = perf_model_path
+		# 		# paras_scenario['ac_performance']['perf_models_path'] = Path(paras_scenario['ac_performance']['path_to_performance_models'])
+
+		paras_scenario['ac_performance']['perf_models_path'] = perf_model_path
+		paras_scenario['ac_performance']['perf_models_data_path'] = perf_models_data_path
 
 		# update data paths from case study:
 		for stuff, path in case_study_paras_paths.items():
@@ -460,7 +475,8 @@ class ScenarioLoader:
 
 		# Read ac_icao, wake turbulence, engine type as a common reference, needed to find WTC of ac missing to choose default
 		self.dict_wtc_engine_type = read_dict_ac_icao_wtc_engine(connection={'ssh_connection': connection['ssh_connection'],
-																			 'type': 'parquet', 'base_path': self.paras_paths['ac_icao_wake_engine'].parent},
+																			 'type': 'parquet',
+																			 'base_path': self.paras_paths['ac_icao_wake_engine'].parent},
 																 table=self.paras_paths['ac_icao_wake_engine'].stem)
 
 		# Read aircraft performance

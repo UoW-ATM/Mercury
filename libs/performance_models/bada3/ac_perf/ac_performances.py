@@ -1,19 +1,19 @@
 import numpy as np
 from math import cos
 
-from Mercury.libs.performance_trajectory.ac_performances import AircraftPerformance
-from Mercury.libs.performance_trajectory import unit_conversions as uc
-from Mercury.libs.performance_trajectory import standard_atmosphere as sa
+from Mercury.libs.performance_tools.ac_performances import AircraftPerformance as AircraftPerformanceGeneric
+from Mercury.libs.performance_tools import unit_conversions as uc
+from Mercury.libs.performance_tools import standard_atmosphere as sa
 
 
-class AircraftPerformanceBada3(AircraftPerformance):
+class AircraftPerformance(AircraftPerformanceGeneric):
     model_version = 3
 
     def __init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                  oew=0, mpl=0, hmo=0, vfe=0, m_max=0, v_stall=0, d=[0],
                  f=[0], clbo_mo=0, k=0):
 
-        AircraftPerformance.__init__(self, ac_icao, ac_icao, wtc, s, wref, m_nom, mtow, oew, mpl, vfe, m_max, hmo, d, f)
+        AircraftPerformanceGeneric.__init__(self, ac_icao, ac_icao, wtc, s, wref, m_nom, mtow, oew, mpl, vfe, m_max, hmo, d, f)
 
         self.v_stall = v_stall
         self.clbo_mo = clbo_mo
@@ -86,13 +86,13 @@ class AircraftPerformanceBada3(AircraftPerformance):
             return self.holding_fit(np.sqrt(self.mtow / 1000))
 
 
-class AircraftPerformanceBada3Jet(AircraftPerformanceBada3):
+class AircraftPerformanceBada3Jet(AircraftPerformance):
     engine_type = "JET"
 
     def __init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                  oew=0, mpl=0, hmo=0, vfe=0, m_max=0, v_stall=0, d=[0],
                  f=[0], clbo_mo=0, k=0):
-        AircraftPerformanceBada3.__init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
+        AircraftPerformance.__init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                                           oew, mpl, hmo, vfe, m_max, v_stall, d, f, clbo_mo, k)
 
     def compute_tsfc(self, v_tas):
@@ -101,13 +101,13 @@ class AircraftPerformanceBada3Jet(AircraftPerformanceBada3):
         return cf1 * (1 + (v_tas / cf2))
 
 
-class AircraftPerformanceBada3TP(AircraftPerformanceBada3):
+class AircraftPerformanceBada3TP(AircraftPerformance):
     engine_type = "TURBOPROP"
 
     def __init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                  oew=0, mpl=0, hmo=0, vfe=0, m_max=0, v_stall=0, d=[0],
                  f=[0], clbo_mo=0, k=0):
-        AircraftPerformanceBada3.__init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
+        AircraftPerformance.__init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                                           oew, mpl, hmo, vfe, m_max, v_stall, d, f, clbo_mo, k)
 
     def compute_tsfc(self, v_tas):

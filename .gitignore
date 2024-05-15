@@ -133,5 +133,5 @@ results/
 docs/source/generated
 
 # bada performance files
-libs/performance_trajectory/performance_models/bada/bada3/
-libs/performance_trajectory/performance_models/bada/bada4_2/
+libs/performance_models/bada3/data
+libs/performance_models/bada4_2/

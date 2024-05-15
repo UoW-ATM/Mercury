@@ -9,7 +9,7 @@ from Mercury.core.delivery_system import Letter
 
 from Mercury.libs.other_tools import flight_str
 from Mercury.libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
-from Mercury.libs.performance_trajectory import unit_conversions as uc
+from Mercury.libs.performance_tools import unit_conversions as uc
 
 from Mercury.agents.agent_base import Agent, Role
 from Mercury.agents.commodities.debug_flights import flight_uid_DEBUG
@@ -841,9 +841,7 @@ class OperateTrajectory(Role):
 			# msg['to'] = self.agent.uid
 			# msg['type'] = 'speed_update'
 			# msg['body'] = {'flight_uid': self.agent.uid, 'perc_selected': 0.8}
-			# self.send(msg)
-
-			# Save Actual Take-off Time (ATOT)
+			# self.send(msg)			# Save Actual Take-off Time (ATOT)
 			self.agent.FP.atot = self.agent.env.now
 
 			# Force a waiting after triggering the event, force something else to be done before instead

@@ -1,17 +1,21 @@
 from pathlib import Path
 from math import asin
 from math import pi
+import sys
 
-from Mercury.libs.performance_trajectory.db_ac_performance import DataAccessPerformance
+sys.path.insert(1, 'libs')
+sys.path.insert(1, '..')
+
+from Mercury.libs.performance_tools.db_ac_performance import DataAccessPerformance as DataAccessPerformanceAbstract
 
 from Mercury.libs.uow_tool_belt.connection_tools import read_data
-from Mercury.libs.performance_trajectory import unit_conversions as uc
-from Mercury.libs.performance_trajectory.ac_perf_bada3 import ac_performances as bap
+from Mercury.libs.performance_tools import unit_conversions as uc
+from performance_models.bada3.ac_perf import ac_performances as bap
 
-class DataAccessPerformanceBADA3(DataAccessPerformance):
+class DataAccessPerformance(DataAccessPerformanceAbstract):
 
-	def __init__(self, perf_models_path, **kwargs):
-		self.db_path = perf_models_path
+	def __init__(self, perf_models_data_path, **kwargs):
+		self.db_path = perf_models_data_path
 		self.db_in_parquet = isinstance(self.db_path, type(Path()))
 
 	def combine_db_table(self, table_name):
