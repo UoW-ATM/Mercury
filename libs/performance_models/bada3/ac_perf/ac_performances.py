@@ -1,19 +1,20 @@
 import numpy as np
 from math import cos
 
-from Mercury.libs.performance_tools.ac_performances import AircraftPerformance as AircraftPerformanceGeneric
+from Mercury.libs.performance_models.ac_performances_bada import AircraftPerformanceBADA as AircraftPerformanceBADAGeneric
 from Mercury.libs.performance_tools import unit_conversions as uc
 from Mercury.libs.performance_tools import standard_atmosphere as sa
 
 
-class AircraftPerformance(AircraftPerformanceGeneric):
-    model_version = 3
+class AircraftPerformance(AircraftPerformanceBADAGeneric):
+    # model_version = 3
+    performance_model = "BADA3"
 
     def __init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                  oew=0, mpl=0, hmo=0, vfe=0, m_max=0, v_stall=0, d=[0],
                  f=[0], clbo_mo=0, k=0):
 
-        AircraftPerformanceGeneric.__init__(self, ac_icao, ac_icao, wtc, s, wref, m_nom, mtow, oew, mpl, vfe, m_max, hmo, d, f)
+        AircraftPerformanceBADAGeneric.__init__(self, ac_icao, ac_icao, wtc, s, wref, m_nom, mtow, oew, mpl, vfe, m_max, hmo, d, f)
 
         self.v_stall = v_stall
         self.clbo_mo = clbo_mo
@@ -31,14 +32,14 @@ class AircraftPerformance(AircraftPerformanceGeneric):
     def compute_fuel_flow(self, fl, mass, m, bank=0):
 
         v_tas = uc.m2kt(m, fl)
-        n = self.compute_tsfc(v_tas)
-        T = self.compute_drag(fl, mass, m, bank) / 1000
+        n = self._compute_tsfc(v_tas)
+        T = self._compute_drag(fl, mass, m, bank) / 1000
         c = self.f[2]  # cruise fuel factor
 
         ff = n * T * c
         return ff
 
-    def compute_drag(self, fl, mass, m, bank=0):
+    def _compute_drag(self, fl, mass, m, bank=0):
         """
 		Compute drag in N at a given fl, mass, mach, bank angle.
 
@@ -95,7 +96,7 @@ class AircraftPerformanceBada3Jet(AircraftPerformance):
         AircraftPerformance.__init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                                           oew, mpl, hmo, vfe, m_max, v_stall, d, f, clbo_mo, k)
 
-    def compute_tsfc(self, v_tas):
+    def _compute_tsfc(self, v_tas):
         cf1 = self.f[0]
         cf2 = self.f[1]
         return cf1 * (1 + (v_tas / cf2))
@@ -110,7 +111,7 @@ class AircraftPerformanceBada3TP(AircraftPerformance):
         AircraftPerformance.__init__(self, ac_icao, wtc, s, wref, m_nom, mtow,
                                           oew, mpl, hmo, vfe, m_max, v_stall, d, f, clbo_mo, k)
 
-    def compute_tsfc(self, v_tas):
+    def _compute_tsfc(self, v_tas):
         cf1 = self.f[0]
         cf2 = self.f[1]
         return cf1 * (1 - v_tas / cf2) * (v_tas / 1000)

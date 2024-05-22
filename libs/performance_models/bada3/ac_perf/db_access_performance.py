@@ -14,7 +14,7 @@ from performance_models.bada3.ac_perf import ac_performances as bap
 
 class DataAccessPerformance(DataAccessPerformanceAbstract):
 
-	def __init__(self, perf_models_data_path, **kwargs):
+	def __init__(self, perf_models_data_path=None, **kwargs):
 		self.db_path = perf_models_data_path
 		self.db_in_parquet = isinstance(self.db_path, type(Path()))
 
@@ -90,6 +90,8 @@ class DataAccessPerformance(DataAccessPerformanceAbstract):
 
 		d_performance = read_data(connection=self.get_connection(connection), query=sql)
 
+		d_performance.to_csv('performance_data.csv')
+
 		# There is an aircraft SW4 which in BADA3 has a WTC of 'L/M'... replace by 'L' to avoid
 		# downstream problems, e.g., trying to access the turnaround time of a 'L/M' aircraft type.
 		d_performance.loc[d_performance.WTC == 'L/M', 'WTC'] = 'L'
@@ -133,7 +135,7 @@ class DataAccessPerformance(DataAccessPerformanceAbstract):
 
 		for i in d.index.unique():
 			cdp = d.loc[i, ['fl', 'climb_f_nom', 'descent_f_nom']].values
-			dict_perf.get(i).set_climb_descent_fuel_flow_performances(cdp[:, 0], cdp[:, 1], cdp[:, 2])
+			dict_perf.get(i)._set_climb_descent_fuel_flow_performances(cdp[:, 0], cdp[:, 1], cdp[:, 2])
 
 		sql = "SELECt ptd.bada_code as ICAO_model, ptd.fl as fl, ptd.mass, ptd.Fuel as fuel, ptd.ROCD as rocd, ptd.TAS as tas \
 				FROM {} ptd \
@@ -152,7 +154,7 @@ class DataAccessPerformance(DataAccessPerformanceAbstract):
 			dd['gamma'] = dd['gamma'].apply(asin)
 			dd['gamma'] = dd['gamma'] * 180 / pi
 			cdp = dd.loc[i, ['fl', 'mass', 'fuel', 'rocd', 'gamma', 'tas']].values
-			dict_perf.get(i).set_climb_fuel_flow_detailled_rate_performances(cdp[:, 0], cdp[:, 1], cdp[:, 2],
+			dict_perf.get(i)._set_climb_fuel_flow_detailed_rate_performances(cdp[:, 0], cdp[:, 1], cdp[:, 2],
 																			 cdp[:, 3], cdp[:, 4], cdp[:, 5])
 
 		sql = "SELECt ptd.bada_code as ICAO_model, ptd.fl as fl, ptd.mass, ptd.Fuel as fuel, ptd.ROCD as rocd, ptd.TAS as tas \
@@ -172,7 +174,7 @@ class DataAccessPerformance(DataAccessPerformanceAbstract):
 			dd['gamma'] = dd['gamma'].apply(asin)
 			dd['gamma'] = dd['gamma'] * (-180) / pi
 			cdp = dd.loc[i, ['fl', 'mass', 'fuel', 'rocd', 'gamma', 'tas']].values
-			dict_perf.get(i).set_descent_fuel_flow_detailled_rate_performances(cdp[:, 0], cdp[:, 1], cdp[:, 2],
+			dict_perf.get(i)._set_descent_fuel_flow_detailed_rate_performances(cdp[:, 0], cdp[:, 1], cdp[:, 2],
 																			   cdp[:, 3], cdp[:, 4], cdp[:, 5])
 
 		sql = "select pto.bada_code as ICAO_model, pto.FL as fl, pto.Cruise_TAS as TAS, pai.mass_nom as mass \
@@ -190,7 +192,7 @@ class DataAccessPerformance(DataAccessPerformanceAbstract):
 
 		for i in dms.index.unique():
 			cms = dms.loc[i, ['fl', 'mass', 'm']].values
-			dict_perf.get(i).set_detailled_mach_nominal(cms[:, 0], cms[:, 1], cms[:, 2])
+			dict_perf.get(i)._set_detailed_mach_nominal(cms[:, 0], cms[:, 1], cms[:, 2])
 
 		return dict_perf
 

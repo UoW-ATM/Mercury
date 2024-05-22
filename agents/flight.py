@@ -933,7 +933,9 @@ class OperateTrajectory(Role):
 						# While integrating the duration of the segment
 						while t < current_point.segment_time_min:
 							dt = min(dt, current_point.segment_time_min-t)
-							fuel = dt * self.agent.aircraft.performances.compute_fuel_flow(fl=alt_ft, mass=current_point.weight, m=avg_m)
+							fuel = dt * self.agent.aircraft.performances.compute_fuel_flow(fl=alt_ft,
+																						   mass=current_point.weight,
+																						   m=avg_m)
 							current_point.fuel += fuel
 							current_point.weight -= fuel
 							t += dt
@@ -949,11 +951,16 @@ class OperateTrajectory(Role):
 							#    self.points[i].fuel = self.points[i-1].fuel + t.fuel
 							#    self.points[i].weight = t.weight_1
 							# else:
-							
-							ff = self.agent.aircraft.performances.estimate_climb_fuel_flow(from_fl=alt_ft_prev, to_fl=alt_ft)
+							ff = self.agent.aircraft.performances.estimate_climb_fuel_flow(from_fl=alt_ft_prev,
+																						   to_fl=alt_ft,
+																						   time_climb=current_point.segment_time_min,
+																						   planned_avg_speed_kt=planned_avg_speed_kt)
 						else:
 							# Descent
-							ff = self.agent.aircraft.performances.estimate_descent_fuel_flow(from_fl=alt_ft_prev, to_fl=alt_ft)
+							ff = self.agent.aircraft.performances.estimate_descent_fuel_flow(from_fl=alt_ft_prev,
+																							 to_fl=alt_ft,
+																							 time_descent=current_point.segment_time_min,
+																							 planned_avg_speed_kt=planned_avg_speed_kt)
 
 						# Update fuel used and weight based on fuel flow (ff) of climb/descend and time
 						fuel = (ff * current_point.segment_time_min)
@@ -1157,9 +1164,9 @@ class PotentialDelayRecoveryProvider(Role):
 		# fp.create_plot_trajectory(points=points)
 
 		# Fuel available for the flight at this point
-		extra_fuel_availabe = current_weight - fuel_nom - self.agent.aircraft.performances.oew
+		extra_fuel_available = current_weight - fuel_nom - self.agent.aircraft.performances.oew
 
-		tfsc = {'fuel_nom': fuel_nom, 'time_nom': time_nom, 'extra_fuel_available': extra_fuel_availabe,
+		tfsc = {'fuel_nom': fuel_nom, 'time_nom': time_nom, 'extra_fuel_available': extra_fuel_available,
 				'time_fuel_func': None, 'perc_variation_func': None,
 				'min_time': 0, 'max_time': 0, 
 				'min_time_w_fuel': 0, 'max_time_w_fuel': 0,

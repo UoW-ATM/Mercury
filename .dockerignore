@@ -1,0 +1,8 @@
+*credentials*
+!local_credentials.py
+*sync-conflict*
+*.orig
+*(copy)*
+Mercury/libs/performance_models/bada*
+libs/performance_models/bada*
+

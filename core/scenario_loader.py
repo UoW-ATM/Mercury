@@ -16,14 +16,14 @@ from Mercury.agents.commodities.flight_plan import FlightPlan
 from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func, clock_time
 from Mercury.libs.uow_tool_belt.connection_tools import write_data, read_data
 from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao_ac_model, read_dict_ac_icao_wtc_engine, \
-										read_dict_ac_bada_code_ac_model, read_ATFM_at_airports_manual,
+										read_ATFM_at_airports_manual, read_all_regulation_days, \
 										read_delay_paras, read_schedules, read_iedf_atfm, read_prob_atfm, \
 										read_ATFM_at_airports_days, read_airports_curfew_data, read_airports_data, \
 										read_airports_modif_data, read_turnaround_data, read_eamans_data, read_compensation_data, \
 										read_doc_data, read_non_pax_cost_data, read_non_pax_cost_fit_data, read_nonpax_cost_curfews, \
 										read_estimated_avg_costs_curfews, read_airlines_data, read_extra_cruise_if_dci, \
-										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports, \
-										read_all_regulation_days)
+										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports
+										)
 from Mercury.libs.db_ac_performance_provider import get_data_access_performance
 
 data_to_load = ['dict_ac_model_perf',
@@ -92,7 +92,6 @@ class ScenarioLoader:
 
 		# Add information on performance models paths
 		path_to_ac_icao_wake_engine = Path(paras_scenario['ac_performance']['path_to_performance_models']) / \
-										  paras_scenario['ac_performance']['performance_model'] / \
 										  'ac_icao_wake_engine'
 		case_study_paras_paths['ac_icao_wake_engine'] = path_to_ac_icao_wake_engine
 
@@ -486,39 +485,41 @@ class ScenarioLoader:
 		# Read conversion between AC ICAO code and AC Model to be used for Performance model
 		# Note that if the DataAccessPerformance does not implement this function it will return a {} dictionary
 		# and therefore all the ac will be done with default models
+		# Dict is ac_icao -> ac_model.
 		self.dict_ac_icao_ac_model = daap.get_dict_ac_icao_ac_model(connection=connection, ac_icao_needed=ac_icao_needed)
 
 		# Check models needed
-		ac_models_needed = set()
 		if ac_icao_needed is not None:
 			if len(self.dict_ac_icao_ac_model) == len(ac_icao_needed):
 				# All ac needed are covered by the models provided
 				ac_models_needed = [self.dict_ac_icao_ac_model[a] for a in ac_icao_needed]
 			else:
+				ac_models_needed = set()
 				# There are some AC ICAO models that are needed by no equivalent on performance available
 				# Check default ac types
 				# Load default ac types if available (given in mercury_config.toml)
 				dict_default_ac_icao = self.paras['ac_performance'].get('default_ac_icao', {})
 
 				# Iterate over ac_icao_needed to get model code
-				for a in ac_icao_needed:
-					a_model = self.dict_ac_icao_ac_model.get(a)
-					if a_model is None:
+				for aircraft_icao in ac_icao_needed:
+					# Get aircraft model (from performance models) from aircraft ICAO code
+					aircraft_model_perf = self.dict_ac_icao_ac_model.get(aircraft_icao)
+					if aircraft_model_perf is None:
 						# Model not available check default WTC_EngineType instead
-						if self.dict_wtc_engine_type.get(a) is not None:
-							wt = self.dict_wtc_engine_type.get(a)
+						if self.dict_wtc_engine_type.get(aircraft_icao) is not None:
+							wt = self.dict_wtc_engine_type.get(aircraft_icao)
 							if wt is not None:
-								a_model = dict_default_ac_icao.get(wt['wake']+'_'+wt['engine_type'])
+								aircraft_model_perf = dict_default_ac_icao.get(wt['wake']+'_'+wt['engine_type'])
 								# Add model to list
-								self.dict_ac_icao_ac_model[a] = a_model
-								if a_model is None:
-									raise ("Default ac for ", wt['wake']+'_'+wt['engine_type'], " not available")
+								self.dict_ac_icao_ac_model[aircraft_icao] = aircraft_model_perf
+								if aircraft_model_perf is None:
+									raise Exception("Default ac for ", wt['wake']+'_'+wt['engine_type'], " not available")
 							else:
-								raise ("WTC not available for ac", a)
+								raise Exception("WTC not available for ac", aircraft_icao)
 						else:
-							raise ("AC type not available for performance model", a)
+							raise Exception("AC type not available for performance model", aircraft_icao)
 
-					ac_models_needed.add(a_model)
+					ac_models_needed.add(aircraft_model_perf)
 
 		self.dict_ac_model_perf = daap.read_ac_performances(connection=connection, ac_models_needed=list(ac_models_needed))
 
@@ -526,8 +527,8 @@ class ScenarioLoader:
 		self.dict_ac_icao_perf = {}
 
 		if len(self.dict_ac_icao_ac_model) > 0:
-			for k in self.dict_ac_icao_ac_model.keys():
-				self.dict_ac_icao_perf[k] = self.dict_ac_model_perf[self.dict_ac_icao_ac_model[k]]
+			for ac_icao, ac_model in self.dict_ac_icao_ac_model.items():
+				self.dict_ac_icao_perf[ac_icao] = self.dict_ac_model_perf[ac_model]
 		else:
 			self.dict_ac_icao_perf = self.dict_ac_model_perf
 

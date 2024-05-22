@@ -10,6 +10,7 @@ in a similar fashion than the object-oriented method included in the
 
 import sys
 sys.path.insert(1, '..')
+sys.path.insert(1, 'libs/openap')
 
 from pathlib import Path
 
@@ -162,14 +163,15 @@ if __name__=='__main__':
 
 	case_studies = [int(cs) for cs in args.case_study]
 
-	# Fast loading allows you to load 'compiled' data instead of loading data from parquet, once you're sure your data are stable.
+	# Fast loading allows you to load 'compiled' data instead of loading data from parquet, once you're sure your
+	# dataset is stable.
 	if args.fast_loading is not None:
 		if manual_bool_cast(args.fast_loading):
 			# Fast loading: load compiled data if exists and do not overwrite them
 			paras_simulation['read_profile']['load_compiled_data_if_exists'] = True
 			paras_simulation['read_profile']['force_save_compiled_data'] = False
 		else:
-			# Safe loading: load UNcompiled data, and overwrites the compiled data
+			# Safe loading: load uncompiled data, and overwrites the compiled data
 			paras_simulation['read_profile']['load_compiled_data_if_exists'] = False
 			paras_simulation['read_profile']['force_save_compiled_data'] = True
 	

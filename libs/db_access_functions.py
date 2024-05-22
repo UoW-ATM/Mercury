@@ -431,7 +431,7 @@ def read_dict_ac_icao_wtc_engine(connection, table='ac_icao_wake_engine'):
 	return df.set_index('ac_icao')[['wake', 'engine_type']].to_dict(orient='index')
 
 
-#Flight uncertainties
+# Flight uncertainties
 def read_flight_uncertainty(connection, table='flight_uncertainties_static', phase='climb', scenario=None):
 	sql = "SELECT mu, sigma, computed_as_crossing_fl FROM {} WHERE phase=\'{}\'".format(table, phase)
 	

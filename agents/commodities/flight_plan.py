@@ -171,7 +171,7 @@ class FlightPlan:
 		self.destination_icao = destination_icao
 		self.flight_uid = flight_uid
 		self.fuel_price = fuel_price
-		self.ac_performance_model = None  # Aircaft type used for the flight
+		self.ac_performance_model = None  # Aircraft type used for the flight
 
 		# List of Points that define the originally planned flight plan
 		self.points_original_planned = OrderedDict()

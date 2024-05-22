@@ -5,3 +5,6 @@
 [submodule "libs/Hotspot"]
 	path = libs/Hotspot
 	url = https://github.com/andygaspar/Hotspot
+[submodule "libs/openap"]
+	path = libs/openap
+	url = https://github.com/TUDelft-CNS-ATM/openap

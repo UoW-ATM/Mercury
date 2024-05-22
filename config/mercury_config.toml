@@ -35,7 +35,7 @@ batch_size = 0 # Put a positive number N to have a deep memory clean every N ite
 		# Path to performance implementation folder (can be relative from Mercury or absolute)
 
 		path_to_performance_models = "libs/performance_models/"
-		performance_model = 'bada3'
+		performance_model = 'openap' # Can be 'openap', 'bada3', 'bada4'
 
 		[computation.ac_performance.default_ac_icao]
 			# Default ac types to be used if ac needed not available
@@ -44,8 +44,8 @@ batch_size = 0 # Put a positive number N to have a deep memory clean every N ite
 			H_JET = 'A343'
 			J_JET = 'A388'
 			L_PISTON = 'PA27'
-			L_TURBOPROP = 'BE99'
-			M_TURBOPROP = 'AT72'
+			L_TURBOPROP = 'E190' # 'BE99'
+			M_TURBOPROP = 'E190' # 'AT72'
 
 
 [logging]
