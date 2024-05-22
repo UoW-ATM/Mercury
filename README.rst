@@ -52,7 +52,7 @@ In Windows, you probably just need to install the requirements:
 You may also need to install Visual studio C++ built tools if it's not the case already.
 
 -  Download the sample data here:
-   https://zenodo.org/doi/10.5281/zenodo.10211704. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side).
+   https://zenodo.org/records/11246043. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side).
 
 -  Mercury requires aircraft performance models developed by EUROCONTROL, BADA3.
 You can request a licence from EUROCONTROL (here: https://www.eurocontrol.int/model/bada), then use the script ``generate_bada3_input.py`` to transform the AFP, OFP

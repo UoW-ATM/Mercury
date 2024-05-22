@@ -5,18 +5,17 @@ FROM python:3.10
 
 # Copy source files. Note: exlusions can be found in .dockerignore in the Mercury root folder.
 COPY Mercury/ /app/Mercury/
-# COPY . /app
 
 # Set working directory
 WORKDIR /app/Mercury
 
 # Download latest data
-#RUN ["wget", "https://zenodo.org/records/10246302/files/Mercury_data_sample.zip?download=1", "-O", "/app/mercury_public_dataset.zip"]
-#RUN ["unzip", "/app/mercury_public_dataset.zip", "-d", "/app/"]
-#RUN ["rm", "/app/mercury_public_dataset.zip"]
+RUN ["wget", "https://zenodo.org/records/11246043/files/scenario%3D-1.zip?download=1", "-O", "/app/mercury_public_dataset.zip"]
+RUN ["unzip", "/app/mercury_public_dataset.zip", "-d", "/app/"]
+RUN ["rm", "/app/mercury_public_dataset.zip"]
 
 # Just for testing!
-COPY input/scenario=-1/ /app/input/scenario=-1/
+# COPY ../input/scenario=-1/ /app/input/scenario=-1/
 
 # Install required packages and python modules
 RUN apt-get update && apt-get clean
