@@ -16,3 +16,5 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker image for CLI
       run: docker build -t mercury_cli . -f DockerfileCLI --tag mercury_cli:$(date +%s)
+    - name: Build the Docker image for Notebook
+      run: docker build -t mercury_nb . -f Mercury/DockerfileNotebook --tag mercury_nb:$(date +%s)
