@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image for CLI
-      run: docker build -t mercury_cli . -f Mercury/DockerfileCLI --tag mercury_cli:$(date +%s)
+      run: docker build -t mercury_cli . -f DockerfileCLI --tag mercury_cli:$(date +%s)
