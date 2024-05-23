@@ -2,7 +2,7 @@
    :alt: mercury_logo_small.png
 \
 \
-|ImageLinkBadgeDocs|_
+|ImageLinkBadgeDocs|
 |ImageLinkBadgeDocker|
 
 .. |ImageLinkBadgeDocs| image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/badge.svg
@@ -178,9 +178,9 @@ Mercury is released under the GPL v3 licence. The licence can be found
 in LICENCE.TXT
 
 Mercury uses the Hotspot library
-(https://github.com/andygaspar/Hotspot), also released under GPL v3, and
-the uow-belt-tools library (https://github.com/UoW-ATM/uow_tool_belt),
-released under the GPL v3 licence too.
+(https://github.com/andygaspar/Hotspot) and the uow-belt-tools library (https://github.com/UoW-ATM/uow_tool_belt), both
+released under GPL v3 licence, and the OpenAP library (https://github.com/TUDelft-CNS-ATM/openap), released
+under the LGPL v3 licence.
 
 Copyright 2023 Gérald Gurtner, Luis Delgado, University of Westminster,
 and Innaxis.
