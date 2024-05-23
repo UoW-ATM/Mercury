@@ -3,7 +3,7 @@
 \
 \
 |ImageLinkBadgeDocs|_
-|ImageLinkBadgeDocker|_
+|ImageLinkBadgeDocker|
 
 .. |ImageLinkBadgeDocs| image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/badge.svg
 .. _ImageLinkBadgeDocs: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/
@@ -92,19 +92,21 @@ You may also need to install Visual studio C++ built tools if it's not the case 
 -  Download the sample data here:
    https://zenodo.org/records/11246043. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side).
 
--  Mercury requires aircraft performance models developed by EUROCONTROL, BADA3.
-You can request a licence from EUROCONTROL (here: https://www.eurocontrol.int/model/bada), then use the script ``generate_bada3_input.py`` to transform the AFP, OFP
-and PTD files from BADA3 into tables (parquet files) that will be read by Mercury. In the following command, replace
-``BADA3_FILES_PATH`` with the location of the downloaded bada files:
+By default, Mercury uses the `OpenAP <https://github.com/TUDelft-CNS-ATM/openap>`_ model for aircraft performance.
+However, Mercury also supports the BADA models developed by EUROCONTROL. If you want to use it, you can request a licence
+from EUROCONTROL (here: https://www.eurocontrol.int/model/bada), then use the script ``generate_bada3_input.py`` to
+transform the AFP, OFP and PTD files from BADA3 into tables (parquet files) that will be read by Mercury.
+In the following command, replace ``BADA3_FILES_PATH`` with the location of the downloaded bada files:
 
 .. code:: bash
 
    python generate_bada3_input.py -s BADA3_FILES_PATH -d .
 
-Ensure you copy the generated parquet files into the data/ac_performance/bada/bada3/ of your input folder (per scenario).
-The location of the performance files might be modified in the future.
+Ensure you copy the generated parquet files into
+``/home/earendil/Documents/Westminster/Mercury/Mercury/libs/performance_models/bada3/data/``.
 
-Note: support for OpenAP, an open alternative to BADA, is under development.
+If you want to use BADA4, please contact us directly and we'll offer general guidance. We are also working on a support
+for EUROCONTROL's pyBADA library.
 
 Running the CLI version
 -----------------------
