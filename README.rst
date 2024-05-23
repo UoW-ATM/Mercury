@@ -2,8 +2,12 @@
    :alt: mercury_logo_small.png
 \
 \
+.. image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/badge.svg
+   :target: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml
 
-.. figure:: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/badge.svg
+
+.. image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docker-image-ci.yml/badge.svg
+   :target: https://github.com/UoW-ATM/Mercury/actions/workflows/docker-image-ci.yml
 
 Mercury is a research-oriented air transportation mobility simulator
 with a strong agent-based paradigm. Follow the steps below to install
@@ -14,8 +18,17 @@ Mercury on a debian-based distribution.
 Quickstart
 ==========
 
+NEW! Docker versions are available for:
+ - the command line interface (CLI) version:
+ - the notebook version:
+ - the GUI version (coming soon):
+
+Docker allows you to use the model on any OS without installing anything except a docker environment (see https://www.docker.com/get-started/).
+If you want to run the model natively, see below.
+
 Mercury has been tested on ubuntu-like machines and to a lesser extent Windows, using anaconda. Python 3.10 is
 recommended, Python 3.12 will raise issues.
+
 
 Installation
 ------------

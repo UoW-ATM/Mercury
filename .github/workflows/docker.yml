@@ -23,10 +23,10 @@ jobs:
     - name: Build the Docker image for CLI
       run: |
             docker build -t mercury_cli . -f DockerfileCLI --tag mercury_cli:$(date +%s)
-            docker tag mercury_cli:$(date +%s) ghcr.io/UoW-ATM/Mercury/mercury_cli:$(date +%s)
-            docker push ghcr.io/UoW-ATM/Mercury/mercury_cli:$(date +%s)
+            docker tag mercury_cli:$(date +%s) ghcr.io/uow-atm/mercury/mercury_cli:$(date +%s)
+            docker push ghcr.io/uow-atm/mercury/mercury_cli:$(date +%s)
     - name: Build the Docker image for Notebook
       run: | 
             docker build -t mercury_nb . -f DockerfileNotebook --tag mercury_nb:$(date +%s)
-            docker tag mercury_nb:$(date +%s) ghcr.io/UoW-ATM/Mercury/mercury_nb:$(date +%s)
-            docker push ghcr.io/UoW-ATM/Mercury/mercury_nb:$(date +%s)
+            docker tag mercury_nb:$(date +%s) ghcr.io/uow-atm/mercury/mercury_nb:$(date +%s)
+            docker push ghcr.io/uow-atm/mercury/mercury_nb:$(date +%s)
