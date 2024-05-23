@@ -2,12 +2,14 @@
    :alt: mercury_logo_small.png
 \
 \
-.. image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/badge.svg
-   :target: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml
+|ImageLinkBadgeDocs|_
+|ImageLinkBadgeDocker|_
 
+.. |ImageLinkBadgeDocs| image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/badge.svg
+.. _ImageLinkBadgeDocs: https://github.com/UoW-ATM/Mercury/actions/workflows/docs.yml/
 
-.. image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docker-image-ci.yml/badge.svg
-   :target: https://github.com/UoW-ATM/Mercury/actions/workflows/docker-image-ci.yml
+.. |ImageLinkBadgeDocker| image:: https://github.com/UoW-ATM/Mercury/actions/workflows/docker.yml/badge.svg
+.. _ImageLinkBadgeDocker: https://github.com/UoW-ATM/Mercury/actions/workflows/docker.yml/
 
 Mercury is a research-oriented air transportation mobility simulator
 with a strong agent-based paradigm. Follow the steps below to install
@@ -19,9 +21,9 @@ Quickstart
 ==========
 
 NEW! Docker versions are available for:
- - the command line interface (CLI) version:
- - the notebook version:
- - the GUI version (coming soon):
+ - the command line interface (CLI) version: https://github.com/orgs/UoW-ATM/packages/container/package/mercury%2Fmercury_cli
+ - the notebook version: https://github.com/orgs/UoW-ATM/packages/container/package/mercury%2Fmercury_nb
+ - the GUI version: (coming soon)
 
 Docker allows you to use the model on any OS without installing anything except a docker environment (see https://www.docker.com/get-started/).
 If you want to run the model natively, see below.
