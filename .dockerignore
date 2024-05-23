@@ -5,4 +5,6 @@
 *(copy)*
 Mercury/libs/performance_models/bada*
 libs/performance_models/bada*
-
+/app/Mercury/libs/performance_models/bada*
+*__pycache__*
+*.sublime*

@@ -4,7 +4,7 @@
 FROM python:3.10
 
 # Copy source files. Note: exlusions can be found in .dockerignore in the Mercury root folder.
-COPY Mercury/ /app/Mercury/
+COPY . /app/Mercury/
 
 # Set working directory
 WORKDIR /app/Mercury
