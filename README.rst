@@ -29,13 +29,13 @@ NEW! Docker versions are now available for:
 - the GUI version: (coming soon).
 
 Docker allows you to use the model on any OS without installing anything except a docker environment (see https://www.docker.com/get-started/).
-With a terminal in linux, you can download the docker image like this, for instance for the notebook version:
+With a terminal (e.g. powershell in windows), you can download the docker image like this, for instance for the notebook version:
 
 .. code:: bash
 
     docker pull ghcr.io/uow-atm/mercury/mercury_nb:latest
 
-In a terminal in linux you can use the docker image like this:
+In a terminal you can then use the docker image like this:
 
 - for the CLI:
 
@@ -90,7 +90,7 @@ In Windows, you probably just need to install the requirements:
 You may also need to install Visual studio C++ built tools if it's not the case already.
 
 -  Download the sample data here:
-   https://zenodo.org/records/11246043. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side).
+   https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side).
 
 By default, Mercury uses the `OpenAP <https://github.com/TUDelft-CNS-ATM/openap>`_ model for aircraft performance.
 However, Mercury also supports the BADA models developed by EUROCONTROL. If you want to use it, you can request a licence
