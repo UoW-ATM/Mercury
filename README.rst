@@ -26,7 +26,7 @@ NEW! Docker versions are now available for:
 
 - the command line interface (CLI) version: `mercury_cli <https://github.com/orgs/UoW-ATM/packages/container/package/mercury%2Fmercury_cli>`_;
 - the notebook version: `mercury_nb <https://github.com/orgs/UoW-ATM/packages/container/package/mercury%2Fmercury_nb>`_;
-- the GUI version: (coming soon)
+- the GUI version: (coming soon).
 
 Docker allows you to use the model on any OS without installing anything except a docker environment (see https://www.docker.com/get-started/).
 With a terminal (e.g. powershell in windows), you can download the docker images like this:
@@ -34,7 +34,9 @@ With a terminal (e.g. powershell in windows), you can download the docker images
 .. code:: bash
 
     docker pull ghcr.io/uow-atm/mercury/mercury_nb:latest
+    docker tag ghcr.io/uow-atm/mercury/mercury_nb:latest mercury_nb
     docker pull ghcr.io/uow-atm/mercury/mercury_cli:latest
+    docker tag ghcr.io/uow-atm/mercury/mercury_cli:latest mercury_cli
 
 In a terminal you can then use the docker image like this:
 
@@ -42,13 +44,15 @@ In a terminal you can then use the docker image like this:
 
 .. code:: bash
 
-    docker run ghcr.io/uow-atm/mercury/mercury_cli:latest -id -1 -cs -1
+    docker run mercury_cli -id -1 -cs -1
 
 - for the notebook:
 
 .. code:: bash
 
-    docker run -p 8888:8888 ghcr.io/uow-atm/mercury/mercury_nb:latest
+    docker run -p 8888:8888 mercury_nb
+
+You probably need to copy the url appearing in the terminal after this command and copy/paste it into your browser.
 
 - for the GUI: (coming soon)
 
