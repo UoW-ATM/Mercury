@@ -5,6 +5,7 @@ import pandas as pd
 import re
 from decimal import Decimal
 import os
+from pathlib import Path
 import argparse
 
 # Global variables to store the information from BADA3 into tables
@@ -177,14 +178,14 @@ def addDB_APOF_fuel_consumption(bada3_version, bada_code, tsfc1, tsfc2, descc1, 
     apof_fuel.loc[len(apof_fuel)] = new_row
 
 
-def read_PTF(f, bada3_version):
+def read_PTF(file_path, bada3_version):
     """
     Function to read the BADA3 .PTF files to extract the information into tables
     """
-    print("READING BADA3 PTF " + f)
+    print("READING BADA3 PTF ", file_path)
 
     try:
-        with open(f, 'r', encoding='utf-8') as reader:
+        with open(file_path, 'r', encoding='utf-8') as reader:
             line = None
             bada_code = ""
             isa = -1
@@ -205,10 +206,7 @@ def read_PTF(f, bada3_version):
             cruise_m = 0
             descent_m = 0
 
-            fs = f.split("/")
-
-            fs = fs[-1].split(".")
-            bada_code = fs[0].replace("_", "").strip()
+            bada_code = file_path.name.split(".")[0].replace("_", "").strip()
 
             for line in reader:
                 line = line.strip()
@@ -290,7 +288,7 @@ def read_OPF(file_path, bada3_version):
     """
     Function to read the BADA3 .OTF files to extract the information into tables
     """
-    print("READING BADA3 OPF " + file_path)
+    print("READING BADA3 OPF ", file_path)
 
     try:
         with open(file_path, 'r') as file:
@@ -341,10 +339,7 @@ def read_OPF(file_path, bada3_version):
             desc_cas = -1
             desc_M = -1
 
-            fs = file_path.split("/")
-
-            fs = fs[-1].split(".")
-            bada_code = fs[0].replace("_", "").strip()
+            bada_code = file_path.name.split(".")[0].replace("_", "").strip()
 
             for line in file:
                 ls = re.sub(r'\s+', ' ', line).strip().split(" ")
@@ -585,9 +580,8 @@ def read_PTD(file_path, bada3_version):
         Function to read the BADA3 .PTD files to extract the information into tables
     """
 
-    print("READING BADA3 PTD " + file_path)
-    
-    bada_code = file_path.split("\\")[-1].split(".")[0].replace("_", "").strip()
+    print("READING BADA3 PTD ", file_path)
+    bada_code = file_path.name.split(".")[0].replace("_", "").strip()
 
     df_data = {'bada3_version': [], 'bada_code': [], 'phase': [], 'mass_cat': [], 'FL': [], 'T': [], 'p': [],
                'rho': [], 'a': [], 'TAS': [], 'CAS': [], 'M': [], 'mass': [], 'Thrust': [], 'Drag': [],
@@ -636,13 +630,13 @@ def process_all_bada3(folder_path, bada3_version=3.0):
     global ptd
     for filename in os.listdir(folder_path):
         if filename.endswith("PTD"):
-            file_path = os.path.join(folder_path, filename)
+            file_path = Path(folder_path) / filename
             ptd = pd.concat([ptd, read_PTD(file_path, bada3_version)], ignore_index=True)
         elif filename.endswith("PTF"):
-            file_path = os.path.join(folder_path, filename)
+            file_path = Path(folder_path) / filename
             read_PTF(file_path, bada3_version)
         elif filename.endswith("OPF"):
-            file_path = os.path.join(folder_path, filename)
+            file_path = Path(folder_path) / filename
             read_OPF(file_path, bada3_version)
 
 
@@ -681,15 +675,15 @@ if __name__ == "__main__":
 
     print("SAVING RESULTS")
 
-    apof_ac_type.to_parquet(output_folder+'/apof_ac_type.parquet')
-    apof_aerodynamics.to_parquet(output_folder+'/apof_aerodynamics.parquet')
-    apof_conf.to_parquet(output_folder+'/apof_conf.parquet')
-    apof_f_envelope.to_parquet(output_folder+'/apof_flight_envelope.parquet')
-    apof_fuel.to_parquet(output_folder+'/apof_fuel_consumption.parquet')
-    apof_masses.to_parquet(output_folder+'/apof_masses.parquet')
-    ptd.to_parquet(output_folder+'/ptd.parquet')
-    ptf_ac_info.to_parquet(output_folder+'/ptf_ac_info.parquet')
-    ptf_operations.to_parquet(output_folder+'/ptf_operations.parquet')
+    apof_ac_type.to_parquet(Path(output_folder) / 'apof_ac_type.parquet')
+    apof_aerodynamics.to_parquet(Path(output_folder) / 'apof_aerodynamics.parquet')
+    apof_conf.to_parquet(Path(output_folder) / 'apof_conf.parquet')
+    apof_f_envelope.to_parquet(Path(output_folder) / 'apof_flight_envelope.parquet')
+    apof_fuel.to_parquet(Path(output_folder) / 'apof_fuel_consumption.parquet')
+    apof_masses.to_parquet(Path(output_folder) / 'apof_masses.parquet')
+    ptd.to_parquet(Path(output_folder) / 'ptd.parquet')
+    ptf_ac_info.to_parquet(Path(output_folder) / 'ptf_ac_info.parquet')
+    ptf_operations.to_parquet(Path(output_folder) / 'ptf_operations.parquet')
 
     print('ALL DONE -- Ensure that BADA3 parquet files (now in ', output_folder,
           'are stored for the scenarios into data/ac_performance/bada/bada3/ in your input folder')

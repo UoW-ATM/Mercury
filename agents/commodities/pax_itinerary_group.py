@@ -19,17 +19,30 @@ class PaxItineraryGroup:
 		self.fare = fare
 
 		self.idx_last_flight = -1
+		self.itinerary = None
+		self.initial_sobt = None
+		self.final_sibt = None
+		self.sobts = []
+		self.sibts = []
+		self.origin_airport = None
+		self.destination_airport = None
+		self.distance = None
+		self.previous_flight_international = False
+		self.sobt_next_flight = None
+
+		self.connecting_pax = False
 		self.status = 'at_airport'
 		self.in_transit_to = None
-		#self.active_flight = None
+		# self.active_flight = None
+		self.on_board = None
 		self.active_airport = None
-		self.time_at_gate = -10 # to be sure first pax are at gate when flight departs.
+		self.time_at_gate = -10  # to be sure first pax are at gate when flight departs.
 		self.origin_uid = origin_uid
 		self.destination_uid = destination_uid
 		self.old_itineraries = []
 		self.compensation = 0.
 		self.duty_of_care = 0.
-		#self.reac_delay = 0.
+		# self.reac_delay = 0.
 		self.entitled = False
 		self.reac_entitled = False
 		self.force_entitled = False
@@ -49,7 +62,7 @@ class PaxItineraryGroup:
 		# we use the following arrays. This cuts the computation by a factor 4.
 		xx = np.linspace(0., 120., 120)
 		self.soft_cost_values = np.vectorize(self.soft_cost_funcs[self.pax_type])(xx)
-		self.soft_cost_funcs_quick = lambda x: 0. if x<0. else self.soft_cost_values[min(119, int(x))]
+		self.soft_cost_funcs_quick = lambda x: 0. if x < 0. else self.soft_cost_values[min(119, int(x))]
 		
 		self.own_cost_func = self.soft_cost_funcs[self.pax_type]
 
@@ -69,7 +82,7 @@ class PaxItineraryGroup:
 		itinerary must be a list of flight_uids
 		"""
 		self.itinerary = itinerary
-		self.connecting_pax = len(itinerary)>1
+		self.connecting_pax = len(itinerary) > 1
 
 	def give_new_itinerary(self, itinerary):
 		self.modified_itinerary = True
@@ -78,7 +91,7 @@ class PaxItineraryGroup:
 		self.itinerary = itinerary
 
 	def get_original_itinerary(self):
-		if len(self.old_itineraries)>0:
+		if len(self.old_itineraries) > 0:
 			return self.old_itineraries[0]
 		else:
 			return self.itinerary
@@ -97,7 +110,7 @@ class PaxItineraryGroup:
 		return self.itinerary[self.idx_last_flight]
 
 	def get_next_flight(self):
-		if self.idx_last_flight<len(self.itinerary)-1:
+		if self.idx_last_flight < len(self.itinerary)-1:
 			return self.itinerary[self.idx_last_flight+1]
 
 	def get_next_flights(self):
@@ -124,7 +137,7 @@ class PaxItineraryGroup:
 		first_flight = flights[self.itinerary[0]]
 		last_flight = flights[self.itinerary[-1]]
 
-		#self.active_airport = first_flight.origin_airport_uid
+		# self.active_airport = first_flight.origin_airport_uid
 		self.initial_sobt = first_flight.sobt
 
 		self.final_sibt = last_flight.sibt
@@ -143,8 +156,8 @@ class PaxItineraryGroup:
 		self.sobt_next_flight = first_flight.sobt
 
 	def soft_cost_func(self, tt):
-		if tt>0.:
-			#return self.n_pax * self.soft_cost_funcs[self.pax_type](tt)
+		if tt > 0.:
+			# return self.n_pax * self.soft_cost_funcs[self.pax_type](tt)
 			return self.n_pax * self.own_cost_func(tt)
 		else:
 			return 0.

@@ -58,6 +58,7 @@ class AirlineOperatingCentre(Agent):
 		self.aoc_flight_plans = {}  # Flight plans for given flights (flight key)
 		self.aoc_pax_info = {}  # In theory, this should only be used for pax reallocation
 		self.aoc_airports_info = {}  # Information on airports used by flight from the airline
+		self.aoc_airport_terminals_info = {}  # Information on airport terminals used by the passengers from the airline
 		self.aircraft_list = {}  # List of aircraft used by the airline
 		self.other_aoc_flight_plans = {}  # Temporary save flight plan for flights
 		self.aoc_delay_recovery_info = {}  # Information on the delay recovery for a flight aoc gets from pdrp (role in Flight)
@@ -75,6 +76,7 @@ class AirlineOperatingCentre(Agent):
 
 		self.trajectory_pool = None  # Pool of trajectories between o-d to be used if FP generated on the fly based on trajectories
 		self.fp_pool = None  # Pool of FPs
+		self.dict_fp_ac_icao_ac_model = {}  # Dictionary relating AC ICAO code with AC models used in FP pool
 
 		self.alliance = None # Alliance for the arline. To be filled when registering airline into alliance
 
@@ -229,8 +231,7 @@ class AirlineOperatingCentre(Agent):
 		Returns a typical turnaround time based on the type of aircraft of flight_uid. Using central registry.
 		"""
 		return self.cr.get_tat(airport_uid, flight_uid)
-		# aircraft = self.aoc_flights_info[flight_uid]['aircraft']
-		# return self.aoc_airports_info[airport_uid]['tats'][aircraft.bada_performances.wtc][self.airline_type]
+
 
 	def get_number_seats_flight(self, flight_uid):
 		"""
@@ -325,8 +326,8 @@ class AirlineOperatingCentre(Agent):
 		"""
 
 		def f(aircraft, delay, phase):
-			if aircraft.ac_type in dict_np_cost.keys():
-				return max(0., dict_np_cost[aircraft.ac_type][phase] * delay)
+			if aircraft.ac_icao in dict_np_cost.keys():
+				return max(0., dict_np_cost[aircraft.ac_icao][phase] * delay)
 			else:
 				return max(0., dict_np_cost_fit[phase]['a'] + dict_np_cost_fit[phase]['b'] * delay)
 
@@ -357,23 +358,36 @@ class AirlineOperatingCentre(Agent):
 		"""
 		self.aircraft_list[aircraft.uid] = aircraft
 
-	def register_airport(self, airport):
+	def register_airport(self, airport, airport_terminal_uid=None):
 		"""
 		Add one airport to the list of airports in the AOC
+		"""
+
+		self.aoc_airports_info[airport.uid] = {'airport_terminal_uid': airport_terminal_uid,
+												'avg_taxi_out_time': airport.avg_taxi_out_time,
+												'avg_taxi_in_time': airport.avg_taxi_in_time,
+												'coords': airport.coords,
+												'dman_uid': airport.dman_uid,
+												'curfew': airport.curfew,
+												'ICAO': airport.icao,
+												'tats': airport.tats  # Turnaround distributions
+											   	# 'mcts': airport.mcts, # Now in the dict of airport terminals
+												}
+
+	def register_airport_terminal(self, airport_terminal):
+		"""
+		Add an airport terminal to the entry of airport terminals that the AOC has
 
 		mcts are designed so that one can do:
 		mcts = self.aoc_airports_info[airport_uid]['mcts']
 		mct = mcts[(self.aoc_flights_info[flight_uid1]['international'], self.aoc_flights_info[flight_uid2]['international'])]
 		"""
 
-		self.aoc_airports_info[airport.uid] = {'mcts': airport.mcts,
-												'tats': airport.tats,
-												'avg_taxi_out_time': airport.avg_taxi_out_time,
-												'avg_taxi_in_time': airport.avg_taxi_in_time,
-												'coords': airport.coords,
-												'dman_uid': airport.dman_uid,
-												'curfew': airport.curfew,
-												'ICAO': airport.icao}
+		self.aoc_airport_terminals_info[airport_terminal.uid] = {
+											   'mcts': airport_terminal.mcts,
+											   'ICAO': airport_terminal.icao,
+											   }
+
 
 	def register_pax_itinerary_group(self, pax):
 		"""
@@ -390,11 +404,14 @@ class AirlineOperatingCentre(Agent):
 		"""
 		self.trajectory_pool = trajectory_pool
 
-	def register_fp_pool(self, fp_pool):
+	def register_fp_pool(self, fp_pool, dict_fp_ac_icao_ac_model=None):
 		"""
-		Register poool of flight plans.
+		Register pool of flight plans.
 		"""
+		if dict_fp_ac_icao_ac_model is None:
+			dict_fp_ac_icao_ac_model = {}
 		self.fp_pool = fp_pool
+		self.dict_fp_ac_icao_ac_model = dict_fp_ac_icao_ac_model
 
 	def register_nm(self, nm):
 		"""
@@ -962,11 +979,11 @@ class AirlineFlightPlanner(Role):
 			eobt = max(eobt, aoc_flight_info['sobt'])
 		origin_airport_uid = aoc_flight_info['origin_airport_uid']
 		destination_airport_uid = aoc_flight_info['destination_airport_uid']
-		# ac_performances_bada = aoc_flight_info['aircraft'].bada_performances
-		bada_code_ac_model = aoc_flight_info['aircraft'].bada_code_ac_model
+		ac_icao = aoc_flight_info['aircraft'].ac_icao
 
 		try:
-			possible_fp_pool = self.agent.fp_pool[(origin_airport_uid, destination_airport_uid, bada_code_ac_model)]
+			possible_fp_pool = self.agent.fp_pool[(origin_airport_uid, destination_airport_uid,
+												   self.agent.dict_fp_ac_icao_ac_model.get(ac_icao, ac_icao))]
 		except:
 			print('COICOIN', list(self.agent.fp_pool.keys()))
 			raise
@@ -981,7 +998,7 @@ class AirlineFlightPlanner(Role):
 			fp.sibt = aoc_flight_info['sibt']
 			fp.exot = np.round(self.agent.aoc_airports_info[origin_airport_uid]['avg_taxi_out_time'], 2)
 			fp.exit = np.round(self.agent.aoc_airports_info[destination_airport_uid]['avg_taxi_in_time'], 2)
-			fp.bada_code_ac_model = bada_code_ac_model
+			fp.ac_performance_model = self.agent.dict_fp_ac_icao_ac_model.get(ac_icao, ac_icao)
 			fp.flight_uid = aoc_flight_info['flight_uid']
 			fp.fuel_price = self.agent.fuel_price
 			fp.compute_eibt()
@@ -991,7 +1008,7 @@ class AirlineFlightPlanner(Role):
 			fp_options = fp_options + [fp]
 
 		if self.agent.remove_shorter_route_calibration:
-			if len(fp_options)>1:
+			if len(fp_options) > 1:
 				fp_options = [(option, option.get_total_planned_distance()) for option in fp_options]
 				fp_options = sorted(fp_options, key=lambda x: x[1], reverse=True)[:-1]
 				fp_options = list(zip(*fp_options))[0]
@@ -1104,7 +1121,7 @@ class AirlineFlightPlanner(Role):
 				for pax in paxs:
 					try:
 						next_flight = pax.get_flight_after(flight_uid)
-						if not next_flight is None:
+						if next_flight is not None:
 							from_time = baseline_ibt + (X-x0) + self.agent.get_mct(flight_uid,
 																					next_flight,
 																					pax.pax_type)
@@ -1830,9 +1847,15 @@ class AirlineFlightPlanner(Role):
 					ft2 = self.agent.aoc_flights_info[flight_uid]['international']
 					pax.previous_flight_international = ft2
 
+					# Get uid of airport where connection is done
 					origin_airport_uid = self.agent.aoc_flights_info[flight_uid]['origin_airport_uid']
-					mcts = self.agent.aoc_airports_info[origin_airport_uid]['mcts'][pax.pax_type]
+					# Get uid of airport terminal for airport
+					airport_terminal_uid = self.agent.aoc_airports_info[origin_airport_uid]['airport_terminal_uid']
+					# Get MCTs from registry of airport terminals
+					mcts = self.agent.aoc_airport_terminals_info[airport_terminal_uid]['mcts'][pax.pax_type]
+					# Check MCTs between specific flights
 					pax.mct = mcts[(ft1, ft2)]
+
 					# self.agent.aph.request_connecting_times(pax, (ft1, ft2))
 
 					# check if ft1 is from the same company as ft2 and calc. its in-block time
@@ -3314,7 +3337,7 @@ class PassengerReallocation(Role):
 			pax.missed_flights.append(flight_uid)
 
 			# Check if pax has taken more time than what the airline was expecting
-			if pax.ct>pax.mct:
+			if pax.ct > pax.mct:
 				# If so, blame the pax for any compensation
 				mprint(pax, 'has taken', pax.ct, 'as connecting time vs. an MCT of', pax.mct,
 						'; it blames itself for any future compensation')
@@ -3797,9 +3820,11 @@ class TurnaroundOperations(Role):
 		# self.send(msg) # uncomment this to use messaging server
 
 	def request_turnaround(self, aircraft, last_flight_uid, next_flight_uid):
+		mprint("REQUESTING TURNAROUND", self.agent.aoc_flights_info[last_flight_uid]['destination_airport_uid'])
 		msg = Letter()
 		msg['type'] = 'turnaround_request'
-		msg['to'] = self.agent.aoc_flights_info[last_flight_uid]['destination_airport_uid']
+		airport_uid = self.agent.aoc_flights_info[last_flight_uid]['destination_airport_uid']
+		msg['to'] = airport_uid
 		msg['body'] = {'aircraft': aircraft,
 						'ao_type': self.agent.airline_type,
 						'flight_uid': next_flight_uid
@@ -3832,7 +3857,7 @@ class TurnaroundOperations(Role):
 
 		ac_ready_at_time = self.agent.env.now + tt
 
-		# print(ac_ready_at_time, self.agent.aoc_flights_info[flight_uid]['aircraft'].bada_code_ac_model)
+		# print(ac_ready_at_time, self.agent.aoc_flights_info[flight_uid]['aircraft'].ac_icao)
 
 		reactionar_del = max(0., ac_ready_at_time-self.agent.aoc_flights_info[flight_uid]['sobt'])
 
@@ -4192,7 +4217,7 @@ class AirlinePaxHandler(Role):
 
 	def request_connecting_times(self, pax, connection_type):
 		msg = Letter()
-		msg['to'] = pax.active_airport
+		msg['to'] = self.agent.aoc_airports_info[pax.active_airport]['airport_terminal_uid']
 		msg['type'] = 'connecting_times_request'
 		msg['body'] = {'pax': pax,
 						'connection_type': connection_type}
@@ -4278,7 +4303,7 @@ class AirlinePaxHandler(Role):
 
 	def wait_for_connecting_times(self, msg):
 		pax = msg['body']['pax']
-		mprint(self.agent, 'receives connecting times for', pax, ':', msg['body']['ct'])
+		mprint(self.agent, 'receives connecting times for', pax, ': (mct:', msg['body']['mct'], ') ', msg['body']['ct'])
 		# pax.mcts.append(msg['body']['mct'])
 		# pax.cts.append(msg['body']['ct'])
 		pax.mct = msg['body']['mct']

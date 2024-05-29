@@ -131,3 +131,7 @@ results/
 *.zip
 
 docs/source/generated
+
+# bada performance files
+libs/performance_models/bada3/data
+libs/performance_models/bada4_2/

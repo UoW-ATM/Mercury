@@ -120,16 +120,16 @@ class Test:
 			scale, s = scale_and_s_from_mean_sigma_lognorm(12., 4.)
 			#dists = {'A320':{'FSC':lognorm(loc=2., scale=scale, s=s)}}
 			dists = lognorm(loc=2., scale=scale, s=s)
-			airport.give_taxi_time_add_dist(dists)
+			airport.set_taxi_time_add_dist(dists)
 
 			#dists = {'A320':{'FSC':norm(loc=0., scale=2.)}}
 			dists = norm(loc=0., scale=2.)
-			airport.give_taxi_time_estimation_dist(dists)
+			airport.set_taxi_time_estimation_dist(dists)
 
 			scale, s = scale_and_s_from_mean_sigma_lognorm(40., 10.)
 			#dists = {'A320':{'FSC':lognorm(loc=0., scale=scale, s=s)}}
 			dists = lognorm(loc=0., scale=scale, s=s)
-			airport.give_turnaround_time_dists(dists)
+			airport.set_turnaround_time_dists(dists)
 
 			mct_q = 0.95
 			mcts = {'N-N':30,
@@ -142,7 +142,8 @@ class Test:
 				scale, s = scale_and_s_from_quantile_sigma_lognorm(mct_q, mct, sig_ct)
 				dists['economy'][k] = lognorm(loc=0., scale=scale, s=s)
 				dists['flex'][k] = lognorm(loc=0., scale=scale, s=s)
-			airport.give_connecting_time_dist(dists, mct_q=mct_q)
+			# This is not the airport anymore but the airport_terminal!
+			airport.set_connecting_time_dist(dists, mct_q=mct_q)
 			self.airports.append(airport)
 			self.uid+=1 
 

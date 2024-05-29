@@ -1,6 +1,7 @@
 import tomli
 from pathlib import Path
 
+
 def unfold_paras_dict(dictionary, data_path=Path()):
 	new_dict = {}
 
@@ -9,7 +10,8 @@ def unfold_paras_dict(dictionary, data_path=Path()):
 			if isinstance(v, dict):
 				traverse(v, d, ppath / k)
 			else:
-				d[k] = Path(ppath) / v
+				if (v != 'None') and (v != 'none'):
+					d[k] = Path(ppath) / v
 		return d
 
 	return traverse(dictionary, new_dict, data_path)
@@ -51,6 +53,9 @@ def find_paras_categories(paras_dict):
 
 
 def read_toml(file):
+	"""
+	Read a toml file and render it as a dictionary. The dictionary has three levels maximum.
+	"""
 	with open(file, mode="rb") as fp:
 		conf = tomli.load(fp)
 
@@ -87,7 +92,8 @@ def flatten_paras_dict(paras_unflattened):
 
 def update_scenario_paras_based_on_case_study(scenario_paras, case_study_paras):
 	for k, v in case_study_paras.items():
-		scenario_paras[k] = v
+		for kk, vv in v.items():
+			scenario_paras[k][kk] = vv
 
 	return scenario_paras
 

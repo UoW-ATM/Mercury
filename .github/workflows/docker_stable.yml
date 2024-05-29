@@ -1,0 +1,34 @@
+name: Publish Docker images for master branch
+
+on:
+  push:
+    branches: [ "master"]# , "test_docker_deployment" ]
+#  pull_request:
+#    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true  # This ensures submodules are included
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build the Docker image for CLI
+      run: |
+            docker build -t mercury_cli . -f DockerfileCLI --tag mercury_cli:stable
+            docker tag mercury_cli:stable ghcr.io/uow-atm/mercury/mercury_cli:stable
+            docker push ghcr.io/uow-atm/mercury/mercury_cli:stable
+    - name: Build the Docker image for Notebook
+      run: | 
+            docker build -t mercury_nb . -f DockerfileNotebook --tag mercury_nb:stable
+            docker tag mercury_nb:stable ghcr.io/uow-atm/mercury/mercury_nb:stable
+            docker push ghcr.io/uow-atm/mercury/mercury_nb:stable

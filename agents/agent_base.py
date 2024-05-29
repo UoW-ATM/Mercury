@@ -52,9 +52,9 @@ class Agent:
 		"""
 		Modifications of Roles in agent based on loaded modules
 		"""
-		# First apply on_init function, if exists
 		mam = copy(self.module_agent_modif)
-		
+
+		# First apply on_init function, if exists
 		on_inits = mam.get('on_init', [])
 		for on_init in on_inits:
 			on_init(self)
@@ -74,7 +74,7 @@ class Agent:
 						if method_name == 'on_init':
 							for nm in new_method:
 								nm(inst)
-						elif method_name == 'new':
+						elif method_name == 'new_methods':
 							# New methods to attach
 							for new_new_method in new_method:
 								setattr(inst, new_new_method.__name__, new_new_method.__get__(inst))
@@ -87,8 +87,11 @@ class Agent:
 					# Methods to be executed on preparation of a simulation
 					self.on_prepare.append(methods)
 				elif role_class == 'on_finalise':
-					# Methods to be excuted on finalisation of simulation
+					# Methods to be executed on finalisation of simulation
 					self.on_finalise.append(methods)
+				elif role_class == 'apply_to':
+					# Names of agents to which we apply the modification
+					pass
 				else:
 					setattr(self, role_class, methods.__get__(self))
 

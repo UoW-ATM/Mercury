@@ -2,47 +2,55 @@ from Mercury.core.delivery_system import Letter
 from Mercury.libs.uow_tool_belt.general_tools import build_col_print_func
 
 from Mercury.agents.agent_base import Agent, Role
-
 from Mercury.agents.commodities.debug_flights import flight_uid_DEBUG
 
 
-class GroundAirport(Agent):
+class AirportOperatingCentre(Agent):
 	"""
 	Agent representing an Airport and
 	capturing the behaviour of processes on the airport
-	for flights and passengers.
+	for flights.
+
+	The processes that should be coordinated by the APOC are now
+	implemented as Roles, see Possible evolution (below) for more
+	information on how to improve/evolve this in the future.
 
 	This includes:
 	-  Ground side:
 		- Provide turnaround times for flights
-		- Provide connecting times for passengers in airports
 	- Air side:
 		- Provide estimation of Taxi-out
 		- Provide actual Taxi-out and Taxi-in times
 
 	Possible evolution:
-		- Separation on two different entities with different responsibilities:
-			* Flight processes
-			* Passengers processes
+		- Create separate agents to manage estimated and actual turnaround times (GroundHandler agent) and
+		  taxi times (AirportSurfaceMovement agent).
+		- The issue here would be that AOC/Flights will contact the APOC to ask for something (e.g. expected
+		  turnaround times), then the APOC will ask the GroundHandler (asynchronously) who will reply to the
+		  APOC. The APOC will have to keep track to who to rely the information afterwards (who asked for it).
+		  Another option is for the APOC to pass the uid of the initiator of the request (e.g. flight or AOC)
+		  and the GroundHanlder replies directly to them... but the first option would allow for some optimisation
+		  coordination at APOC level. Future possible evolution (create proper APOC).
 	"""
 
 	# Dictionary with roles contained in the Agent
-	dic_role = {"GroundHandler": "gh", 			# Providing turnaround times and doing the turnaround process
-				"ProvideConnectingTime": "pct",  # Providing connecting times for passengers
-				"TaxiOutEstimator": "toe",		# Estimating taxi-out times
-				"TaxiOutProvider": "top",		# Providing taxi-out times
-				"TaxiInProvider": "tip"			# Providing taxi-in times
+	dic_role = {"ProcessTurnaround": "pt",  # Process the turnaround of a given aircraft
+				"TurnaroundTimeProvider": "ttp",  # Provide the turnaround for an aircraft
+				"TaxiOutEstimator": "toe",  # Estimating taxi-out times
+				"TaxiOutProvider": "top",  # Providing taxi-out times
+				"TaxiInProvider": "tip"  # Providing taxi-in times
 				}
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		# The APOC knows about the EAMAN and DMAN at the airport, but seems it's not really used...
 		self.eaman_uid = None  # UID of Arrival manager at the airport
-		self.dman_uid = None   # UID of Departure manager at the airport
+		self.dman_uid = None  # UID of Departure manager at the airport
 
 		# Roles
-		self.gh = GroundHandler(self)
-		self.pct = ProvideConnectingTime(self)
+		self.pt = ProcessTurnaround(self)
+		self.ttp = TurnaroundTimeProvider(self)
 		self.toe = TaxiOutEstimator(self)
 		self.top = TaxiOutProvider(self)
 		self.tip = TaxiInProvider(self)
@@ -51,9 +59,11 @@ class GroundAirport(Agent):
 		self.apply_agent_modifications()
 
 		# Internal knowledge
-		self.icao = None  # ICAO id of the airport
+		if not hasattr(self, 'icao'):
+			self.icao = None  # ICAO id of the airport
 
-		self.flights = {}  # List of flights would operate at the airport
+		if not hasattr(self, 'airport_terminal_uid'):
+			self.airport_terminal_uid = None
 
 		self.turnaround_time_dists = None  # Turnaround time distributions
 		self.tats = {}  # Turnaround time distributions per aircraft and airline type
@@ -66,24 +76,21 @@ class GroundAirport(Agent):
 
 		self.taxi_time_add_dists = None  # Taxiing time noise to add to the taxi-out and taxi-in distributions
 
-		self.mcts = {}  # Minimum connecting times
-		self.connecting_time_dists = {}  # Connecting times distributions
-
 	def set_log_file(self, log_file):
 		"""
 		Set log file for the Agent.
 		TBC by logging system
 		"""
-		global aprint 
+		global aprint
 		aprint = build_col_print_func(self.acolor, verbose=self.verbose, file=log_file)
 
-		global mprint 
+		global mprint
 		mprint = build_col_print_func(self.mcolor, verbose=self.verbose, file=log_file)
 
-	def give_turnaround_time_dists(self, dists):
+	def set_turnaround_time_dists(self, dists):
 		"""
 		Initialise the turnaround time distributions in the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.turnaround_time_dists = dists
@@ -95,10 +102,10 @@ class GroundAirport(Agent):
 					self.tats[ac_wake] = {}
 				self.tats[ac_wake][ao_type] = dist.stats('m')
 
-	def give_taxi_out_time_estimation_dist(self, dists):
+	def set_taxi_out_time_estimation_dist(self, dists):
 		"""
 		Initialise the taxi-out estimation distribution in the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.taxi_out_time_estimation_dists = dists
@@ -107,10 +114,10 @@ class GroundAirport(Agent):
 		# self.avg_taxi_time = np.array([float(dist.stats('m')) for v in dists.values() for dist in v.values()]).mean()
 		self.avg_taxi_out_time = dists.stats('m')
 
-	def give_taxi_in_time_estimation_dist(self, dists):
+	def set_taxi_in_time_estimation_dist(self, dists):
 		"""
 		Initialise the taxi-in estimation distribution in the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.taxi_in_time_estimation_dists = dists
@@ -119,59 +126,23 @@ class GroundAirport(Agent):
 		# self.avg_taxi_time = np.array([float(dist.stats('m')) for v in dists.values() for dist in v.values()]).mean()
 		self.avg_taxi_in_time = dists.stats('m')
 
-	def give_taxi_time_add_dist(self, dists):
+	def set_taxi_time_add_dist(self, dists):
 		"""
 		Initialise the taxi time 'noise' distribution for the agent
-		dists is a two-layer dict with ac_type, ao_type
+		dists is a two-layer dict with ac_icao, ao_type
 		keys.
 		"""
 		self.taxi_time_add_dists = dists
-
-	def give_connecting_time_dist(self, dists, mct_q=0.95):
-		"""
-		Initialise connecting time distribution for the agent
-		dists is a single layer dict with pax_type keys.
-		Connecting times vary as a function of type of connection
-		(National-National), (International-International), Other
-		"""
-		self.connecting_time_dists = dists
-
-		# Get minimum connecting times
-		self.mcts = {}
-		self.connecting_time_dists = {}
-		for pax_type, v in dists.items():
-			self.mcts[pax_type] = {}
-			self.connecting_time_dists[pax_type] = {}
-			for connection, dist in v.items():
-				if (connection == 'N-N') or (connection == (False, False)):
-					connection_type = (False, False)
-					self.mcts[pax_type][connection_type] = dist.ppf(mct_q)
-					self.connecting_time_dists[pax_type][connection_type] = dist
-				elif (connection == 'I-I') or (connection == (True, True)):
-					connection_type = (True, True)
-					self.mcts[pax_type][connection_type] = dist.ppf(mct_q)
-					self.connecting_time_dists[pax_type][connection_type] = dist
-				else:
-					connection_type = (True, False)
-					self.mcts[pax_type][connection_type] = dist.ppf(mct_q)
-					self.connecting_time_dists[pax_type][connection_type] = dist
-
-					connection_type = (False, True)
-					self.mcts[pax_type][connection_type] = dist.ppf(mct_q)
-					self.connecting_time_dists[pax_type][connection_type] = dist
 
 	def receive(self, msg):
 		"""
 		Receive and distribute messages within the Agent
 		"""
 		if msg['type'] == 'turnaround_time_request':
-			self.gh.wait_for_turnaround_time_request(msg)
+			self.ttp.wait_for_turnaround_time_request(msg)
 
 		if msg['type'] == 'turnaround_request':
-			self.gh.wait_for_turnaround_request(msg)
-
-		elif msg['type'] == 'connecting_times_request':
-			self.pct.wait_for_connecting_times_request(msg)
+			self.pt.wait_for_turnaround_request(msg)
 
 		elif msg['type'] == 'taxi_out_time_estimation_request':
 			self.toe.wait_for_taxi_out_estimation_request(msg)
@@ -197,37 +168,20 @@ class GroundAirport(Agent):
 		"""
 		self.dman_uid = dman.uid
 
-	def register_flight(self, flight):
-		"""
-		Register the flights operating at the airport with information
-		of their type (international,national) (needed to assess the type
-		of connectivity for passengers)
-		"""
-		self.flights[flight.uid] = {'international': flight.international}
-
 	def __repr__(self):
 		"""
 		Provide textual id of the Airport
 		"""
-		return "Airport " + str(self.uid)+" "+str(self.icao)
+		return "Airport Operating Centre " + str(self.uid) + " " + str(self.icao)
 
 
-class GroundHandler(Role):
+class ProcessTurnaround(Role):
 	"""
-	GH: Ground Handler
+	PT: Process Turnaround
 
 	Description:
-		- Provides the turnaround time for an aircraft and
-		- Does the turnaround process by blocking the aircraft resource while the
-		turnaround is happening.
+		- Get a request to do a turnaround for a flight, request the time it will take and then does the turnaround
 	"""
-	
-	def compute_turnaround_time(self, ac_wake, ao_type):
-		"""
-		Provides turnaround time as a function of aircraft category (wake turbulence) and airline type (FSC, LCC, etc.)
-		"""
-		turnaround_time = self.agent.turnaround_time_dists[ac_wake][ao_type].rvs(random_state=self.agent.rs)
-		return turnaround_time
 
 	def do_turnaround(self, aircraft, tt):
 		"""
@@ -241,17 +195,6 @@ class GroundHandler(Role):
 		aircraft.release(aircraft.users[0])
 		mprint(self.agent, 'releases', aircraft, 'at t=', self.agent.env.now)
 
-	def send_turnaround_time(self, aoc_uid, flight_uid, tt):
-		mprint(self.agent, 'sends turnaround time for flight', flight_uid, ':', tt)
-		if flight_uid in flight_uid_DEBUG:
-			print("{} send turnaround time for flight {}".format(self.agent, flight_uid))
-		msg_back = Letter()
-		msg_back['to'] = aoc_uid
-		msg_back['type'] = 'turnaround_time'
-		msg_back['body'] = {'flight_uid': flight_uid,
-							'turnaround_time': tt}
-		self.send(msg_back)        
-	
 	def wait_for_turnaround_request(self, msg):
 		"""
 		Do the turnaround for a given aircraft
@@ -264,64 +207,63 @@ class GroundHandler(Role):
 		aircraft = msg['body']['aircraft']
 
 		mprint('Flight', msg['body']['flight_uid'], 'waits for turnaround of', aircraft)
-		tt = self.compute_turnaround_time(aircraft.bada_performances.wtc, msg['body']['ao_type'])
-		
+		# Ask the role TurnaroundTimeProvider for the turnaround for the aircraft.
+		# This could be changed for a message and then 'externalised'
+		tt = self.agent.ttp.compute_turnaround_time(aircraft.performances.wtc, msg['body']['ao_type'])
+
 		self.agent.env.process(self.do_turnaround(aircraft, tt))
 
 		# This is normal, message gets transferred by flight to AOC afterwards.
 		aoc_uid = aircraft.get_next_flight()
 
 		self.send_turnaround_time(aoc_uid,
-									msg['body']['flight_uid'],
-									tt)
+								  msg['body']['flight_uid'],
+								  tt)
+
+	def send_turnaround_time(self, aoc_uid, flight_uid, tt):
+		mprint(self.agent, 'sends turnaround time for flight', flight_uid, ':', tt)
+		if flight_uid in flight_uid_DEBUG:
+			print("{} send turnaround time for flight {}".format(self.agent, flight_uid))
+		msg_back = Letter()
+		msg_back['to'] = aoc_uid
+		msg_back['type'] = 'turnaround_time'
+		msg_back['body'] = {'flight_uid': flight_uid,
+							'turnaround_time': tt}
+		self.send(msg_back)
+
+
+class TurnaroundTimeProvider(Role):
+	"""
+	TTP: TurnaroundTimeProvider
+
+	Description:
+		- Provides the actual turnaround time for an aircraft
+	"""
+
+	def compute_turnaround_time(self, ac_wake, ao_type):
+		"""
+		Provides turnaround time as a function of aircraft category (wake turbulence) and airline type (FSC, LCC, etc.)
+		"""
+		turnaround_time = self.agent.turnaround_time_dists[ac_wake][ao_type].rvs(random_state=self.agent.rs)
+		return turnaround_time
+
+	def send_turnaround_time(self, aoc_uid, flight_uid, tt):
+		mprint(self.agent, 'sends turnaround time for flight', flight_uid, ':', tt)
+		if flight_uid in flight_uid_DEBUG:
+			print("{} send turnaround time for flight {}".format(self.agent, flight_uid))
+		msg_back = Letter()
+		msg_back['to'] = aoc_uid
+		msg_back['type'] = 'turnaround_time'
+		msg_back['body'] = {'flight_uid': flight_uid,
+							'turnaround_time': tt}
+		self.send(msg_back)
 
 	def wait_for_turnaround_time_request(self, msg):
 		mprint(self.agent, 'received turnaround time request from AOC', msg['from'])
 
-		tt = self.compute_turnaround_time(msg['body']['ac_type'], msg['body']['ao_type'])
+		tt = self.compute_turnaround_time(msg['body']['ac_icao'], msg['body']['ao_type'])
 		self.send_turnaround_time(msg['from'], msg['body']['flight_uid'], tt)
 
-
-class ProvideConnectingTime(Role):
-	"""
-	PCT: Provide Connecting Time
-
-	Description: Provides connecting times for passengers at airport
-	"""
-
-	def wait_for_connecting_times_request(self, msg):
-		mprint(self.agent, 'receives connecting times request from AOC', msg['from'],
-				'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type,
-				'and connection_type', msg['body']['connection_type'])
-
-		mct, ct = self.estimate_connecting_times(msg['body']['pax'].pax_type, msg['body']['connection_type'])
-
-		# aprint ('Minimum and actual connecting times:', mct, ct)
-		# print ('Minimum and actual connecting times:', mct, ct)
-
-		self.return_connecting_times(msg['from'],
-									msg['body']['pax'],
-									mct,
-									ct)
-
-	def estimate_connecting_times(self, pax_type, connection_type):
-		mct = self.agent.mcts[str(pax_type)][connection_type]
-		ct = self.agent.connecting_time_dists[str(pax_type)][connection_type].rvs(random_state=self.agent.rs)
-		return mct, ct
-
-	def return_connecting_times(self, aoc_uid, pax, mct, ct):
-		mprint(self.agent, 'sends connecting times to AOC', aoc_uid,
-				'for pax', pax, ': mct=', mct, '; ct=', ct)
-		
-		msg_back = Letter()
-		msg_back['to'] = aoc_uid
-		msg_back['type'] = 'connecting_times'
-		msg_back['body'] = {'mct': mct,
-							'ct': ct,
-							'pax': pax
-							}
-		self.send(msg_back)        
-	
 
 class TaxiOutEstimator(Role):
 	"""
@@ -333,11 +275,11 @@ class TaxiOutEstimator(Role):
 	def wait_for_taxi_out_estimation_request(self, msg):
 		mprint(self.agent, 'received taxi-out time estimation request from AOC', msg['from'])
 
-		toe = self.estimate_taxi_out_time(msg['body']['ac_type'], msg['body']['ao_type'])
+		toe = self.estimate_taxi_out_time(msg['body']['ac_icao'], msg['body']['ao_type'])
 		self.return_taxi_out_estimation(msg['from'], toe)
 
-	def estimate_taxi_out_time(self, ac_type, ao_type):
-		# Note that taxi-out does not depend on aircraft type (ac_type) nor airline operator type (ao_type) for now
+	def estimate_taxi_out_time(self, ac_icao, ao_type):
+		# Note that taxi-out does not depend on aircraft type (ac_icao) nor airline operator type (ao_type) for now
 		estimation = float(self.agent.taxi_out_time_estimation_dists.rvs(random_state=self.agent.rs))
 		return estimation
 
@@ -346,7 +288,7 @@ class TaxiOutEstimator(Role):
 		msg_back['to'] = flight_uid
 		msg_back['type'] = 'taxi_out_time_estimation'
 		msg_back['body'] = {'taxi_out_time_estimation': toe}
-		self.send(msg_back)        
+		self.send(msg_back)
 
 
 class TaxiOutProvider(Role):
@@ -359,16 +301,16 @@ class TaxiOutProvider(Role):
 	def wait_for_taxi_out_request(self, msg):
 		mprint(self.agent, 'received taxi-out time request from AOC', msg['from'])
 
-		to = self.compute_taxi_out_time(msg['body']['ac_type'],
+		to = self.compute_taxi_out_time(msg['body']['ac_icao'],
 										msg['body']['ao_type'],
 										msg['body']['taxi_out_time_estimation'])
 		self.return_taxi_out_time(msg['from'], to)
 
-	def compute_taxi_out_time(self, ac_type, ao_type, taxi_out_time_estimation):
+	def compute_taxi_out_time(self, ac_icao, ao_type, taxi_out_time_estimation):
 		"""
 		Sample the taxi-out time from the distribution
 		"""
-		# Note that taxi-out does not depend on aircraft type (ac_type) nor airline operator type (ao_type) for now
+		# Note that taxi-out does not depend on aircraft type (ac_icao) nor airline operator type (ao_type) for now
 		taxi_out_time = taxi_out_time_estimation + self.agent.taxi_time_add_dists.rvs(random_state=self.agent.rs)
 		return max(self.agent.min_tt, taxi_out_time)
 
@@ -377,7 +319,7 @@ class TaxiOutProvider(Role):
 		msg_back['to'] = flight_uid
 		msg_back['type'] = 'taxi_out_time'
 		msg_back['body'] = {'taxi_out_time': to}
-		self.send(msg_back)        
+		self.send(msg_back)
 
 
 class TaxiInProvider(Role):
@@ -390,15 +332,15 @@ class TaxiInProvider(Role):
 	def wait_for_taxi_in_request(self, msg):
 		mprint(self.agent, 'received taxi-in time request from flight', msg['from'])
 
-		ti = self.compute_taxi_in_time(msg['body']['ac_type'], msg['body']['ao_type'])
+		ti = self.compute_taxi_in_time(msg['body']['ac_icao'], msg['body']['ao_type'])
 		self.return_taxi_in_time(msg['from'], ti)
 
-	def compute_taxi_in_time(self, ac_type, ao_type):
+	def compute_taxi_in_time(self, ac_icao, ao_type):
 		"""
 		Note: we add the "estimation" and the "disruption" in order to have
 		the same distribution as for taxi-out.
 		"""
-		# Note that taxi-in does not depend on ac_type or ao_type for now
+		# Note that taxi-in does not depend on ac_icao or ao_type for now
 		estimation = self.agent.taxi_in_time_estimation_dists.rvs(random_state=self.agent.rs)
 		disruption = self.agent.taxi_time_add_dists.rvs(random_state=self.agent.rs)
 		return max(self.agent.min_tt, estimation + disruption)

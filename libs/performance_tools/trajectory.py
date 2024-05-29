@@ -56,7 +56,7 @@ class TrajectorySegment(TrajectoryComponent):
 
 class Trajectory(TrajectoryComponent):
 
-	def __init__(self, ac_icao, ac_model="", bada_version=-1, oew=-1, mpl=-1, distance_orig_fp=0):
+	def __init__(self, ac_icao, ac_model="", model_version=-1, oew=-1, mpl=-1, distance_orig_fp=0):
 		self.trajectory_segments = []
 		self.distance = 0
 		self.distance_orig_fp = distance_orig_fp
@@ -70,7 +70,7 @@ class Trajectory(TrajectoryComponent):
 		self.status = 1
 		self.ac_icao = ac_icao
 		self.ac_model = ac_model
-		self.bada_version = bada_version
+		self.model_version = model_version
 		self.oew = oew
 		self.mpl = mpl
 
@@ -135,12 +135,12 @@ class Trajectory(TrajectoryComponent):
 			   +str(round(self.payload_carried()))+"_"\
 			   +str(self.fl_max)+"_"\
 			   +str(self.number_of_climb_steps())+"_"\
-			   +str(self.bada_version)
+			   +str(self.model_version)
 
 	def dataframe_trajectory(self):
 		trajectory_id=self.get_trajectory_id()
 		y=[trajectory_id, 
-		   self.ac_icao, self.ac_model, self.bada_version, int(round(self.distance, 0)),
+		   self.ac_icao, self.ac_model, self.model_version, int(round(self.distance, 0)),
 		   int(round(self.distance_orig_fp,0)),
 		   self.number_of_climb_steps(), 
 		   float(round(self.time,3)),
@@ -154,7 +154,7 @@ class Trajectory(TrajectoryComponent):
 		   float(self.fl_max),
 		   self.status]
 		d=pd.DataFrame(y).T
-		d.columns=['trajectory_id', 'ac_icao', 'ac_model', 'bada_version', 'fp_distance',
+		d.columns=['trajectory_id', 'ac_icao', 'ac_model', 'model_version', 'fp_distance',
 		'fp_distance_orig', 
 		'number_of_climb_steps',
 		'fp_time', 'fp_fuel', 'fp_weight_0', 'fp_weight_1', 'oew', 'mpl', 'pl', 'pl_perc',
@@ -227,7 +227,7 @@ class Trajectory(TrajectoryComponent):
 	def print_info(self, print_segments=True):
 		print("STATUS: "+Trajectory.status_codes[self.status])
 		print("AC: "+str(self.ac_icao)+" - "+str(self.ac_model))
-		print("BADA: "+str(self.bada_version))
+		print("BADA: "+str(self.model_version))
 		print("DISTANCE ORIG FP: "+str(self.distance_orig_fp))
 		print("DISTANCE: "+str(self.distance))
 		print("FUEL: "+str(self.fuel))

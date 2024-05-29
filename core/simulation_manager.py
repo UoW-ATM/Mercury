@@ -66,10 +66,11 @@ class Mercury:
 			print('Building world...')
 
 			world = World(paras_simulation,
-							log_file=f
-							)
+						  log_file=f
+						  )
 
 			paras_scenario['others__pc'] = paras_simulation['computation__pc']
+
 			world.load_scenario(info_scenario=info_scenario,
 								case_study_conf=case_study_conf,
 								 data_scenario=data_scenario,
@@ -78,7 +79,7 @@ class Mercury:
 								log_file=f
 								)
 
-		if not parametriser is None:
+		if parametriser is not None:
 			parametriser.set_world(world)
 
 		return world
@@ -208,6 +209,7 @@ class Mercury:
 		in the scenario generation (like days of regulation etc) are redrawn by default when the world is reset.
 		"""
 		# TODO: put this in the world builder
+
 		paras_scenario = self.post_process_paras(paras_scenario)
 
 		# If the results are supposed to go in files (not in mysql), we check
@@ -289,7 +291,6 @@ class Mercury:
 		Used to make several iterations of the same set of input in sequential. Builds the world on the first iteration
 		and builds agents if required (after deep clean). Passes the world to _run_on_iter for the simulation.
 		"""
-
 		world = self.build_world(connection=connection_read,
 								 parametriser=parametriser,
 								 paras_scenario=paras_scenario,

@@ -9,7 +9,7 @@ from Mercury.core.delivery_system import Letter
 
 from Mercury.libs.other_tools import flight_str
 from Mercury.libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
-from Mercury.libs.performance_trajectory import unit_conversions as uc
+from Mercury.libs.performance_tools import unit_conversions as uc
 
 from Mercury.agents.agent_base import Agent, Role
 from Mercury.agents.commodities.debug_flights import flight_uid_DEBUG
@@ -262,7 +262,7 @@ class AircraftDepartingHandler(Role):
 		msg = Letter()
 		msg['to'] = self.agent.origin_airport_uid
 		msg['type'] = 'taxi_out_time_request'
-		msg['body'] = {'ac_type': self.agent.aircraft.ac_type,
+		msg['body'] = {'ac_icao': self.agent.aircraft.ac_icao,
 						'ao_type': self.agent.aoc_info['ao_type'],
 						'taxi_out_time_estimation': self.agent.FP.exot}
 
@@ -363,7 +363,7 @@ class DepartureSlotRequester(Role):
 		msg = Letter()
 		msg['to'] = self.agent.origin_airport_uid
 		msg['type'] = 'taxi_out_time_estimation_request'
-		msg['body'] = {'ac_type': self.agent.aircraft.ac_type, 'ao_type': self.agent.aoc_info['ao_type']}
+		msg['body'] = {'ac_icao': self.agent.aircraft.ac_icao, 'ao_type': self.agent.aoc_info['ao_type']}
 
 		self.send(msg)
 
@@ -746,7 +746,7 @@ class GroundArrivalHandler(Role):
 		msg = Letter()
 		msg['to'] = self.agent.destination_airport_uid
 		msg['type'] = 'taxi_in_time_request'
-		msg['body'] = {'ac_type': self.agent.aircraft.ac_type, 'ao_type': self.agent.aoc_info['ao_type']}
+		msg['body'] = {'ac_icao': self.agent.aircraft.ac_icao, 'ao_type': self.agent.aoc_info['ao_type']}
 
 		self.send(msg)
 
@@ -841,9 +841,7 @@ class OperateTrajectory(Role):
 			# msg['to'] = self.agent.uid
 			# msg['type'] = 'speed_update'
 			# msg['body'] = {'flight_uid': self.agent.uid, 'perc_selected': 0.8}
-			# self.send(msg)
-
-			# Save Actual Take-off Time (ATOT)
+			# self.send(msg)			# Save Actual Take-off Time (ATOT)
 			self.agent.FP.atot = self.agent.env.now
 
 			# Force a waiting after triggering the event, force something else to be done before instead
@@ -935,7 +933,9 @@ class OperateTrajectory(Role):
 						# While integrating the duration of the segment
 						while t < current_point.segment_time_min:
 							dt = min(dt, current_point.segment_time_min-t)
-							fuel = dt * self.agent.aircraft.bada_performances.compute_fuel_flow(fl=alt_ft, mass=current_point.weight, m=avg_m)
+							fuel = dt * self.agent.aircraft.performances.compute_fuel_flow(fl=alt_ft,
+																						   mass=current_point.weight,
+																						   m=avg_m)
 							current_point.fuel += fuel
 							current_point.weight -= fuel
 							t += dt
@@ -947,15 +947,20 @@ class OperateTrajectory(Role):
 							# Should be this but too slow that is why is commented
 							# if alt_ft_prev+100 < alt_ft:
 							#    #Climb larger than 100 FL
-							#    t = self.agent.aircraft.bada_performances.trajectory_segment_climb_estimation_from_to(fl_0=alt_ft_prev,fl_1=alt_ft,weight_0=self.points[i-1].weight)
+							#    t = self.agent.aircraft.performances.trajectory_segment_climb_estimation_from_to(fl_0=alt_ft_prev,fl_1=alt_ft,weight_0=self.points[i-1].weight)
 							#    self.points[i].fuel = self.points[i-1].fuel + t.fuel
 							#    self.points[i].weight = t.weight_1
 							# else:
-							
-							ff = self.agent.aircraft.bada_performances.estimate_climb_fuel_flow(from_fl=alt_ft_prev, to_fl=alt_ft)
+							ff = self.agent.aircraft.performances.estimate_climb_fuel_flow(from_fl=alt_ft_prev,
+																						   to_fl=alt_ft,
+																						   time_climb=current_point.segment_time_min,
+																						   planned_avg_speed_kt=planned_avg_speed_kt)
 						else:
 							# Descent
-							ff = self.agent.aircraft.bada_performances.estimate_descent_fuel_flow(from_fl=alt_ft_prev, to_fl=alt_ft)
+							ff = self.agent.aircraft.performances.estimate_descent_fuel_flow(from_fl=alt_ft_prev,
+																							 to_fl=alt_ft,
+																							 time_descent=current_point.segment_time_min,
+																							 planned_avg_speed_kt=planned_avg_speed_kt)
 
 						# Update fuel used and weight based on fuel flow (ff) of climb/descend and time
 						fuel = (ff * current_point.segment_time_min)
@@ -997,14 +1002,14 @@ class OperateTrajectory(Role):
 						if self.agent.FP.holding_time > 0:
 							# Try to compute fuel flow on holding with information of weight, FL and time
 							holding_altitude = self.agent.default_holding_altitude
-							ff_holding = self.agent.aircraft.bada_performances.estimate_holding_fuel_flow(
+							ff_holding = self.agent.aircraft.performances.estimate_holding_fuel_flow(
 															min(holding_altitude, self.agent.FP.points_executed[-1].alt_ft), current_point.weight)
 
 							if ff_holding < 0:
 								# The fuel flow in holding didn't work (e.g. weight didn't work)
 								# Recompute forcing mim max in BADA performance model
 								# at = datetime.datetime.now()
-								ff_holding = self.agent.aircraft.bada_performances.estimate_holding_fuel_flow(
+								ff_holding = self.agent.aircraft.performances.estimate_holding_fuel_flow(
 															min(holding_altitude, self.agent.FP.points_executed[-1].alt_ft), current_point.weight,
 															compute_min_max=True)
 
@@ -1159,9 +1164,9 @@ class PotentialDelayRecoveryProvider(Role):
 		# fp.create_plot_trajectory(points=points)
 
 		# Fuel available for the flight at this point
-		extra_fuel_availabe = current_weight - fuel_nom - self.agent.aircraft.bada_performances.oew
+		extra_fuel_available = current_weight - fuel_nom - self.agent.aircraft.performances.oew
 
-		tfsc = {'fuel_nom': fuel_nom, 'time_nom': time_nom, 'extra_fuel_available': extra_fuel_availabe,
+		tfsc = {'fuel_nom': fuel_nom, 'time_nom': time_nom, 'extra_fuel_available': extra_fuel_available,
 				'time_fuel_func': None, 'perc_variation_func': None,
 				'min_time': 0, 'max_time': 0, 
 				'min_time_w_fuel': 0, 'max_time_w_fuel': 0,
@@ -1317,7 +1322,7 @@ class PotentialDelayRecoveryProvider(Role):
 					avg_m = uc.kt2m(kt=speed, fl=points[i+1].alt_ft)
 					while t < segment_time:
 						dt = min(dt, segment_time-t)
-						fuel_segment = dt * self.agent.aircraft.bada_performances.compute_fuel_flow(fl=points[i+1].alt_ft, mass=weight, m=avg_m)
+						fuel_segment = dt * self.agent.aircraft.performances.compute_fuel_flow(fl=points[i+1].alt_ft, mass=weight, m=avg_m)
 						fuel += fuel_segment 
 						weight -= fuel_segment
 						t += dt
@@ -2052,10 +2057,10 @@ class FPInfoProvider(Role):
 			return fp.get_atfm_reason()
 
 	def get_ac_icao(self):
-		return self.agent.aircraft.bada_performances.ac_icao
+		return self.agent.aircraft.performances.ac_icao
 
 	def get_ac_model(self):
-		return self.agent.aircraft.bada_performances.ac_model
+		return self.agent.aircraft.performances.ac_model
 
 	def get_ac_registration(self):
 		return self.agent.aircraft.registration

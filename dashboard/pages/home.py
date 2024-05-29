@@ -2,7 +2,7 @@ import sys
 sys.path.insert(1, '../..')
 from dash import html, dcc, callback, Input, Output, State, dash_table, ctx, no_update
 from dash.dash_table.Format import Format, Scheme, Trim
-from Mercury.libs.input_manager import Input_manager
+from Mercury.libs.input_manager import Input_manager, print_log
 import pandas as pd
 import os
 import datetime as dt
@@ -38,7 +38,7 @@ def stats_pax(itineraries):
     df_flows=input_man.pax_flows()
     #df_flows=df_flows[df_flows['pax']>2000].sort_values(by=['pax'])
     df_flows = df_flows.nlargest(20, 'pax')
-    #print(df_flows)
+    print_log(df_flows)
     fig=plot_pax_flows(df_flows)
     return html.Div([html.P('Number of Pax itineraries: '+str(len(itineraries))),html.P('Top 20 flows in ECAC'),dcc.Graph(figure=fig)])
 
@@ -50,7 +50,7 @@ def stats_delay(delay):
     #(table,form_ids,keys) = create_form(df,editable=['value'],key_column='para_name')
     delay_table = dash_table.DataTable(delay.to_dict(orient='records'),[{'name': i, 'id': i} for i in delay.columns],id='delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.Div([html.P('Select delay:'),dropdown_delay],className="row flex-display"),html.Div(delay_table,id='delay_table'),html.Div([],style={'height':'50px'})])
+    return html.Div([html.Div([html.P('Select delay (Selecting will set the case study delay):'),dropdown_delay],className="row flex-display"),html.Div(delay_table,id='delay_table'),html.Div([],style={'height':'50px'})])
 
 def stats_eaman(eaman):
     case_study_eaman = input_man.get_case_study_eaman()
@@ -65,7 +65,7 @@ def stats_eaman(eaman):
 
     paras_table = dash_table.DataTable(paras,[{'name': 'parameter_name', 'id': 'parameter_name'},{'name': 'value', 'id': 'value'}],id='eaman_paras_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.Div([html.P('Select uptake:'),dropdown_eaman],className="row flex-display"),html.Div(eaman_table,id='eaman_table'),button,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
+    return html.Div([html.Div([html.P('Select uptake (Selecting will set case study uptake):'),dropdown_eaman],className="row flex-display"),html.Div(eaman_table,id='eaman_table'),button,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
 
 def stats_costs(costs):
 
@@ -108,12 +108,12 @@ def stats_costs(costs):
 def stats_regulations(regulations):
 
     atfm_delay,atfm_prob,regulation_at_airport_days,atfm_regulation_at_airport,atfm_regulation_at_airport_manual = regulations
-    atfm_delay = atfm_delay[['scenario_id','atfm_type','index','x','y','info']]
-    atfm_prob = atfm_prob[['scenario_id','atfm_type','p','info']]
+    atfm_delay = atfm_delay[['level','atfm_type','index','x','y','info']]
+    atfm_prob = atfm_prob[['level','atfm_type','p','info']]
 
     dropdown_stochastic_airport_regulations = dcc.Dropdown(id='dropdown_stochastic_airport_regulations',options=['R','D','N','Airport'],multi=False,value='R',clearable=False)
     #dropdown_atfm_type = dcc.Dropdown(id='dropdown_atfm_type',options=atfm_delay['atfm_type'].unique(),multi=False,value=atfm_delay['atfm_type'].unique()[0])
-    dropdown_atfm_scenario = dcc.Dropdown(id='dropdown_atfm_scenario',options=atfm_delay['scenario_id'].unique(),multi=False,value=atfm_delay['scenario_id'].unique()[0],clearable=False)
+    dropdown_atfm_scenario = dcc.Dropdown(id='dropdown_atfm_scenario',options=atfm_delay['level'].unique(),multi=False,value=atfm_delay['level'].unique()[0],clearable=False)
 
     #atfm_delay_table = dash_table.DataTable(atfm_delay.to_dict(orient='records'),[{'name': i, 'id': i} for i in atfm_delay.columns],id='aftm_delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
@@ -129,12 +129,13 @@ def stats_regulations(regulations):
     atfm_regulation_at_airport_manual_table = dash_table.DataTable(atfm_regulation_at_airport_manual.to_dict(orient='records'),[{'name': i, 'id': i} for i in atfm_regulation_at_airport_manual.columns],id='atfm_regulation_at_airport_manual_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},row_deletable=True)
 
     button = html.Button('Add Row', id='atfm_regulation_at_airport_manual_add_rows_button', n_clicks=0)
+    manual_reg_scenario=dcc.Input(id='manual_reg_scenario_input',type='text',value='None')
 
     paras = [{'parameter_name':k,'value':v} for k,v in input_man.scenario_config['paras']['network_manager'].items()]
 
     paras_table = dash_table.DataTable(paras,[{'name': 'parameter_name', 'id': 'parameter_name'},{'name': 'value', 'id': 'value'}],id='network_manager_paras_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.Div([html.P('Select Delays scenario:'),dropdown_atfm_scenario],className="row flex-display"),html.P('Select stochastic airport regulations scenario:'),dropdown_stochastic_airport_regulations,html.P('If stochastic airport regulations is D, select day:'),html.Div([dropdown_regulations_days],className=""),html.P('If stochastic airport regulations is Airport, input airport icao_id:'),input_airport_name,html.P('atfm delay:'),atfm_delay_plot,html.P('atfm probability:'),html.Div(atfm_prob_table,id='atfm_prob_table'),html.P('regulation_at_airport_days:'),regulation_at_airport_days_table,html.P('atfm_regulation_at_airport:'),atfm_regulation_at_airport_table,html.P('atfm_regulation_at_airport_manual:'),atfm_regulation_at_airport_manual_table,button,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
+    return html.Div([html.Div([html.P('Select Delays scenario:'),dropdown_atfm_scenario],className="row flex-display"),html.P('Select stochastic airport regulations scenario:'),dropdown_stochastic_airport_regulations,html.P('If stochastic airport regulations is D, select day:'),html.Div([dropdown_regulations_days],className=""),html.P('If stochastic airport regulations is Airport, input airport icao_id:'),input_airport_name,html.P('atfm delay:'),atfm_delay_plot,html.P('atfm probability:'),html.Div(atfm_prob_table,id='atfm_prob_table'),html.P('regulation_at_airport_days:'),regulation_at_airport_days_table,html.P('atfm_regulation_at_airport:'),atfm_regulation_at_airport_table,html.P('atfm_regulation_at_airport_manual:'),html.Div(atfm_regulation_at_airport_manual_table,id='atfm_regulation_at_airport_manual_table'),button,html.P('Input manual manual_reg_scenario_id:'),manual_reg_scenario,html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
 
 def stats_fp(fp):
 
@@ -142,9 +143,10 @@ def stats_fp(fp):
     fp_pool_m,fp_pool_point_m = fp['flight_plans_pool']
     flight_uncertainties,extra_cruise_if_dci = fp['flight_uncertainties']
     fp_pool_point_m = fp_pool_point_m[['fp_pool_id','sequence','name']]
-    #print(fp_pool_m)
+    print_log(fp_pool_m)
     dropdown_icao_orig = dcc.Dropdown(id='dropdown_icao_orig',options=fp_pool_m['icao_orig'].unique(),multi=False,value='')
     dropdown_icao_dest = dcc.Dropdown(id='dropdown_icao_dest',options=fp_pool_m['icao_dest'].unique(),multi=False,value='')
+    dropdown_fp_ac_type = dcc.Dropdown(id='dropdown_fp_ac_type',options=fp_pool_m['bada_code_ac_model'].unique(),multi=False,value='')
     #dropdown_route_pool_id = dcc.Dropdown(id='dropdown_route_pool_id',options=fp_pool_m.head()['route_pool_id'].unique(),multi=False,value='')
 
     fp_pool_m_table = dash_table.DataTable(fp_pool_m.head().to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_m.columns],id='fp_pool_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
@@ -163,7 +165,7 @@ def stats_fp(fp):
 
     paras_table = dash_table.DataTable(paras,[{'name': 'parameter_name', 'id': 'parameter_name'},{'name': 'value', 'id': 'value'}],id='fp_paras_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
-    return html.Div([html.P('Select origin'),dropdown_icao_orig,html.P('Select destination'),dropdown_icao_dest,dcc.Graph(figure=fig,id='route_pool_plot'),html.P('fp_pool_m'),html.Div(fp_pool_m_table,id='fp_pool_m_table'),html.P('Select flight plan'),dropdown_fp_pool_id,html.P('fp_pool_point_m'),html.Div(fp_pool_point_m_table,id='fp_pool_point_m_table'),dcc.Graph(figure=fig2),html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
+    return html.Div([html.P('Select origin'),dropdown_icao_orig,html.P('Select destination'),dropdown_icao_dest,html.P('fp_pool_m'),html.Div(fp_pool_m_table,id='fp_pool_m_table'),html.P('Select AC type'),dropdown_fp_ac_type,dcc.Graph(figure=fig,id='route_pool_plot'),html.P('Select flight plan'),dropdown_fp_pool_id,html.P('fp_pool_point_m'),html.Div(fp_pool_point_m_table,id='fp_pool_point_m_table'),dcc.Graph(figure=fig2),html.P('Parameters:'),paras_table,html.Div([],style={'height':'50px'})])
 
 def stats_airports(airports):
 
@@ -218,14 +220,15 @@ def plot_pax_flows(df_flows):
 
     fig = go.Figure(go.Scattermapbox(
         mode = "markers+lines",
-        lat = [48.7233333333, 43.635],
-        lon = [2.3794444444, 1.3677777778],
+        lat = [],
+        lon = [],
         marker = {'size': 10},showlegend=False))
 
     yy=[]
     xx=[]
     paxs=[]
     hovertexts=[]
+    max_flow = df_flows['pax'].max()
     for index, row in df_flows.iterrows():
         lats=[]
         lons=[]
@@ -241,10 +244,10 @@ def plot_pax_flows(df_flows):
         pax.append(row['pax'])
         pax.append(None)
         paxs.append(row['pax'])
-        ##print(lats,lons)
-        w=row['pax']/250
+        #print_log(lats,lons)
+        w=(row['pax']/max_flow)*20
         hovertexts.append(row['origin']+'>'+row['destination']+' Pax:'+str(row['pax']))
-        #print(row['origin'],row['destination'],row['pax'],w)
+        print_log(row['origin'],row['destination'],row['pax'],w)
         fig.add_trace(go.Scattermapbox(mode = "markers+lines",lon = lons,lat = lats,line={'color':edge_color(row['pax'],maximum=df_flows['pax'].max(),minimum=df_flows['pax'].min()),'width':w},marker = {'size': 10},opacity=0.5,showlegend=False,hoverinfo='skip'))
 
     marker=go.Scattermapbox(lon = yy,lat = xx,mode = 'markers',marker={'color':paxs,'colorbar':{'title':'Pax'},'colorscale':'Rainbow','size':5, },showlegend=False,hoverinfo='text',hovertext=hovertexts,opacity=0.1)
@@ -289,10 +292,10 @@ def plot_routes(rp):
         pax.append(row['route_pool_id'])
         pax.append(None)
         paxs.append(row['route_pool_id'])
-        ##print(lats,lons)
+        #print_log(lats,lons)
 
         hovertexts.append(row['name']+' route_pool_id:'+str(row['route_pool_id']))
-        ##print(row['origin'],row['destination'],row['pax'],w)
+        #print_log(row['origin'],row['destination'],row['pax'],w)
         fig.add_trace(go.Scattermapbox(mode = "markers+lines",lon = lons,lat = lats,line={'color':edge_color(row['route_pool_id'],maximum=rp['route_pool_id'].max(),minimum=rp['route_pool_id'].min()),'width':10},marker = {'size': 10},opacity=0.5,showlegend=False,hoverinfo='skip'))
         #if i>100:
             #break
@@ -338,10 +341,11 @@ def plot_fps(fp):
             previous_row = row
             continue
         if row['fp_pool_id'] != previous_row['fp_pool_id']:
+            previous_row = row
             continue
         if row['fp_pool_id'] not in nr_routes:
             break
-
+        #print(row['fp_pool_id'])
         lats.append(row['lat'])
         lats.append(previous_row['lat'])
         lats.append(None)
@@ -353,10 +357,10 @@ def plot_fps(fp):
         pax.append(row['fp_pool_id'])
         pax.append(None)
         paxs.append(row['fp_pool_id'])
-        ##print('lats-lons',lats,lons)
+        #print_log('lats-lons',lats,lons)
 
         hovertexts.append('fp_pool_id:'+str(row['fp_pool_id'])+' '+str(row['name']))
-        ##print(row['origin'],row['destination'],row['pax'],w)
+        #print_log(row['origin'],row['destination'],row['pax'],w)
         fig.add_trace(go.Scattermapbox(mode = "markers+lines",lon = lons,lat = lats,line={'color':edge_color(row['fp_pool_id'],maximum=fp['fp_pool_id'].max(),minimum=fp['fp_pool_id'].min()),'width':10},marker = {'size': 10},opacity=0.5,showlegend=False,hoverinfo='skip'))
         i+=1
         previous_row = row
@@ -399,7 +403,7 @@ mapbox_access_token='pk.eyJ1IjoibTIwMDEiLCJhIjoiY2p3ODFlNnlyMDRpZDQ5czJuODc5NHly
 
 input_man = Input_manager()
 #input_path = input_man.read_mercury_config()['read_profile']['path']
-##print('input_path','../' / Path(input_path)/'scenario=0')
+#print_log('input_path','../' / Path(input_path)/'scenario=0')
 #input_man.read_scenario('scenario=0')
 #input_man.read_scenario('scenario=0')
 input_man.read_scenario('scenario=-1')
@@ -407,7 +411,7 @@ input_man.read_scenario_data(names=['schedules','pax','airports','delay','eaman'
 
 schedules = input_man.get_schedules()
 delay = input_man.get_delay()
-#print(len(schedules))
+print_log(len(schedules))
 
 table = dash_table.DataTable(schedules.to_dict(orient='records'),[{'name': i, 'id': i} for i in schedules[['nid','callsign','origin','destination','sobt','sibt']].columns],page_size=10,filter_action="native",sort_action="native",style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'}),
 
@@ -525,11 +529,11 @@ def update_case_studies(scenario):
     [Input('dropdown_origins', 'value'),Input('dropdown_destinations', 'value'),Input('dropdown_airline_type', 'value'),Input('date_picker1', 'date'),Input('date_picker2', 'date'),Input('dropdown_start_hour', 'value'),Input('dropdown_end_hour', 'value'),Input('dropdown_sobt', 'value'),Input("submit_button", "n_clicks")],[State('sql_input', 'value')],prevent_initial_call=True,)
 def update(origin,destination,airline_type,date1,date2,start_hour,end_hour,block_time,n_clicks,sql_query):
     #df = input_man.filter_schedules(which='scenario',query_type='python',query='')
-    ##print(df)
+    #print_log(df)
     trigger = ctx.triggered_id
-    #print('trigger',trigger)
+    print_log('trigger',trigger)
     #if trigger == 'dropdown_case_studies':
-        ##print('case_study',case_study)
+        #print_log('case_study',case_study)
         #input_man.read_case_study(case_study)
         #df = input_man.get_case_study_schedules()
         #table = dash_table.DataTable(df.to_dict(orient='records'),[{'name': i, 'id': i} for i in df[['nid','callsign','origin','destination','sobt','sibt']].columns],page_size=10)
@@ -541,13 +545,13 @@ def update(origin,destination,airline_type,date1,date2,start_hour,end_hour,block
     if trigger == 'submit_button':
 
         df = input_man.filter_schedules(which='case_study',query_type='sql',query=sql_query)
-        #print(df,sql_query)
+        print_log(df,sql_query)
         table = dash_table.DataTable(df.to_dict(orient='records'),[{'name': i, 'id': i} for i in df[['nid','callsign','origin','destination','sobt','sibt']].columns],page_size=10,filter_action="native",sort_action="native",style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
 
         stats = 'Number of flights: '+str(len(df))
         return [table,stats,'tab_1']
 
-    #print('origin',origin,destination,date1,date2)
+    print_log('origin',origin,destination,date1,date2)
 
     if 'all' not in origin:
         query = 'origin in '+str(origin)
@@ -570,7 +574,7 @@ def update(origin,destination,airline_type,date1,date2,start_hour,end_hour,block
     max_date = [int(x) for x in date2.split('-')]
     query += ' and '+block_time+' >= datetime.datetime('+"{0},{1},{2},hour={3})".format(min_date[0], min_date[1], min_date[2],int(start_hour))
     query += ' and '+block_time+' <= datetime.datetime('+"{0},{1},{2},hour={3})".format(max_date[0], max_date[1], max_date[2],int(end_hour))
-    #print(query)
+    print_log(query)
     #'origin in [\'LEBL\'] and destination in [\'EGLL\']'
 
     df = input_man.filter_schedules(which='base',query_type='python',query=query)
@@ -581,16 +585,30 @@ def update(origin,destination,airline_type,date1,date2,start_hour,end_hour,block
     return [table,stats,'tab_1']
 
 @callback(
-    [Output('dropdown_origins', 'value'),Output('dropdown_destinations', 'value'),Output('dropdown_airline_type', 'value')],
+    [Output('dropdown_origins', 'value'),Output('dropdown_destinations', 'value'),Output('dropdown_airline_type', 'value'),Output('dropdown_origins', 'options'),Output('dropdown_destinations', 'options'),Output('dropdown_airline_type', 'options')],
     [Input("load_button", "n_clicks"),],
     [State('dropdown_case_studies','value')],
     prevent_initial_call=True,
 )
 def load(n_clicks,case_study):
-    #print('case_study',case_study)
+    print_log('case_study',case_study)
     input_man.read_scenario_data(names=['schedules','pax','airports','delay','eaman','airlines','network_manager','flight_plans','costs'])
     input_man.read_case_study(case_study)
-    return [['all'],['all'],['all']]
+
+    schedules = input_man.get_schedules()
+    origins = [{'label': i, 'value': i} for i in schedules['origin'].unique()]
+    origins.sort(key=lambda x: x['label'])
+    origins=[{'label': 'All', 'value': 'all'}]+origins
+
+    destinations = [{'label': i, 'value': i} for i in schedules['destination'].unique()]
+    destinations.sort(key=lambda x: x['label'])
+    destinations=[{'label': 'All', 'value': 'all'}]+destinations
+
+    airline_types = [{'label': i, 'value': i} for i in schedules['airline_type'].unique()]
+    airline_types.sort(key=lambda x: x['label'])
+    airline_types=[{'label': 'All', 'value': 'all'}]+airline_types
+
+    return [['all'],['all'],['all'],origins,destinations,airline_types]
 
 
 @callback(
@@ -608,7 +626,7 @@ def func(n_clicks,case_study_id):
 @callback(Output('tabs_content', 'children'),
               Input('tabs', 'value'))
 def render_content(tab):
-    #print('tab',tab)
+    print_log('tab',tab)
     if tab == 'tab_1':
         content = stats_flights(input_man.get_case_study_schedules())
     elif tab == 'tab_2':
@@ -635,9 +653,9 @@ def render_content(tab):
     #prevent_initial_call=True,
 #)
 #def delay_func(delay_level):
-    ##print('delay_level',delay_level)
+    #print_log('delay_level',delay_level)
     #delayx = input_man.filter_delay(which='base',delay_level=delay_level)
-    ##print(delayx)
+    #print_log(delayx)
     #delay_tablex = dash_table.DataTable(delayx.to_dict(orient='records'),[{'name': i, 'id': i} for i in delayx.columns],id='delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
     #return [delay_tablex]
 
@@ -648,9 +666,9 @@ def render_content(tab):
     prevent_initial_call=True,
 )
 def delay_func(delay_level,data,n_clicks2,options):
-    #print('delay_level',delay_level,'n_clicks2',n_clicks2)
+    print_log('delay_level',delay_level,'n_clicks2',n_clicks2)
     trigger = ctx.triggered_id
-    #print('trigger',trigger)
+    print_log('trigger',trigger)
     if trigger == 'delay_datatable':
 
         df = pd.DataFrame.from_records(data)
@@ -665,7 +683,7 @@ def delay_func(delay_level,data,n_clicks2,options):
             return [no_update,'CS',1,options]
 
     delay = input_man.filter_delay(which='base',delay_level=delay_level)
-    ##print(delayx)
+    #print_log(delayx)
     delay_table = dash_table.DataTable(delay.to_dict(orient='records'),[{'name': i, 'id': i} for i in delay.columns],id='delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
     return [delay_table,no_update,1,no_update]
 #@callback(
@@ -674,7 +692,7 @@ def delay_func(delay_level,data,n_clicks2,options):
     #prevent_initial_call=True,
 #)
 #def delay_changed(data):
-    ##print('delay_datatable',data)
+    #print_log('delay_datatable',data)
     #df = pd.DataFrame.from_records(data)
     #input_man.set_case_study_delay(df=df)
     #return ['']
@@ -686,9 +704,9 @@ def delay_func(delay_level,data,n_clicks2,options):
     prevent_initial_call=True,
 )
 def eaman_func(uptake,data,n_clicks2,n_clicks3,options):
-    #print('uptake',uptake,'n_clicks2',n_clicks2)
+    print_log('uptake',uptake,'n_clicks2',n_clicks2)
     trigger = ctx.triggered_id
-    #print('trigger',trigger)
+    print_log('trigger',trigger)
     if trigger == 'eaman_datatable':
 
         df = pd.DataFrame.from_records(data)
@@ -720,9 +738,9 @@ def eaman_func(uptake,data,n_clicks2,n_clicks3,options):
     #prevent_initial_call=True,
 #)
 #def eaman_changed(data):
-    ##print('eaman_datatable',data)
+    #print_log('eaman_datatable',data)
     #trigger = ctx.triggered_id
-    ##print('trigger2',trigger)
+    #print_log('trigger2',trigger)
     #df = pd.DataFrame.from_records(data)
     ##options=options.append('CS')
 
@@ -745,7 +763,7 @@ def eaman_func(uptake,data,n_clicks2,n_clicks3,options):
     prevent_initial_call=True,
 )
 def non_pax_cost_func(scenario):
-    ##print('uptake',uptake)
+    #print_log('uptake',uptake)
     non_pax_cost = input_man.filter_non_pax_cost(which='base',scenario=scenario)
 
     non_pax_cost_table = dash_table.DataTable(non_pax_cost.to_dict(orient='records'),[{'name': i, 'id': i} for i in non_pax_cost.columns],id='non_pax_cost_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
@@ -757,7 +775,7 @@ def non_pax_cost_func(scenario):
     prevent_initial_call=True,
 )
 def non_pax_cost_fit_func(scenario):
-    ##print('uptake',uptake)
+    #print_log('uptake',uptake)
     non_pax_cost_fit = input_man.filter_non_pax_cost_fit(which='base',scenario=scenario)
 
     non_pax_cost_fit_table = dash_table.DataTable(non_pax_cost_fit.to_dict(orient='records'),[{'name': i, 'id': i} for i in non_pax_cost_fit.columns],id='non_pax_cost_fit_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
@@ -769,10 +787,10 @@ def non_pax_cost_fit_func(scenario):
     prevent_initial_call=False,
 )
 def atfm_func(scenario,stochastic_airport_regulations,regulations_airport_day,airport_id):
-    ##print('uptake',uptake)
+    #print_log('uptake',uptake)
     atfm_delay,atfm_prob = input_man.filter_atfm(which='base',scenario=scenario,stochastic_airport_regulations=stochastic_airport_regulations)
-    atfm_delay = atfm_delay[['scenario_id','atfm_type','index','x','y','info']]
-    atfm_prob = atfm_prob[['scenario_id','atfm_type','p','info']]
+    atfm_delay = atfm_delay[['level','atfm_type','index','x','y','info']]
+    atfm_prob = atfm_prob[['level','atfm_type','p','info']]
 
     #atfm_delay_table = dash_table.DataTable(atfm_delay.to_dict(orient='records'),[{'name': i, 'id': i} for i in atfm_delay.columns],id='aftm_delay_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'})
     fig = px.line(atfm_delay, x="y", y="x", color = 'atfm_type',title='ATFM delay Probability',range_x=(0,200))
@@ -784,37 +802,89 @@ def atfm_func(scenario,stochastic_airport_regulations,regulations_airport_day,ai
     return [fig,atfm_prob_table]
 
 @callback(
-    Output('atfm_regulation_at_airport_manual_datatable', 'data'),
-    Input('atfm_regulation_at_airport_manual_add_rows_button', 'n_clicks'),
-    State('atfm_regulation_at_airport_manual_datatable', 'data'),
-    State('atfm_regulation_at_airport_manual_datatable', 'columns'))
-def add_row_manual_regulations(n_clicks, rows, columns):
-    if n_clicks > 0:
-        rows.append({c['id']: '' for c in columns})
-    return rows
+    [Output('atfm_regulation_at_airport_manual_table', 'children')],
+    [Input('atfm_regulation_at_airport_manual_add_rows_button', 'n_clicks'),Input('atfm_regulation_at_airport_manual_datatable', 'data'),Input('manual_reg_scenario_input','value')],
+    [State('atfm_regulation_at_airport_manual_datatable', 'data'),State('atfm_regulation_at_airport_manual_datatable', 'columns'),State('manual_reg_scenario_input','value')],
+    prevent_initial_call=True,)
+def add_row_manual_regulations(n_clicks, data, manual_reg_scenario_id,rows, columns,manual_reg_scenario_id_):
+    trigger = ctx.triggered_id
+    print_log('trigger',trigger)
+
+    if trigger == 'atfm_regulation_at_airport_manual_add_rows_button':
+        if n_clicks > 0:
+            rows.append({c['id']: '' for c in columns})
+        atfm_regulation_at_airport_manual_table = dash_table.DataTable(rows,[{'name': i, 'id': i} for i in atfm_regulation_at_airport_manual.columns],id='atfm_regulation_at_airport_manual_datatable',page_size=10,editable=True,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},row_deletable=True)
+
+        return [atfm_regulation_at_airport_manual_table]
+    elif trigger == 'atfm_regulation_at_airport_manual_datatable' or trigger == 'manual_reg_scenario_input':
+        df = pd.DataFrame.from_records(rows)
+        input_man.set_atfm_regulation_at_airport_manual(df,manual_reg_scenario_id_)
+        return [no_update]
+
+    else:
+        return [no_update]
 
 @callback(
-    [Output('fp_pool_m_table', 'children'),Output('route_pool_plot','figure'),Output('dropdown_fp_pool_id', 'options')],
+    [Output('dropdown_icao_dest', 'options')],
+    [Input("dropdown_icao_orig", "value"),],
+    prevent_initial_call=True,
+)
+def icao_dest_update(icao_orig):
+    #print_log('icao',icao_orig,icao_dest)
+
+    fp=input_man.get_case_study_fp()
+    fp_pool, fp_pool_point = fp['flight_plans_pool']
+
+    #print_log(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
+
+    icao_dest = fp_pool[(fp_pool['icao_orig']==icao_orig)]['icao_dest'].unique()
+
+
+    return [icao_dest]
+
+@callback(
+    [Output('fp_pool_m_table', 'children'),Output('dropdown_fp_ac_type', 'options')],
     [Input("dropdown_icao_orig", "value"),Input("dropdown_icao_dest", "value")],
     prevent_initial_call=True,
 )
-def fp_func(icao_orig,icao_dest):
-    ##print('icao',icao_orig,icao_dest)
+def fp_ac(icao_orig,icao_dest):
+    #print_log('icao',icao_orig,icao_dest)
 
     fp=input_man.get_case_study_fp()
     fp_pool, fp_pool_point = fp['flight_plans_pool']
 
 
     df_fp2 = fp_pool_point.merge(fp_pool,how='left',left_on='fp_pool_id', right_on='id')
-    #print(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
-    #fig = plot_routes(df_fp[(df_fp['icao_orig']==icao_orig) & (df_fp['icao_dest']==icao_dest)])
-    fig = plot_fps(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
+    print_log(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)])
 
-    fp_pool_m = fp_pool[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)]
+    fp_pool_m = fp_pool[fp_pool['id'].isin(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest)]['fp_pool_id'])]
     fp_pool_m_table = dash_table.DataTable(fp_pool_m.to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_m.columns],id='fp_pool_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
+    fp_ac_types = fp_pool_m['bada_code_ac_model'].unique()
+
+    return [fp_pool_m_table,fp_ac_types]
+
+@callback(
+    [Output('route_pool_plot','figure'),Output('dropdown_fp_pool_id', 'options')],
+    [Input("dropdown_fp_ac_type", "value"),],
+    [State("dropdown_icao_orig", "value"),State("dropdown_icao_dest", "value")],
+    prevent_initial_call=True,
+)
+def fp_func(fp_ac_type,icao_orig,icao_dest):
+    #print_log('icao',icao_orig,icao_dest)
+
+    fp=input_man.get_case_study_fp()
+    fp_pool, fp_pool_point = fp['flight_plans_pool']
+
+
+    df_fp2 = fp_pool_point.merge(fp_pool,how='left',left_on='fp_pool_id', right_on='id')
+
+    fig = plot_fps(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest) & (df_fp2['bada_code_ac_model']==fp_ac_type)])
+    #print_log('df_fp2')
+    fp_pool_m = fp_pool[fp_pool['id'].isin(df_fp2[(df_fp2['icao_orig']==icao_orig) & (df_fp2['icao_dest']==icao_dest) & (df_fp2['bada_code_ac_model']==fp_ac_type)]['fp_pool_id'])]
+
     fp_pool_ids = fp_pool_m['id'].unique()
 
-    return [fp_pool_m_table,fig,fp_pool_ids]
+    return [fig,fp_pool_ids]
 
 
 @callback(
@@ -827,7 +897,7 @@ def fp3_func(fp_pool_id):
     fp_pool_point_m = input_man.filter_fp_pool_point_m(which='base',fp_pool_id=fp_pool_id)
     fp_pool_point_m = fp_pool_point_m[['fp_pool_id','sequence','name']]
 
-    ##print(fp_pool_point_m)
+    #print_log(fp_pool_point_m)
     fp_pool_point_m_table = dash_table.DataTable(fp_pool_point_m.to_dict(orient='records'),[{'name': i, 'id': i} for i in fp_pool_point_m.columns],id='fp_pool_m_datatable',page_size=10,editable=False,style_header={'backgroundColor': 'darkgrey','fontWeight': 'bold'},filter_action="native",sort_action="native")
 
 
@@ -840,10 +910,10 @@ def fp3_func(fp_pool_id):
     prevent_initial_call=True,
 )
 def flights_paras_changed(data):
-    ##print('flights_paras_datatable',data)
+    #print_log('flights_paras_datatable',data)
     input_man.update_case_study_config(data,subcat='flights')
 
-    #print('input_man paras',input_man.case_study_config['parameters'])
+    print_log('input_man paras',input_man.case_study_config['parameters'])
 
     return [10]
 

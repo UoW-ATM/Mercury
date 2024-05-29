@@ -1,0 +1,46 @@
+[info]
+name = "nostromo_EAMAN"
+description = "EAMAN optimisation implemented in NOSTROMO"
+incompatibilities = []
+requirements = []
+get_metric = 'None'
+
+[agent_modif]
+    [agent_modif.EAMAN]
+    on_init = "on_init_agent"
+    apply_to = []
+    new_parameters = [
+        "data_horizon",
+        "command_horizon",
+        "tactical_horizon",
+        "ratio_flight_optimised",
+        "optimiser",
+    ]
+
+        [agent_modif.EAMAN.ArrivalPlannerProvider]
+        on_init = "on_init"
+        wait_for_estimated_landing_time = "wait_for_estimated_landing_time_NEW"
+        update_arrival_sequence_planning = "update_arrival_sequence_planning_NEW"
+        wait_for_flight_arrival_information = "wait_for_flight_arrival_information_NEW"
+        receive = "receive_new_messages"
+        new_methods = [
+            "wait_for_flight_in_data_horizon",
+            "prepare_data_for_optimizer_baseline",
+            "prepare_data_for_optimizer_advanced",
+            "build_matrices",
+            "send_request_for_potential_delay_recovery_request",
+            "wait_for_flight_potential_delay_recover_information",
+            "send_request_for_cost_function",
+            "wait_for_cost_function",
+        ]
+
+
+        [agent_modif.EAMAN.ArrivalQueuePlannedUpdaterE]
+        ask_radar_update = "ask_radar_update_NEW"
+
+        [agent_modif.EAMAN.FlightInAMANHandlerE]
+        wait_for_flight_in_eaman = "wait_for_flight_in_eaman_NEW"
+        new_methods = [
+            "notify_flight_in_data_horizon",
+            "notify_flight_landing",
+        ]

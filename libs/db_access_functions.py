@@ -2,103 +2,33 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 
-from math import asin
-from math import pi
 import scipy.stats as stats
 from scipy.interpolate import interp1d
-from pathlib import Path
 
-from .uow_tool_belt.connection_tools import read_mysql, read_data, write_data
-from .uow_tool_belt.general_tools import scale_and_s_from_mean_sigma_lognorm
-from .performance_trajectory.trajectory import TrajectorySegment, Trajectory
-from .performance_trajectory import unit_conversions as uc
-from .performance_trajectory import ac_performances as bap
-
-# # decorator to be able to save the output of the functions
-# def save_output(func):
-# 	def wrapper(*args, path_save=None, **kwargs):
-# 		results = func(*args, **kwargs)
-
-# 		if not path_save is None:
-# 			results.to_csv(path_save)
-
-# 	return wrapper
-
-#Scenario
-def read_scenario(connection, scenario_table="scenario", scenario=None):
-	# sql = "SELECt id as scenario, FAC, FP, 4DTA, flight_set, manual_airport_regulations, stochastic_airport_regulations, regulations_airport_day, uptake, delays, description \
-	# 	FROM "+scenario_table
-	sql = "SELECt * FROM {}".format(scenario_table)
-
-	if scenario is not None:
-		sql += " WHERE id = " + str(scenario)
-
-	df = read_data(connection=connection, query=sql, scenario=scenario)
-
-	return df
+from Mercury.libs.uow_tool_belt.connection_tools import read_data
 
 
-def read_scenario_paras(connection, scenario_table="scenario",
-	delay_paras_table=None, scenario=None):
-	# sql = "SELECt * \
-	# 		FROM " + str(scenario_table) + " AS s \
-	# 		JOIN " + str(delay_paras_table) +\
-	# 		" AS hdp ON hdp.delay_level=s.delays"
-
-	sql = "SELECt * FROM {} AS s JOIN {} AS hdp ON hdp.delay_level=s.delays".format(scenario_table, delay_paras_table)
-
-	if scenario is not None:
-		sql += " WHERE s.id ={}".format(scenario)
-
+def read_delay_paras(connection, delay_level='D', delay_paras_table=None, scenario=None):
+	sql = "SELECt * FROM {} AS hdp WHERE hdp.delay_level='{}'".format(delay_paras_table, delay_level)
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
 
 
 #Schedules
-def read_schedules(connection, table="flight_schedule", subset_table="flight_subset",
-	scenario_table="scenario", scenario=0, scenario_in_schedules=False):
-	# Not: I am not using a "SELECT *" because there are several fields called
-	# 'id', which need to be renamed
-	# sql = "SELECt fs.nid as flight_id, fs.max_seats as max_seats, fs.aircraft_type as aircraft_type, \
-	# 	fs.registration as registration, fs.sobt as sobt, fs.sibt as sibt, fs.origin as origin,\
-	# 	fs.destination as destination, fs.\
-
-	if scenario_in_schedules:
-		sql = "SELECt fs.*\
-			FROM {} fs \
-			WHERE fs.scenario_id = {}".format(table, scenario)
-		
+def read_schedules(connection, scenario, table='flight_schedule', subset_table=None):
+	if subset_table is not None:
+		sql = "SELECT fs.* FROM {} fs JOIN {} fsb ON fs.nid = fsb.flight_nid".format(table, subset_table)
 	else:
-		sql = "SELECT IF( \
-					(SELECt s.flight_set \
-					FROM {} s \
-					WHERE s.id = {}) IS NULL, \
-					'YES', \
-					'NO' \
-					) as answer;".format(scenario_table, scenario)
-
-		subset_is_null = read_data(connection=connection, query=sql, scenario=scenario)['answer'].iloc[0]
-
-		if subset_is_null == 'YES':
-			sql = """SELECt fs.*
-					FROM flight_schedule_old1409 fs"""
-		elif subset_is_null=='NO':
-			sql = "SELECt fs.* \
-					FROM {} fs \
-					JOIN {} fsb ON fsb.flight_id = fs.nid \
-					JOIN {} s ON s.flight_set = fsb.subset \
-					WHERE s.id = {}".format(table, subset_table, scenario_table, scenario)
-		else:
-			raise Exception('Subset of flight is null')
+		sql = "SELECT fs.* FROM {} fs".format(table)
 
 	d_schedules = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return d_schedules
 
+
 #ATFM
 def read_iedf_atfm(connection, table="iedf_atfm_static", where=None, scipy_distr=False, scenario=None):
-
 	sql = "SELECt a.x, a.y FROM {} a ".format(table)
 
 	if where is not None:
@@ -126,7 +56,6 @@ def read_iedf_atfm(connection, table="iedf_atfm_static", where=None, scipy_distr
 
 
 def read_prob_atfm(connection, table="prob_atfm", where=None, scenario=None):
-
 	sql = "SELECt p.p FROM {} p ".format(table)
 
 	if where is not None:
@@ -136,11 +65,13 @@ def read_prob_atfm(connection, table="prob_atfm", where=None, scenario=None):
 
 	return df.iloc[0].item()
 
+
 def read_ATFM_at_airports_days(connection, regulation_at_airport_days_table="regulation_at_airport_days_static",
 							   scenario=None):
 	sql = "SELECt day_start, percentile FROM {} ORDER BY percentile DESC".format(regulation_at_airport_days_table)
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 	return df
+
 
 def read_ATFM_at_airports(connection, regulation_at_airport_table="regulation_at_airport_static", day=None,
 						  scenario=None):
@@ -156,6 +87,7 @@ def read_ATFM_at_airports(connection, regulation_at_airport_table="regulation_at
 
 	return df
 
+
 def read_all_regulation_days(connection, regulation_at_airport_table="regulation_at_airport_static", scenario=None):
 	"""
 	For a given airport, returns all days that include a regulation applying to this airport.
@@ -164,14 +96,13 @@ def read_all_regulation_days(connection, regulation_at_airport_table="regulation
 			union 
 			SELECT day_end as day, icao_id FROM {}
 			""".format(regulation_at_airport_table, regulation_at_airport_table)
-	
-	#sql += " ORDER BY p"
 
 	df = read_data(connection=connection,
 					query=sql,
 				   scenario=scenario)
 
 	return df
+
 
 def read_regulation_days_at_an_airport(connection,
 	regulation_at_airport_table="regulation_at_airport_static",
@@ -183,12 +114,11 @@ def read_regulation_days_at_an_airport(connection,
 			union
 			SELECT day_end as day FROM {} where icao_id='{}';
 			""".format(regulation_at_airport_table, airport_icao, regulation_at_airport_table, airport_icao)
-	
-	#sql += " ORDER BY p"
 
 	df = read_data(connection=connection, query=sql)
 
 	return df
+
 
 def read_ATFM_at_airports_manual(connection, regulation_at_airport_table='regulation_at_airport_manual',scenario=None):
 	sql = "SELECt icao_id, airport_set, reg_sid, reg_reason, reg_period_start, reg_period_end, capacity \
@@ -203,80 +133,6 @@ def read_ATFM_at_airports_manual(connection, regulation_at_airport_table='regula
 
 	return df
 
-def read_crco_charges(connection, crco_charges_table='crco_charges_static', crco_vat_table='crco_vat_static',
-	crco_fix_table='crco_fix_static', crco_overfly_table='crco_overfly_static',crco_weight_table='crco_weight_static'):
-	#Read CRCO charges info
-	sql = "SELECt sid, unit_rate FROM " + crco_charges_table
-	d_crco_charges = read_data(connection=connection, query=sql).rename(columns={'sid':'nas_sid'})
-	
-	sql = "SELECt sid, vat FROM " + crco_vat_table
-	d_crco_vat = read_data(connection=connection, query=sql).rename(columns={'sid':'nas_sid'})
-	
-	sql = "SELECt sid, unit_rate FROM " + crco_fix_table
-	d_crco_fix = read_data(connection=connection, query=sql).rename(columns={'sid':'nas_sid'})
-	
-	sql = "SELECt sid, unit_rate FROM " + crco_overfly_table
-	d_crco_overfly = read_data(connection=connection, query=sql).rename(columns={'sid':'nas_sid'})
-	
-	sql = "SELECt sid, from_t, to_t, unit_rate FROM "+crco_weight_table
-	d_crco_weight = read_data(connection=connection, query=sql).rename(columns={'sid':'nas_sid'})
-	
-
-	#Add VAT
-	d_crco_charges = pd.merge(d_crco_charges, d_crco_vat[['nas_sid','vat']], on="nas_sid", how="left", suffixes=('','_vat'))
-	d_crco_charges.loc[d_crco_charges['vat'].isnull(),'vat']=0
-	d_crco_fix = pd.merge(d_crco_fix, d_crco_vat[['nas_sid','vat']], on="nas_sid", how="left", suffixes=('','_vat'))
-	d_crco_fix.loc[d_crco_fix['vat'].isnull(),'vat']=0
-	d_crco_overfly = pd.merge(d_crco_overfly, d_crco_vat[['nas_sid','vat']], on="nas_sid", how="left", suffixes=('','_vat'))
-	d_crco_overfly.loc[d_crco_overfly['vat'].isnull(),'vat']=0
-	d_crco_weight = pd.merge(d_crco_weight, d_crco_vat[['nas_sid','vat']], on="nas_sid", how="left", suffixes=('','_vat'))
-	d_crco_weight.loc[d_crco_weight['vat'].isnull(),'vat']=0
-
-	#Compute unit rate (t) with VAT
-	d_crco_charges['t'] = round(d_crco_charges['unit_rate'] * (1+d_crco_charges['vat']/100))
-	d_crco_overfly['t'] = round(d_crco_overfly['unit_rate'] * (1+d_crco_overfly['vat']/100))
-	d_crco_fix['t'] = round(d_crco_fix['unit_rate'] * (1+d_crco_fix['vat']/100))
-	d_crco_weight['t'] = round(d_crco_weight['unit_rate'] * (1+d_crco_weight['vat']/100))
-	
-	return d_crco_charges, d_crco_overfly, d_crco_fix, d_crco_weight
-
-def read_fp_routes_without_crco(connection, fp_pool_table='fp_pool_m', fp_pool_point_table='fp_pool_point_m',
-	trajectory_pool_table='trajectory_pool',trajectories_version=3):
-	
-	sql = "SELECt f.id, f.icao_orig, icao_dest, \
-		IF(bada4_mtow.mtow is not null, bada4_mtow.mtow, amtow.mtow) AS mtow, \
-		fp.sequence, fp.ansp, ST_X(fp.coords) AS lat, ST_Y(fp.coords) AS lon \
-		FROM "+fp_pool_table+" f \
-		JOIN "+fp_pool_point_table+" fp on fp.fp_pool_id=f.id \
-		JOIN "+trajectory_pool_table+" tp on f.trajectory_pool_id=tp.id \
-		LEFT JOIN (select bada_code_ac_model, mtow FROM ac_eq_badacomputed_static aebc \
-		JOIN bada4_2.ac_models_selected a_m_s ON aebc.bada_code_ac_model=a_m_s.ac_model AND aebc.ac_icao=a_m_s.icao_model \
-		JOIN ac_mtow_static amtow on amtow.ac=aebc.ac_icao) AS bada4_mtow ON bada4_mtow.bada_code_ac_model=f.bada_code_ac_model \
-		LEFT JOIN ac_mtow_static amtow ON amtow.ac=f.bada_code_ac_model \
-		WHERE f.crco_cost_EUR is NULL AND tp.version="+str(trajectories_version)+" \
-		ORDER BY f.id, fp.sequence"
-	fp_nas = read_data(connection=connection, query=sql)
-	
-	fp_nas['mtow'] = fp_nas['mtow']*1000
-
-	return fp_nas
-
-def add_crco_to_flights_in_db(connection, d_crco, fp_pool_table='fp_pool_m',
-	trajectory_pool_table='trajectory_pool',trajectories_version=3):
-	
-	connection['engine'].execute("DROP TABLE IF EXISTS crco_temp")
-	
-	d_crco[['id','crco_cost_EUR']].to_sql('crco_temp', connection['engine'])
-
-	sql = "UPDATe "+fp_pool_table+" f \
-			JOIN "+trajectory_pool_table+" tp ON f.trajectory_pool_id=tp.id \
-			JOIN crco_temp c ON c.id=f.id \
-			SET f.crco_cost_EUR=c.crco_cost_EUR \
-			WHERE tp.version="+str(trajectories_version)
-
-	connection['engine'].execute(sql)
-
-	connection['engine'].execute("DROP TABLE IF EXISTS crco_temp")
 
 #Airports
 def read_airports_data(connection, airport_table="airport_info_static", taxi_in_table="taxi_in_static",
@@ -301,17 +157,17 @@ def read_airports_data(connection, airport_table="airport_info_static", taxi_in_
 
 	return df
 
+
 def read_airports_modif_data(connection, airport_table="airport_modif_cap", airports=None, scenario=None):
 	sql = "SELECt icao_id, modif_cap_due_traffic_diff FROM {}".format(airport_table)
 
 	if airports is not None:
 		sql += " WHERE icao_id IN ("+str(airports)[1:-1]+")"
 
-	#print(sql)
-
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
+
 
 def read_airports_curfew_data(connection, airport_table='airport_curfew', icao_airport_name='icao_id',
 	curfew_airport_name='curfew', curfews_db_table=None, curfews_db_table2=None, airports=None,
@@ -358,7 +214,7 @@ def read_airports_curfew_data(connection, airport_table='airport_curfew', icao_a
 		d_curfew['curfew']=pd.to_timedelta(d_curfew['curfew'])
 
 		d_curfew.loc[np.isnat(d_curfew['curfew']),'curfew'] = -1
-		d_curfew['curfew'] = d_curfew['curfew'].apply(lambda x: (dt.datetime.min + x).time() if not x is -1 else None)
+		d_curfew['curfew'] = d_curfew['curfew'].apply(lambda x: (dt.datetime.min + x).time() if x != -1 else None)
 
 		def ceil_dt(t, res):
 			# how many secs have passed this day
@@ -377,6 +233,7 @@ def read_airports_curfew_data(connection, airport_table='airport_curfew', icao_a
 
 	return d_curfew
 
+
 def read_nonpax_cost_curfews(connection, curfew_cost_table='curfew_non_pax_costs', scenario=None):
 	sql = "SELECt wtc, non_pax_costs FROM {}".format(curfew_cost_table)
 
@@ -387,12 +244,14 @@ def read_nonpax_cost_curfews(connection, curfew_cost_table='curfew_non_pax_costs
 
 	return dict_cost_curfew
 
+
 def read_estimated_avg_costs_curfews(connection, curfew_estimated_avg_table='curfew_costs_estimated', scenario=None):
 	sql = "SELECt wtc, avg_duty_of_care, avg_soft_cost, avg_transfer_cost, avg_compensation_cost FROM {}".format(curfew_estimated_avg_table)
 
 	d_est_cost_curfew = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return d_est_cost_curfew.set_index('wtc').to_dict('index')
+
 
 def read_turnaround_data(connection, turnaround_table="mtt_static", scenario=None):
 	sql = "SELECt * FROM {}".format(turnaround_table)
@@ -401,6 +260,7 @@ def read_turnaround_data(connection, turnaround_table="mtt_static", scenario=Non
 
 	return df
 
+
 # EAMAN
 def read_eamans_data(connection, eaman_table="eaman_definition", uptake=None, scenario=None):
 	sql = "SELECT * FROM {} WHERE uptake=\'{}\'".format(eaman_table, uptake)
@@ -408,6 +268,7 @@ def read_eamans_data(connection, eaman_table="eaman_definition", uptake=None, sc
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
+
 
 # Airlines
 def read_airlines_data(connection, airline_table='airline_static', airlines=None, scenario=None):
@@ -420,12 +281,14 @@ def read_airlines_data(connection, airline_table='airline_static', airlines=None
 
 	return d_airlines
 
+
 def read_soft_cost_date(connection, table='soft_cost_delay_static', scenario=None):
 	sql = """SELECT * FROM {}""".format(table)
 
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
+
 
 def read_non_pax_cost_data(connection, table='non_pax_delay_static', scenario=None):
 	sql = """SELECT * FROM {}""".format(table)
@@ -434,12 +297,14 @@ def read_non_pax_cost_data(connection, table='non_pax_delay_static', scenario=No
 
 	return df
 
+
 def read_non_pax_cost_fit_data(connection, table='non_pax_delay_fit_static', scenario=None):
 	sql = """SELECT * FROM {}""".format(table)
 
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
+
 
 # PAX
 def read_compensation_data(connection, table='passenger_compensation_static', scenario=None):
@@ -449,12 +314,14 @@ def read_compensation_data(connection, table='passenger_compensation_static', sc
 
 	return df
 
+
 def read_doc_data(connection, table='duty_of_care_static', scenario=None):
 	sql = """SELECT * FROM {}""".format(table)
 	
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
+
 
 def read_itineraries_data(connection, table='pax_itineraries', flights=None, scenario=None):
 	sql = """SELECT * FROM {}""".format(table)
@@ -470,280 +337,13 @@ def read_itineraries_data(connection, table='pax_itineraries', flights=None, sce
 
 	return df
 
-#Routes
-def read_route_pool(connection, route_pool_table="route_pool", condition_source=None):
-	sql = "SELECt rp.id as route_pool_id, rp.based_route_pool_static_id, rp.based_route_pool_o_d_generated, \
-			 rp.icao_orig, rp.icao_dest, \
-			 CONCAT(rp.icao_orig,\"_\",rp.icao_dest) as orig_dest,\
-			 rp.fp_distance_km, ROUND(rp.fp_distance_km/1.852) as fp_distance_nm,\
-			 rp.f_database, rp.type, rp.tact_id, rp.f_airac_id \
-			 FROM " + route_pool_table + " rp"
-
-	if condition_source is not None:
-		sql = sql + " WHERE " + condition_source
-
-	#print(sql)
-	d_route_pool = read_data(connection=connection, query=sql)
-	# d_route_pool = read_mysql(query=sql, engine=engine)
-	return d_route_pool
-
-def read_coord_trajectory_route(connection, route_pool_table="route_pool",
-	route_pool_has_airspace_table="route_pool_has_airspace_static",
-	airspace_table="airspace_static", icao_orig=None, icao_dest=None, condition=None):
-	
-	sql = "SELECt coords.id, coords.icao_orig, coords.icao_dest, coords.lat, coords.lon, coords.distance as distance_km, coords.sid as nas, \
-				 coords.point_type as entry_exit FROM \
-		(select rps.id, rps.icao_orig, rps.icao_dest, \
-		  ST_X(rpshas.entry_point) as lat, ST_Y(rpshas.entry_point) as lon, 'ENTRY' as point_type, a.sid, \
-		  rpshas.distance_entry as distance \
-		from "+route_pool_table+" rps \
-		join "+route_pool_has_airspace_table+" rpshas on rpshas.route_pool_id=rps.id \
-		join "+airspace_table+" a on a.id=rpshas.airspace_id "
-
-	if icao_orig is not None:
-		sql += "where rps.icao_orig LIKE \""+icao_orig+"\" and rps.icao_dest LIKE \""+icao_dest+"\" "
-
-	elif condition is not None:
-		sql += "where "+condition
-
-	sql += "UNION \
-		select rps.id, rps.icao_orig, rps.icao_dest, \
-		ST_X(rpshas.exit_point) as lat, ST_Y(rpshas.exit_point) as lon, 'EXIT' as point_type, \
-		a.sid, rpshas.distance_exit as distance \
-		from "+route_pool_table+" rps \
-		join "+route_pool_has_airspace_table+" rpshas on rpshas.route_pool_id=rps.id \
-		join "+airspace_table+" a on a.id=rpshas.airspace_id "
-
-	if icao_orig is not None:
-		sql += "where rps.icao_orig LIKE \""+icao_orig+"\" and rps.icao_dest LIKE \""+icao_dest+"\""
-	elif condition is not None:
-		sql += "where "+condition
-
-	sql += ") as coords \
-		order by coords.id, coords.distance, coords.point_type ASC"
-
-
-	#print(sql)
-	d_coords = read_data(connection=connection, query=sql)
-	
-	#d_coords = read_mysql(query=sql, engine=engine)
-
-	d_coords.loc[d_coords['entry_exit']=="EXIT",'nas']=None
-
-	d_coords.fillna(method='ffill', inplace=True)
-
-	d_coords.drop(columns=['entry_exit'], inplace=True)
-
-	d_coords = d_coords.drop_duplicates()
-
-	return d_coords
 
 #Trajectories
-def read_trajectories_missing_in_interval(connection, flight_schedule_table="flight_schedule", subset_table="flight_subset", 
-	ac_eq_badacomputed_static_table="ac_eq_badacomputed_static", route_pool_table="route_pool",
-	trajectory_pool_table="trajectory_pool", scenario=0, trajectories_version=0, minimum_trajectory=0,
-	maximum_trajectory=None, number_trajectories=None, scenario_in_schedules=False):
-
-	if scenario_in_schedules:
-		sql = "SELECt DISTINCT rp.id as route_pool_id, rp.icao_orig, rp.icao_dest, aebs.bada_code_ac_model, rp.fp_distance_km \
-				IF(tp.route_pool_id	is NULL, 0, 1) as computed \
-				FROM "+flight_schedule_table+" fs \
-				JOIN "+ac_eq_badacomputed_static_table+" aebs ON aebs.ac_icao = fs.aircraft_type \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				LEFT JOIN (SELECT tp.route_pool_id, tp.bada_code_ac_model FROM "+trajectory_pool_table+" tp \
-				WHERE tp.version = "+str(trajectories_version)+") AS tp ON tp.route_pool_id = rp.id AND tp.bada_code_ac_model = aebs.bada_code_ac_model \
-				WHERE fs.scenario_id  = "+str(scenario)+" ORDER BY rp.fp_distance_km, aebs.bada_code_ac_model"
-	else:
-		#Schedules to use defined in subset table
-		sql = "SELECt DISTINCT rp.id as route_pool_id, rp.icao_orig, rp.icao_dest, aebs.bada_code_ac_model, rp.fp_distance_km, \
-				IF(tp.route_pool_id	is NULL, 0, 1) as computed \
-				FROM scenario s \
-				JOIN "+subset_table+" fsb ON fsb.subset = s.flight_set \
-				JOIN "+flight_schedule_table+" fs ON fs.nid=fsb.flight_id \
-				JOIN "+ac_eq_badacomputed_static_table+" aebs ON aebs.ac_icao = fs.aircraft_type \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				LEFT JOIN (SELECT tp.route_pool_id, tp.bada_code_ac_model FROM "+trajectory_pool_table+" tp \
-				WHERE tp.version = "+str(trajectories_version)+") AS tp ON tp.route_pool_id = rp.id AND tp.bada_code_ac_model = aebs.bada_code_ac_model \
-				WHERE s.id = "+str(scenario)+" ORDER BY rp.fp_distance_km, aebs.bada_code_ac_model"
-
-	df_traj = read_data(connection=connection, query=sql)
-	df_traj['number']=df_traj.index
-
-	if maximum_trajectory is None:
-		maximum_trajectory = len(df_traj)
-
-	trajectories_missing = df_traj.loc[(df_traj['number']>=minimum_trajectory) & (df_traj['number']<=maximum_trajectory)]
-
-	trajectories_missing = trajectories_missing.loc[trajectories_missing['computed']==0].reset_index(drop=True)
-
-	if number_trajectories is not None:
-		trajectories_missing = trajectories_missing.iloc[0:number_trajectories]
-
-	return trajectories_missing
-
-def read_trajectories_missing(connection, flight_schedule_table="flight_schedule",
-	subset_table="flight_subset", ac_eq_badacomputed_static_table="ac_eq_badacomputed_static",
-	route_pool_table="route_pool", trajectory_pool_table="trajectory_pool",
-	scenario=0, trajectories_version=0, number_trajectories=None, scenario_in_schedules=False):
-
-	if scenario_in_schedules:
-		sql = "SELECt DISTINCT rp.id as route_pool_id, rp.icao_orig, rp.icao_dest, aebs.bada_code_ac_model, rp.fp_distance_km \
-				FROM "+flight_schedule_table+" fs \
-				JOIN "+ac_eq_badacomputed_static_table+" aebs ON aebs.ac_icao = fs.aircraft_type \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				LEFT JOIN (SELECT tp.route_pool_id, tp.bada_code_ac_model FROM "+trajectory_pool_table+" tp \
-				WHERE tp.version = "+str(trajectories_version)+") AS tp ON tp.route_pool_id = rp.id AND tp.bada_code_ac_model = aebs.bada_code_ac_model \
-				WHERE fs.scenario_id = "+str(scenario)+" AND tp.route_pool_id IS NULL"# ORDER BY rp.fp_distance_km LIMIT 5000"
-	else:
-		#Schedules to use defined in subset table
-		sql = "SELECt DISTINCT rp.id as route_pool_id, rp.icao_orig, rp.icao_dest, aebs.bada_code_ac_model, rp.fp_distance_km \
-				FROM scenario s \
-				JOIN "+subset_table+" fsb ON fsb.subset = s.flight_set \
-				JOIN "+flight_schedule_table+" fs ON fs.nid=fsb.flight_id \
-				JOIN "+ac_eq_badacomputed_static_table+" aebs ON aebs.ac_icao = fs.aircraft_type \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				LEFT JOIN (SELECT tp.route_pool_id, tp.bada_code_ac_model FROM "+trajectory_pool_table+" tp \
-				WHERE tp.version = "+str(trajectories_version)+") AS tp ON tp.route_pool_id = rp.id AND tp.bada_code_ac_model = aebs.bada_code_ac_model \
-				WHERE s.id = "+str(scenario)+" AND tp.route_pool_id IS NULL"# ORDER BY rp.fp_distance_km LIMIT 5000"# LIMIT 0" #ORDER BY rp.fp_distance_km LIMIT 200"
-
-	if number_trajectories is not None:
-		sql = sql + " ORDER BY rp.fp_distance_km LIMIT "+str(number_trajectories)
-
-	df_traj = read_data(connection=connection, query=sql)
-
-	return df_traj
-
-def read_fp_pool_missing(connection, flight_schedule_table="flight_schedule", subset_table="flight_subset", 
-	route_pool_table="route_pool",trajectory_pool_table="trajectory_pool",
-	fp_pool_table="fp_pool", scenario=0, trajectories_version=1, scenario_in_schedules=False):
-
-	if scenario_in_schedules:
-		sql = "SELECt DISTINCT fs.origin, fs.destination, tp.bada_code_ac_model \
-				FROM flight_schedule fs \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				JOIN "+trajectory_pool_table+" tp on tp.route_pool_id=rp.id \
-	 			LEFT JOIN "+fp_pool_table+" fp on fp.trajectory_pool_id=tp.id \
-				WHERE fs.scenario_id = "+str(scenario)+" and tp.version="+str(trajectories_version)+" and fp.id IS NULL"
-
-	else:
-		sql = "SELECt DISTINCT fs.origin, fs.destination, tp.bada_code_ac_model \
-				FROM scenario s \
-				JOIN "+subset_table+" fsb ON fsb.subset = s.flight_set \
-				JOIN "+flight_schedule_table+" fs ON fs.nid=fsb.flight_id \
-				JOIN "+route_pool_table+" rp ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-				JOIN "+trajectory_pool_table+" tp on tp.route_pool_id=rp.id \
-				LEFT JOIN "+fp_pool_table+" fp on fp.trajectory_pool_id=tp.id \
-				WHERE s.id = "+str(scenario)+" and tp.version="+str(trajectories_version)+" and fp.id IS NULL"
-
-	df = read_data(connection=connection, query=sql)
-
-	return df
-
-def read_trajectories_ids(connection, trajectories_version, trajectory_pool_table='trajectory_pool'):
-	sql = "SELECt id, route_pool_id, bada_code_ac_model FROM "+trajectory_pool_table+" WHERE version="+str(trajectories_version)
-	df = read_data(connection=connection, query=sql)
-	return df
-
-def save_trajectories_pool(connection, df, trajectory_pool_table='trajectory_pool'):
-	# df[['route_pool_id','version','distance_orig_fp_km','bada_code_ac_model',
-	# 		'bada_version','version_description','status']].to_sql(name=trajectory_pool_table,con=engine,if_exists="append",index=False)
-
-	write_data(fmt='mysql',
-				data=df[['route_pool_id','version','distance_orig_fp_km','bada_code_ac_model',
-					'bada_version','version_description','status']],
-				table_name=trajectory_pool_table,
-				how='append',
-				index=False,
-				connection=connection)
-
-def save_trajectories_segments(connection, df, trajectory_segments_table='trajectory_segment'):
-	# df[['trajectory_pool_id','order','fl_0','fl_1','distance_nm','time_min','fuel_kg','weight_0','weight_1','avg_m','avg_wind',
-	# 	'segment_type','status']].to_sql(name=trajectory_segments_table,con=engine,if_exists="append",index=False)
-
-	write_data(fmt='mysql',
-				data=df[['trajectory_pool_id','order','fl_0','fl_1','distance_nm','time_min','fuel_kg','weight_0','weight_1','avg_m','avg_wind',
-					'segment_type','status']],
-				table_name=trajectory_segments_table,
-				how='append',
-				index=False,
-				connection=connection)
-
-def read_trajectories_pool(connection, scenario, trajectories_version, trajectory_pool_table='trajectory_pool', trajectory_segments_table='trajectory_segment',
-	route_pool_table='route_pool', flight_schedule_table='flight_schedule', flight_subset_table='flight_subset', scenario_table='scenario',
-	scenario_in_schedules=False):
-
-	if scenario_in_schedules:
-		sql = "SELECt DISTINCT fs.origin, fs.destination, tp.route_pool_id, tp.distance_orig_fp_km, tp.bada_code_ac_model, \
-			tp.bada_version, tp.status as trajectory_status, ts.* \
-			FROM "+trajectory_pool_table+" tp \
-			JOIN "+trajectory_segments_table+" ts ON ts.trajectory_pool_id = tp.id \
-			JOIN "+route_pool_table+" rp ON rp.id=tp.route_pool_id \
-			JOIN "+flight_schedule_table+" fs ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-			WHERE tp.version="+str(trajectories_version)+" AND fs.scenario_id="+str(scenario)+" \
-			ORDER by ts.trajectory_pool_id, ts.`order`"
-
-	else:
-		sql = "SELECt DISTINCT fs.origin, fs.destination, tp.route_pool_id, tp.distance_orig_fp_km, tp.bada_code_ac_model, \
-			tp.bada_version, tp.status as trajectory_status, ts.* \
-			FROM "+trajectory_pool_table+" tp \
-			JOIN "+trajectory_segments_table+" ts ON ts.trajectory_pool_id = tp.id \
-			JOIN "+route_pool_table+" rp ON rp.id=tp.route_pool_id \
-			JOIN "+flight_schedule_table+" fs ON rp.icao_orig = fs.origin and rp.icao_dest = fs.destination \
-			JOIN "+flight_subset_table+" fsb ON fsb.flight_id = fs.nid \
-			JOIN "+scenario_table+" s ON s.flight_set = fsb.subset \
-			WHERE tp.version="+str(trajectories_version)+" AND s.id="+str(scenario)+" \
-			ORDER by ts.trajectory_pool_id, ts.`order`"
-
-	df = read_data(connection=connection, query=sql)
-
-	df['avg_wind'] = df['avg_wind'].apply(lambda x: 0 if np.isnan(x) else x)
-	df.loc[0, :] = len(df.columns) * [10]
-	df['trajectory_segment'] = df.apply(lambda x: TrajectorySegment(x['fl_0'],x['fl_1'],x['distance_nm'],
-																	x['time_min'],x['fuel_kg'],x['weight_0'],x['weight_1'],
-																	x['segment_type'],x['avg_wind']), axis=1)
-
-	#raise Exception()
-	dict_trajectories_pool = {}
-	for origin, destination, route_pool_id, distance_orig_fp_km, bada_code_ac_model, bada_version, \
-		trajectory_pool_id, order, trajectory_segment, status, trajectory_status in \
-			 zip(df.origin, df.destination, df.route_pool_id, df.distance_orig_fp_km, df.bada_code_ac_model, df.bada_version, \
-				df.trajectory_pool_id, df.order, df.trajectory_segment, df.status, df.trajectory_status): 
-
-
-		#Check if we have already an option between the origin-destination-ac_icao
-		trajectories_options = dict_trajectories_pool.get((origin, destination, bada_code_ac_model))
-		if trajectories_options is None:
-			#If not the create a dictionary to store the options for that o-d-ac
-			trajectories_options = {}
-			dict_trajectories_pool[(origin, destination, bada_code_ac_model)]=trajectories_options
-
-		#Check if we have a trajectory for this route-pool
-		trajectory = trajectories_options.get(route_pool_id)
-		if trajectory is None:
-			#If not exists create the trajectory
-			trajectory = Trajectory(ac_icao=None, ac_model=bada_code_ac_model, bada_version=bada_version, distance_orig_fp=distance_orig_fp_km/uc.nm2km) #We are missing oew, and mpl
-			trajectory.status = trajectory_status
-			trajectory.trajectory_pool_id = trajectory_pool_id
-			trajectory.route_pool_id = route_pool_id
-			trajectories_options[route_pool_id] = trajectory
-
-		
-		trajectory_segment.status = status
-
-		trajectory.add_back_trajectory_segment(trajectory_segment)
-
-
-	#for k in dict_trajectories_pool.keys():
-	#	dict_trajectories_pool[k]=list(dict_trajectories_pool[k].values())
-
-	return dict_trajectories_pool 
-
 def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_pool_table',
 	fp_pool_point_table='fp_pool_point_table', trajectory_pool_table="trajectory_pool",
-	route_pool_table="route_pool", flight_schedule_table="flight_schedule", 
-	flight_subset_table='flight_subset', scenario_table='scenario',read_speeds=True,
-	scenario_in_schedules=False):
+	flight_schedule_table="flight_schedule", flight_subset_table='flight_subset', read_speeds=True):
 	'''
+	Full query in SQL MYSQL database, simplified in parquet structure (no flight subset, no routes)
 	sql = "SELECt fp.trajectory_pool_id, fp.route_pool_id, fp.icao_orig, fp.icao_dest, fp.bada_code_ac_model, fp.fp_distance_nm, \
 				fpp.sequence, fpp.name, ST_X(fpp.coords) as lat, ST_Y(fpp.coords) as lon, \
 				fpp.alt_ft, fpp.time_min, fpp.dist_from_orig_nm, fpp.dist_to_dest_nm, fpp.wind, fpp.ansp, \
@@ -767,37 +367,35 @@ def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_p
 	if read_speeds:
 		sql += ", fpp.planned_avg_speed_kt, fpp.min_speed_kt, fpp.max_speed_kt, fpp.mrc_speed_kt "
 
-
-	if scenario_in_schedules:
-		sql += "FROM "+fp_pool_table+" fp \
-				JOIN "+fp_pool_point_table+" fpp on fpp.fp_pool_id=fp.id \
-				JOIN "+trajectory_pool_table+" tp on tp.id = fp.trajectory_pool_id \
-				JOIN (select distinct fs.origin, fs.destination \
-				FROM "+flight_schedule_table+" fs \
-				WHERE fs.scenario_id = "+str(scenario)+") as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
-				WHERE tp.version = "+str(trajectories_version)+" \
-				ORDER BY fp.id, fpp.sequence;"
-
+	if flight_subset_table is None:
+		sql += "FROM {} fp \
+						JOIN {} fpp on fpp.fp_pool_id=fp.id \
+						JOIN {} tp on tp.id = fp.trajectory_pool_id \
+						JOIN (select distinct fs.origin, fs.destination \
+						FROM {} fs \
+						) as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
+						WHERE tp.version = {} \
+						ORDER BY fp.id, fpp.sequence;".format(fp_pool_table,
+															  fp_pool_point_table,
+															  trajectory_pool_table,
+															  flight_schedule_table,
+															  trajectories_version)
 	else:
-
 		sql += "FROM {} fp \
 				JOIN {} fpp on fpp.fp_pool_id=fp.id \
 				JOIN {} tp on tp.id = fp.trajectory_pool_id \
 				JOIN (select distinct fs.origin, fs.destination \
 				FROM {} fs \
-				JOIN {} fsb ON fsb.flight_id = fs.nid \
-				JOIN {} s ON s.flight_set = fsb.subset \
-				WHERE s.id = {}) as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
+				JOIN {} fsb ON fsb.flight_nid = fs.nid \
+				) as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
 				WHERE tp.version = {} \
 				ORDER BY fp.id, fpp.sequence;".format(fp_pool_table,
 													  fp_pool_point_table,
 													  trajectory_pool_table,
 													  flight_schedule_table,
 													  flight_subset_table,
-													  scenario_table,
-													  scenario,
 													  trajectories_version)
-		
+
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	columns = set(df.columns)
@@ -806,22 +404,17 @@ def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_p
 	columns.add("max_speed_kt")
 	columns.add("mrc_speed_kt")
 
-	df = df.reindex(columns = list(columns))      
+	df = df.reindex(columns=list(columns))
 
 	df = df.replace({np.nan: None})
 
 	return df
 
-def read_dict_fp_pool_ids(connection, fp_pool_table='fp_pool_table'):
-	sql = "SELECt id, trajectory_pool_id, route_pool_id, bada_code_ac_model FROM "+fp_pool_table
 
-	df = read_data(connection=connection, query=sql)
-
-	df['key'] = df.apply(lambda x: (x['trajectory_pool_id'],x['route_pool_id'], x['bada_code_ac_model']),axis=1)
-
-	df = df[['key','id']]
-
-	return df.set_index('key').to_dict()['id']
+def read_dict_fp_ac_icao_ac_model(connection, scenario, ac_icao_ac_model_table='fp_pool_ac_icao_ac_model'):
+	sql = "SELECT a.ac_icao, a.ac_model FROM {} a".format(ac_icao_ac_model_table)
+	df = read_data(connection=connection, query=sql, scenario=scenario)
+	return df.set_index('ac_icao').to_dict()['ac_model']
 
 
 #Performances
@@ -832,518 +425,13 @@ def read_dict_ac_bada_code_ac_model(connection, table='ac_eq_badacomputed_static
 	return d_ac_eq.set_index('ac_icao').to_dict()['bada_code_ac_model'], d_ac_eq.set_index('ac_icao').to_dict()['ac_eq']
 
 
-def read_dict_ac_type_wtc(connection, table='ac_eq_badacomputed_static'):
-	sql = 'select ac_icao, wake from ' + table
+def read_dict_ac_icao_wtc_engine(connection, table='ac_icao_wake_engine'):
+	sql = 'SELECT ac_icao, wake, engine_type FROM ' + table
 	df = read_data(connection=connection, query=sql)
-	return df.set_index('ac_icao').to_dict()['wake']
+	return df.set_index('ac_icao')[['wake', 'engine_type']].to_dict(orient='index')
 
 
-class DataAccessPerformance():
-
-	def __init__(self, db="bada3"):
-		self.db = db
-
-		self.db_in_parquet = type(self.db) == type(Path())
-
-	def combine_db_table(self, table_name):
-		if self.db_in_parquet:
-			return self.db / Path(table_name)
-		else:
-			return '{}.{}'.format(self.db, Path(table_name))
-
-	def read_dict_wtc_engine_model(self, engine):
-		"""
-		Reads BADA3 list of ac types and create a dictionary with synonims ac according to BADA3
-		and which is their wake and engine type.
-
-		In BADA3 aircraft are identified by bada_code.
-
-		"""
-
-		sql = "SELECt s.ac_code as icao_code, s.bada_code, \
-			act.wake, UPPER(act.engine_type) as engine_type \
-			FROM "+self.db+".synonym s \
-			JOIN "+self.db+".apof_ac_type act ON act.bada_code=s.bada_code"
-
-		bada3_ac_types=read_data(connection=connection, query=sql)
-
-		dict_wtc_engine_model_b3 = bada3_ac_types.set_index('icao_code').T.to_dict()
-
-		return dict_wtc_engine_model_b3
-
-	def read_ac_performances(self, connection, scenario=None, dict_key="ICAO_model"):
-		sql = "SELECt apm.bada_code AS ICAO_model, aat.engine_type AS EngineType, aat.wake AS WTC, \
-				apm.max_payload*1000 AS mpl, \
-				apm.minimum*1000 AS oew, \
-				apm.maximum*1000 AS mtow, \
-				pai.cruise_M AS mnom, \
-				pai.mass_nom AS wref, \
-				afe.max_alt AS hmo, \
-				afe.MMO AS m_max, \
-				afe.VMO AS vfe, \
-				aa.surf AS S, \
-				ac.vstall AS v_stall, \
-				ac.CD0 as cd0, \
-				ac.CD2 as cd2, \
-				aa.CM16 as cm16, \
-				afc.TSFC_c1 AS cf1, \
-				afc.TSFC_c2 AS cf2, \
-				afc.cruise_Corr_c1 AS cfcr, \
-				aa.Clbo_M0 as clbo_mo, \
-				aa.k \
-				FROM {} apm \
-				JOIN {} pai ON pai.bada_code=apm.bada_code \
-				JOIN {} afe on afe.bada_code=apm.bada_code \
-				JOIN {} aat ON aat.bada_code=apm.bada_code \
-				JOIN {} aa ON aa.bada_code=apm.bada_code \
-				JOIN {} ac ON ac.bada_code=apm.bada_code \
-				JOIN {} afc ON afc.bada_code=apm.bada_code \
-				WHERE ac.phase=\'CR\'".format(self.combine_db_table('apof_masses'),
-											  self.combine_db_table('ptf_ac_info'),
-											  self.combine_db_table('apof_flight_envelope'),
-											  self.combine_db_table('apof_ac_type'),
-											  self.combine_db_table('apof_aerodynamics'),
-											  self.combine_db_table('apof_conf'),
-											  self.combine_db_table('apof_fuel_consumption'))
-
-		d_performance = read_data(connection=connection, query=sql, scenario=scenario)
-
-		d_performance.loc[d_performance['EngineType']=="Jet",'ac_perf']=d_performance[d_performance['EngineType']=="Jet"].apply(lambda x: bap.AircraftPerformanceBada3Jet(
-																  x['ICAO_model'],
-																  x['WTC'],x['S'],x['wref'],x['mnom'],x['mtow'],
-																  x['oew'],x['mpl'],x['hmo'],x['vfe'],
-																  x['m_max'],x['v_stall'],
-																  [x['cd0'],x['cd2'],x['cm16']],
-																  [x['cf1'],x['cf2'],x['cfcr']],
-																  x['clbo_mo'],x['k']), axis=1)
-
-		dict_perf = d_performance.set_index(dict_key).to_dict()['ac_perf']
-
-		d_performance.loc[d_performance['EngineType']=="Turboprop",'ac_perf']=d_performance[d_performance['EngineType']=="Turboprop"].apply(lambda x: bap.AircraftPerformanceBada3TP(
-																	  x['ICAO_model'],
-																	  x['WTC'],x['S'],x['wref'],x['mnom'],x['mtow'],
-																	  x['oew'],x['mpl'],x['hmo'],x['vfe'],
-																	  x['m_max'],x['v_stall'],
-																	  [x['cd0'],x['cd2'],x['cm16']],
-																	  [x['cf1'],x['cf2'],x['cfcr']],
-																	  x['clbo_mo'],x['k']), axis=1)
-
-
-		dict_perf_tp = d_performance.set_index(dict_key).to_dict()['ac_perf']
-
-		dict_perf.update(dict_perf_tp)
-
-
-		sql = "SELECt ptf.bada_code as ICAO_model, ptf.FL as fl, \
-				ptf.Climb_fuel_nom as climb_f_nom, \
-				ptf.Descent_fuel_nom as descent_f_nom \
-				FROM {} ptf \
-				JOIN {} aat on aat.bada_code=ptf.bada_code \
-				WHERE ptf.ISA=0 and aat.engine_type <> \'Piston\' \
-				ORDER BY ptf.bada_code, ptf.FL;".format(self.combine_db_table('ptf_operations'),
-														self.combine_db_table('apof_ac_type'))
-
-		d_perf_climb_descent = read_data(connection=connection, query=sql, scenario=scenario)
-		d = d_perf_climb_descent.set_index(dict_key)
-
-		for i in d.index.unique():
-			cdp = d.loc[i,['fl','climb_f_nom','descent_f_nom']].values
-			dict_perf.get(i).set_climb_descent_fuel_flow_performances(cdp[:,0],cdp[:,1],cdp[:,2])
-
-
-
-		sql = "SELECt ptd.bada_code as ICAO_model, ptd.fl as fl, ptd.mass, ptd.Fuel as fuel, ptd.ROCD as rocd, ptd.TAS as tas \
-				FROM {} ptd \
-				JOIN {} aat on aat.bada_code=ptd.bada_code \
-				WHERE aat.engine_type<>\'Piston\' \
-				and ptd.phase=\'climbs\' \
-				and ptd.rocd>=0 \
-				ORDER BY ptd.bada_code, ptd.fl".format(self.combine_db_table('ptd'),
-													   self.combine_db_table('apof_ac_type'))
-
-		d_perf_climb_decnt_detailled = read_data(connection=connection, query=sql, scenario=scenario)
-		dd = d_perf_climb_decnt_detailled.set_index(dict_key)
-
-		for i in dd.index.unique():
-			dd['gamma'] = (dd['rocd']*uc.f2m/60)/(dd['tas']/uc.ms2kt)
-			dd['gamma'] = dd['gamma'].apply(asin)
-			dd['gamma'] = dd['gamma']*180/pi
-			cdp = dd.loc[i,['fl','mass','fuel','rocd','gamma','tas']].values
-			dict_perf.get(i).set_climb_fuel_flow_detailled_rate_performances(cdp[:,0],cdp[:,1],cdp[:,2],
-																			cdp[:,3],cdp[:,4],cdp[:,5])
-
-		sql = "SELECt ptd.bada_code as ICAO_model, ptd.fl as fl, ptd.mass, ptd.Fuel as fuel, ptd.ROCD as rocd, ptd.TAS as tas \
-				FROM {} ptd \
-				JOIN {} aat on aat.bada_code=ptd.bada_code \
-				WHERE aat.engine_type<>\'Piston\' \
-				and ptd.phase=\'descents\' \
-				and ptd.rocd>=0 \
-				ORDER BY ptd.bada_code, ptd.fl".format(self.combine_db_table('ptd'),
-													   self.combine_db_table('apof_ac_type'))
-
-		d_perf_climb_decnt_detailled = read_data(connection=connection, query=sql, scenario=scenario)
-		dd = d_perf_climb_decnt_detailled.set_index(dict_key)
-
-		for i in dd.index.unique():
-			dd['gamma']=(dd['rocd']*uc.f2m/60)/(dd['tas']/uc.ms2kt)
-			dd['gamma']=dd['gamma'].apply(asin)
-			dd['gamma']=dd['gamma']*(-180)/pi
-			cdp = dd.loc[i,['fl','mass','fuel','rocd','gamma','tas']].values
-			dict_perf.get(i).set_descent_fuel_flow_detailled_rate_performances(cdp[:,0],cdp[:,1],cdp[:,2],
-																				cdp[:,3],cdp[:,4],cdp[:,5])
-
-
-		sql = "select pto.bada_code as ICAO_model, pto.FL as fl, pto.Cruise_TAS as TAS, pai.mass_nom as mass \
-				FROM {} pto \
-				JOIN {} pai ON pai.bada_code=pto.bada_code \
-				JOIN {} aat ON aat.bada_code=pto.bada_code \
-				WHERE aat.engine_type<>\'Piston\' \
-				AND pto.Cruise_TAS is not null".format(self.combine_db_table('ptf_operations'),
-													   self.combine_db_table('ptf_ac_info'),
-													   self.combine_db_table('apof_ac_type'))
-
-		d_mach_selected = read_data(connection=connection, query=sql, scenario=scenario)
-		d_mach_selected['m'] = d_mach_selected[['TAS','fl']].apply(lambda x: uc.kt2m(x['TAS'],x['fl']), axis=1)
-		dms = d_mach_selected.set_index(dict_key)
-
-		for i in dms.index.unique():
-			cms = dms.loc[i,['fl','mass','m']].values
-			dict_perf.get(i).set_detailled_mach_nominal(cms[:,0],cms[:,1],cms[:,2])
-
-		return dict_perf
-
-class DataAccessBADA4():
-
-	def __init__(self,db="bada4_2"):
-		self.db = db
-
-		self.db_in_parquet = type(self.db) == type(Path())
-
-	def combine_db_table(self, table_name):
-		if self.db_in_parquet:
-			return self.db / Path(table_name)
-		else:
-			return '{}.{}'.format(self.db, Path(table_name))
-
-	def read_dict_wtc_engine_model(self, engine):
-		"""
-		Reads BADA4 list of ac types and create a dictionary with synonims ac according to BADA3
-		and which is their wake and engine type.
-
-		In BADA4 aircraft are identified by ac_model.
-
-		"""
-		sql = "SELECt ams.ICAO_model as icao_code, ac.ac_model, \
-			  ac.WTC as wake, \
-			  ac.EngineType as engine_type \
-			  FROM "+self.db+".ac_models_selected ams \
-			  JOIN "+self.db+".ac_characteristics ac on ac.ac_model=ams.ac_model"
-
-		bada4_ac_types=read_data(connection=connection, query=sql)
-
-		dict_wtc_engine_model_b4 = bada4_ac_types.set_index('icao_code').T.to_dict()
-
-		return dict_wtc_engine_model_b4
-
-	def read_ac_performances(self,connection, scenario=None, dict_key="ICAO_model"):
-
-		sql = "SELECt ams.ICAO_model as icao_model, ams.ac_model, ac.EngineType, ac.WTC as wtc, af.S as s, \
-			  ptfinfo.mass_nom as wref, ptfinfo.cruise_M as mnom, \
-			  d.MTOW as mtow, d.OEW as oew, d.MPL as mpl,\
-			  g.hmo as hmo, \
-			  cc.vfe, cc.Mmax as m_max, \
-			  p.Mref as w_ref_prop, p.LHV as lhv, \
-			  cc.scalar as cd_scalar, cc.d1, cc.d2, cc.d3, \
-			  cc.d4, cc.d5, cc.d6, cc.d7, cc.d8, cc.d9, \
-			  cc.d10, cc.d11, cc.d12, cc.d13, cc.d14, cc.d15, \
-			  tfmcf.f1, tfmcf.f2, tfmcf.f3, tfmcf.f4, tfmcf.f5, tfmcf.f6, \
-			  tfmcf.f7, tfmcf.f8, tfmcf.f9, tfmcf.f10, tfmcf.f11, tfmcf.f12, \
-			  tfmcf.f13, tfmcf.f14, tfmcf.f15, tfmcf.f16, tfmcf.f17, tfmcf.f18, \
-			  tfmcf.f19, tfmcf.f20, tfmcf.f21, tfmcf.f22, tfmcf.f23, tfmcf.f24, \
-			  tfmcf.f25, \
-			  tfmct.a1, tfmct.a2, tfmct.a3, tfmct.a4, tfmct.a5, tfmct.a6, tfmct.a7, \
-			  tfmct.a8, tfmct.a9, tfmct.a10, tfmct.a11, tfmct.a12, tfmct.a13, tfmct.a14, \
-			  tfmct.a15, tfmct.a16, tfmct.a17, tfmct.a18, tfmct.a19, tfmct.a20, \
-			  tfmct.a21, tfmct.a22, tfmct.a23, tfmct.a24, tfmct.a25, tfmct.a26, \
-			  tfmct.a27, tfmct.a28, tfmct.a29, tfmct.a30, tfmct.a31, tfmct.a32, \
-			  tfmct.a33, tfmct.a34, tfmct.a35, tfmct.a36, \
-			  tfmfr.b1, tfmfr.b2, tfmfr.b3, tfmfr.b4, tfmfr.b5, tfmfr.b6, tfmfr.b7, \
-			  tfmfr.b8, tfmfr.b9, tfmfr.b10, tfmfr.b11, tfmfr.b12, tfmfr.b13, tfmfr.b14, \
-			  tfmfr.b15, tfmfr.b16, tfmfr.b17, tfmfr.b18, tfmfr.b19, tfmfr.b20, tfmfr.b21, \
-			  tfmfr.b22, tfmfr.b23, tfmfr.b24, tfmfr.b25, tfmfr.b26, tfmfr.b27, tfmfr.b28, \
-			  tfmfr.b29, tfmfr.b30, tfmfr.b31, tfmfr.b32, tfmfr.b33, tfmfr.b34, tfmfr.b35, \
-			  tfmfr.b36, \
-			  bc.Min as blc_mmin, bc.Mmax as blc_mmax, bc.CL_M0 as blc_cl_m0, \
-			  bc.bf1, bc.bf2, bc.bf3, bc.bf4, bc.bf5 \
-			  FROM {} ams \
-			  JOIN {} ac ON ac.ac_model=ams.ac_model \
-			  JOIN {} af ON af.ac_model=ams.ac_model \
-			  JOIN {} cc ON cc.ac_model=ams.ac_model \
-			  JOIN {} d ON d.ac_model=ams.ac_model \
-			  JOIN {} ptfinfo ON ptfinfo.ac_model=ams.ac_model \
-			  JOIN {} tfmcf ON tfmcf.ac_model=ams.ac_model \
-			  JOIN {} tfmct ON tfmct.ac_model=ams.ac_model \
-			  JOIN {} tfmfr ON tfmfr.ac_model=ams.ac_model \
-			  LEFT JOIN {} bc ON bc.ac_model=ams.ac_model \
-			  JOIN {} p ON p.ac_model=ams.ac_model \
-			  JOIN {} g on g.ac_model=ams.ac_model \
-			  WHERE ptfinfo.ISA=0 and ac.EngineType=\'JET\'".format(self.combine_db_table('ac_models_selected'),
-																	self.combine_db_table('ac_characteristics'),
-																	self.combine_db_table('afcm'),
-																	self.combine_db_table('conf_clean'),
-																	self.combine_db_table('dlm'),
-																	self.combine_db_table('ptf_ac_info'),
-																	self.combine_db_table('tfm_cf'),
-																	self.combine_db_table('tfm_ct'),
-																	self.combine_db_table('tfm_mcmb_flat_rating'),
-																	self.combine_db_table('blm_clean'),
-																	self.combine_db_table('pfm'),
-																	self.combine_db_table('glm'))
-
-		#The left JOIN "+self.db+".of blm_clean is because some aircraft do not have the blm performance data (F100 and F70)
-
-		d_performance=read_data(connection=connection, query=sql, scenario=scenario)
-
-		d_performance['d']=d_performance.apply(lambda x: [x['d1'], x['d2'], x['d3'], x['d4'], x['d5'],
-														 x['d6'], x['d7'], x['d8'], x['d9'], x['d10'],
-														 x['d11'], x['d12'], x['d13'], x['d14'], x['d15']], axis =1)
-
-
-		d_performance['f']=d_performance.apply(lambda x: [x['f1'], x['f2'], x['f3'], x['f4'], x['f5'],
-														 x['f6'], x['f7'], x['f8'], x['f9'], x['f10'],
-														 x['f11'], x['f12'], x['f13'], x['f14'], x['f15'],
-														 x['f16'], x['f17'], x['f18'], x['f19'], x['f20'],
-														 x['f21'], x['f22'], x['f23'], x['f24'], x['f25']], axis =1)
-
-		d_performance['a']=d_performance.apply(lambda x: [x['a1'], x['a2'], x['a3'], x['a4'], x['a5'],
-														 x['a6'], x['a7'], x['a8'], x['a9'], x['a10'],
-														 x['a11'], x['a12'], x['a13'], x['a14'], x['a15'],
-														 x['a16'], x['a17'], x['a18'], x['a19'], x['a20'],
-														 x['a21'], x['a22'], x['a23'], x['a24'], x['a25'],
-														 x['a26'], x['a27'], x['a28'], x['a29'], x['a30'],
-														 x['a31'], x['a32'], x['a33'], x['a34'], x['a35'],
-														 x['a36']], axis =1)
-
-		d_performance['b']=d_performance.apply(lambda x: [x['b1'], x['b2'], x['b3'], x['b4'], x['b5'],
-														 x['b6'], x['b7'], x['b8'], x['b9'], x['b10'],
-														 x['b11'], x['b12'], x['b13'], x['b14'], x['b15'],
-														 x['b16'], x['b17'], x['b18'], x['b19'], x['b20'],
-														 x['b21'], x['b22'], x['b23'], x['b24'], x['b25'],
-														 x['b26'], x['b27'], x['b28'], x['b29'], x['b30'],
-														 x['b31'], x['b32'], x['b33'], x['b34'], x['b35'],
-														 x['b36']], axis =1)
-
-		d_performance['bf']=d_performance.apply(lambda x: [x['bf1'], x['bf2'], x['bf3'], x['bf4'], x['bf5']], axis =1)
-
-
-		d_performance['ac_perf']=d_performance.apply(lambda x: bap.AircraftPerformanceBada4Jet(x['icao_model'],x['ac_model'],
-																  x['wtc'],x['s'],x['wref'],x['mnom'],x['mtow'],
-																  x['oew'],x['mpl'],x['hmo'],x['vfe'],
-																  x['m_max'],x['w_ref_prop'],x['lhv'],x['cd_scalar'],
-																  x['d'],x['f'],x['a'],x['b'],x['blc_mmin'],x['blc_mmax'],
-																  x['blc_cl_m0'],x['bf']), axis=1)
-
-
-		dict_perf = d_performance.set_index(dict_key).to_dict()['ac_perf']
-
-
-
-		sql = "select ams.ICAO_model as icao_model, ams.ac_model, ac.EngineType, ac.WTC as wtc, \
-			af.S as s, ptfinfo.mass_nom as wref, ptfinfo.cruise_M as mnom, \
-			d.MTOW as mtow, d.OEW as oew, d.MPL as mpl, \
-			cc.vfe, cc.Mmax as m_max, \
-			g.hmo as hmo, \
-			p.Mref as w_ref_prop, p.LHV as lhv, \
-			cc.scalar as cd_scalar, cc.d1, cc.d2, cc.d3, \
-			cc.d4, cc.d5, cc.d6, cc.d7, cc.d8, cc.d9, \
-			cc.d10, cc.d11, cc.d12, cc.d13, cc.d14, cc.d15, \
-			tpmcp.a1, tpmcp.a2, tpmcp.a3, tpmcp.a4, tpmcp.a5, tpmcp.a6, tpmcp.a7, \
-			tpmcp.a8, tpmcp.a9, tpmcp.a10, tpmcp.a11, tpmcp.a12, tpmcp.a13, tpmcp.a14, \
-			tpmcp.a15, tpmcp.a16, tpmcp.a17, tpmcp.a18, tpmcp.a19, tpmcp.a20, \
-			tpmcp.a21, tpmcp.a22, tpmcp.a23, tpmcp.a24, tpmcp.a25, tpmcp.a26, \
-			tpmcp.a27, tpmcp.a28, tpmcp.a29, tpmcp.a30, tpmcp.a31, tpmcp.a32, \
-			tpmcp.a33, tpmcp.a34, tpmcp.a35, tpmcp.a36, \
-			tpm_cf.f1, tpm_cf.f2, tpm_cf.f3, tpm_cf.f4, tpm_cf.f5, tpm_cf.f6, \
-			tpm_cf.f7, tpm_cf.f8, tpm_cf.f9, tpm_cf.f10, tpm_cf.f11, tpm_cf.f12, \
-			tpm_cf.f13, tpm_cf.f14, tpm_cf.f15, tpm_cf.f16, tpm_cf.f17, tpm_cf.f18, \
-			tpm_cf.f19, tpm_cf.f20, tpm_cf.f21, tpm_cf.f22, tpm_cf.f23, tpm_cf.f24, \
-			tpm_cf.f25, \
-			tpmcrz.p1 as b1, tpmcrz.p2 as b2, tpmcrz.p3 as b3, tpmcrz.p4  as b4, tpmcrz.p5  as b5, \
-			tpmcrz.p6 as b6, tpmcrz.p7 as b7, tpmcrz.p8 as b8, tpmcrz.p9 as b9, tpmcrz.p10 as b10, \
-			tpmcrz.p11 as b11, tpmcrz.p12 as b12, tpmcrz.p13 as b13, tpmcrz.p14 as b14, \
-			tpmcrz.p15 as b15, tpmcrz.p16 as b16, tpmcrz.p17 as b17, tpmcrz.p18 as b18, \
-			tpmcrz.p19 as b19, tpmcrz.p20 as b20, tpmcrz.p21 as b21, tpmcrz.p22 as b22, \
-			tpmcrz.p23 as b23, tpmcrz.p24 as b24, tpmcrz.p25 as b25, tpmcrz.p26 as b26, \
-			tpmcrz.p27 as b27, tpmcrz.p28 as b28, tpmcrz.p29 as b29, tpmcrz.p30 as b30, \
-			tpmcrz.p31 as b31, tpmcrz.p32 as b32, tpmcrz.p33 as b33, tpmcrz.p34 as b34, \
-			tpmcrz.p35 as b35, tpmcrz.p36 as b36 \
-			FROM {} ams \
-			JOIN {} ac on ac.ac_model=ams.ac_model \
-			JOIN {} af on af.ac_model=ams.ac_model \
-			JOIN {} cc on cc.ac_model=ams.ac_model \
-			JOIN {} d on d.ac_model=ams.ac_model \
-			JOIN {} ptfinfo on ptfinfo.ac_model=ams.ac_model \
-			JOIN {} p on p.ac_model=ams.ac_model \
-			JOIN {} g on g.ac_model=ams.ac_model \
-			JOIN {} tpm_cf on tpm_cf.ac_model=ams.ac_model \
-			JOIN {} tpmcp on tpmcp.TPM_ac_model=ams.ac_model \
-			JOIN {} tpmcrz on tpmcrz.ac_model=ams.ac_model \
-			JOIN {} tpm on tpm.ac_model=ams.ac_model \
-			wHERE ptfinfo.ISA=0 and ac.EngineType=\'TURBOPROP\'".format(self.combine_db_table('ac_models_selected'),
-																		self.combine_db_table('ac_characteristics'),
-																		self.combine_db_table('afcm'),
-																		self.combine_db_table('conf_clean'),
-																		self.combine_db_table('dlm'),
-																		self.combine_db_table('ptf_ac_info'),
-																		self.combine_db_table('pfm'),
-																		self.combine_db_table('glm'),
-																		self.combine_db_table('tpm_cf'),
-																		self.combine_db_table('tpm_cp'),
-																		self.combine_db_table('tpm_mcrz_rating'),
-																		self.combine_db_table('tpm_mcrz'),)
-
-		d_performance = read_data(connection=connection, query=sql, scenario=scenario)
-
-		d_performance['d']=d_performance.apply(lambda x: [x['d1'], x['d2'], x['d3'], x['d4'], x['d5'],
-														 x['d6'], x['d7'], x['d8'], x['d9'], x['d10'],
-														 x['d11'], x['d12'], x['d13'], x['d14'], x['d15']], axis =1)
-
-
-		d_performance['f']=d_performance.apply(lambda x: [x['f1'], x['f2'], x['f3'], x['f4'], x['f5'],
-														 x['f6'], x['f7'], x['f8'], x['f9'], x['f10'],
-														 x['f11'], x['f12'], x['f13'], x['f14'], x['f15'],
-														 x['f16'], x['f17'], x['f18'], x['f19'], x['f20'],
-														 x['f21'], x['f22'], x['f23'], x['f24'], x['f25']], axis =1)
-
-		d_performance['a']=d_performance.apply(lambda x: [x['a1'], x['a2'], x['a3'], x['a4'], x['a5'],
-														 x['a6'], x['a7'], x['a8'], x['a9'], x['a10'],
-														 x['a11'], x['a12'], x['a13'], x['a14'], x['a15'],
-														 x['a16'], x['a17'], x['a18'], x['a19'], x['a20'],
-														 x['a21'], x['a22'], x['a23'], x['a24'], x['a25'],
-														 x['a26'], x['a27'], x['a28'], x['a29'], x['a30'],
-														 x['a31'], x['a32'], x['a33'], x['a34'], x['a35'],
-														 x['a36']], axis =1)
-
-		d_performance['b']=d_performance.apply(lambda x: [x['b1'], x['b2'], x['b3'], x['b4'], x['b5'],
-														 x['b6'], x['b7'], x['b8'], x['b9'], x['b10'],
-														 x['b11'], x['b12'], x['b13'], x['b14'], x['b15'],
-														 x['b16'], x['b17'], x['b18'], x['b19'], x['b20'],
-														 x['b21'], x['b22'], x['b23'], x['b24'], x['b25'],
-														 x['b26'], x['b27'], x['b28'], x['b29'], x['b30'],
-														 x['b31'], x['b32'], x['b33'], x['b34'], x['b35'],
-														 x['b36']], axis =1)
-
-
-
-		d_performance['ac_perf']=d_performance.apply(lambda x: bap.AircraftPerformanceBada4TP(x['icao_model'],x['ac_model'],
-																  x['wtc'],x['s'],x['wref'],x['mnom'],x['mtow'],
-																  x['oew'],x['mpl'],x['hmo'],x['vfe'],
-																  x['m_max'],x['w_ref_prop'],x['lhv'],x['cd_scalar'],
-																  x['d'],x['f'],x['a'],x['b']), axis=1)
-
-
-
-		dict_perf_tp = d_performance.set_index(dict_key).to_dict()['ac_perf']
-
-		dict_perf.update(dict_perf_tp)
-
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, ptf.FL as fl, \
-			   ptf.Climb_fuel_nom as climb_f_nom, \
-			   ptf.Descent_fuel_nom as descent_f_nom \
-			   FROM {} ptf \
-			   JOIN {} ams ON ams.ac_model=ptf.ac_model \
-			   JOIN {} ac ON ac.ac_model=ams.ac_model \
-			   WHERE ptf.ISA=0 and \
-			   (ac.EngineType=\'JET\' or ac.EngineType=\'TURBOPROP\') \
-			   ORDER BY ams.ICAO_model, ptf.FL;".format(self.combine_db_table('ptf_operations'),
-														self.combine_db_table('ac_models_selected'),
-														self.combine_db_table('ac_characteristics'))
-
-		d_perf_climb_descent = read_data(connection=connection, query=sql, scenario=scenario)
-		d = d_perf_climb_descent.set_index(dict_key)
-
-		for i in d.index.unique():
-			cdp = d.loc[i,['fl','climb_f_nom','descent_f_nom']].values
-			dict_perf.get(i).set_climb_descent_fuel_flow_performances(cdp[:,0],cdp[:,1],cdp[:,2])
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, fl, mass, Fuel as fuel, ROCD as rocd, gamma, TAS as tas \
-			   FROM {} ptd \
-			   JOIN {} ams ON ams.ac_model=ptd.ac_model \
-			   JOIN {} ac ON ac.ac_model=ams.ac_model \
-			   WHERE ptd.ISA=0 and \
-			   (ac.EngineType=\'JET\' or ac.EngineType=\'TURBOPROP\') \
-			   and ptd.phase=\'CLIMB\' \
-			   and ptd.lim =\'\' AND ptd.rocd>=0\
-			   ORDER BY ams.ICAO_model, ptd.FL;".format(self.combine_db_table('ptd'),
-														self.combine_db_table('ac_models_selected'),
-														self.combine_db_table('ac_characteristics'))
-
-
-		d_perf_climb_decnt_detailled = read_data(connection=connection, query=sql, scenario=scenario)
-		dd = d_perf_climb_decnt_detailled.set_index(dict_key)
-
-		for i in dd.index.unique():
-			cdp = dd.loc[i,['fl','mass','fuel','rocd','gamma','tas']].values
-			dict_perf.get(i).set_climb_fuel_flow_detailled_rate_performances(cdp[:,0],cdp[:,1],cdp[:,2],
-																			cdp[:,3],cdp[:,4],cdp[:,5])
-
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, fl, mass, Fuel as fuel, ROCD as rocd, gamma, TAS as tas \
-				FROM {} ptd \
-				JOIN {} ams ON ams.ac_model=ptd.ac_model \
-				JOIN {} ac ON ac.ac_model=ams.ac_model \
-				WHERE ptd.ISA=0 and \
-				(ac.EngineType=\'JET\' or ac.EngineType=\'TURBOPROP\') \
-				and ptd.phase=\'DESCENT\' \
-				and ptd.lim =\'\' \
-				ORDER BY ams.ICAO_model, ptd.FL;".format(self.combine_db_table('ptd'),
-														self.combine_db_table('ac_models_selected'),
-														self.combine_db_table('ac_characteristics'))
-
-
-		d_perf_climb_decnt_detailled = read_data(connection=connection, query=sql, scenario=scenario)
-		dd = d_perf_climb_decnt_detailled.set_index(dict_key)
-
-		for i in dd.index.unique():
-			cdp = dd.loc[i,['fl','mass','fuel','rocd','gamma','tas']].values
-			dict_perf.get(i).set_descent_fuel_flow_detailled_rate_performances(cdp[:,0],cdp[:,1],cdp[:,2],
-																			  cdp[:,3],cdp[:,4],cdp[:,5])
-
-		sql = "SELECt ams.ICAO_model, ams.ac_model, ptd.FL as fl, ptd.M as m, ptd.mass as mass \
-				FROM {} AS ptd \
-				JOIN {} ams ON ams.ac_model=ptd.ac_model \
-				JOIN {} ac ON ac.ac_model=ams.ac_model \
-				WHERE ptd.ISA=0 AND ptd.phase=\'CRUISE\' AND \
-				(ac.EngineType=\'JET\' OR ac.EngineType=\'TURBOPROP\')".format(self.combine_db_table('ptd'),
-																				self.combine_db_table('ac_models_selected'),
-																				self.combine_db_table('ac_characteristics'))
-
-		d_mach_selected = read_data(connection=connection, query=sql, scenario=scenario)
-		dms = d_mach_selected.set_index(dict_key)
-
-		for i in dms.index.unique():
-			cms = dms.loc[i,['fl','mass','m']].values
-			dict_perf.get(i).set_detailled_mach_nominal(cms[:,0],cms[:,1],cms[:,2])
-
-		return dict_perf
-
-#Output
-# def save_results_creating_table(engine,df,table):
-# 	engine.execute("DROP TABLE IF EXISTS "+table)
-# 	df.to_sql(name=table,con=engine,index=False)
-
-# #General tools
-# def check_if_table_exists(engine, table):
-# 	sql = "SELECt * FROM "+table+" LIMIT 1"
-
-# 	try:
-# 		read_data(connection=connection, query=sql)
-# 		return True
-# 	except:
-# 		return False
-
-#Flight uncertainties
+# Flight uncertainties
 def read_flight_uncertainty(connection, table='flight_uncertainties_static', phase='climb', scenario=None):
 	sql = "SELECT mu, sigma, computed_as_crossing_fl FROM {} WHERE phase=\'{}\'".format(table, phase)
 	
@@ -1356,6 +444,7 @@ def read_flight_uncertainty(connection, table='flight_uncertainties_static', pha
 	dist = stats.norm(loc=mu, scale=sig)
 
 	return {'dist': dist, 'fl_crossing': fl_crossing}
+
 
 #Flight extra cruise if DCI
 def read_extra_cruise_if_dci(connection, table='increment_cruise_dci_static', scenario=None):
@@ -1370,413 +459,3 @@ def read_extra_cruise_if_dci(connection, table='increment_cruise_dci_static', sc
 	dist = stats.norm(loc=mu, scale=sig)
 
 	return {'dist': dist, 'min_nm': min_nm, 'max_nm': max_nm}
-
-#Read seed stored
-def read_seed(connection, table='output_RNG', scenario_id=None, n_iter=None, model_version=None):
-
-	sql = "SELECT `0`, `1`, `2`, `3`, `4` FROM "+table+" WHERE scenario_id="+str(scenario_id)
-
-	if n_iter is not None:
-		sql += " AND n_iter="+str(n_iter)
-	if model_version is not None:
-		sql += " AND model_version='"+str(model_version)+"'"
-
-	d_seed = read_data(connection=connection, query=sql)
-
-	row = d_seed.iloc[0,:]
-	seed = (row['0'],np.asarray([int(x) for x in row['1'][1:-1].split(",")], dtype=np.uint),int(row['2']),int(row['3']),float(row['4']))
-	return seed
-
-# Pre Layer stuff
-
-def read_passenger_flows(connection, scenario_id=0, table='itinerary_flow'):
-	sql = """SELECT id, origin, destination, airline_sequence, airport_sequence, volume, fare, scenario_id from {} WHERE scenario_id={}""".format(table, scenario_id)
-	d_pf = read_data(connection=connection, query=sql)
-	return d_pf
-
-def read_flight_schedules(connection, scenario_id, schedule_run, table='flight_schedule'):
-	sql = """
-	SELECT 
-		nid AS id,
-		origin AS icao_orig,
-		destination AS icao_dest,
-		aircraft_type AS icao_model
-	FROM
-		{}
-	WHERE
-		scenario_id = {} AND schedule_run = {};
-	""".format(table, scenario_id, schedule_run)
-
-	d_schedules = read_data(connection=connection, query=sql)
-
-	return d_schedules
-
-def read_flight_schedules2(connection, scenario_id, schedule_run, table='flight_schedule'):
-	sql = """
-	SELECT 
-		*
-	FROM
-		{}
-	WHERE
-		scenario_id = {} AND schedule_run = {};
-	""".format(table, scenario_id, schedule_run)
-
-	d_schedules = read_data(connection=connection, query=sql)
-
-	return d_schedules
-
-def read_MCT(connection, table='airport_static'):
-		sql = "select ICAO, MCTs_standard, MCTs_Domestic, MCTs_International from {}".format(table)
-		return  read_data(connection=connection, query=sql)
-
-def read_passenger_options(connection, scenario_id, po_run,
-	possible_itineraries_table='possible_options_itineraries', pax_flow_table='itinerary_flow'):
-	sql = """SELECT po.id, po.option_number, po.nid_f1, po.nid_f2, po.nid_f3, \
-		po.mct_leg2, po.mct_leg3, po.waiting_time_c1, po.waiting_time_c2, po.total_waiting_time, \
-		po.total_time, IF( po.nid_f2 is null, 0, IF (po.nid_f3 is null, 1, 2)) as num_connections\
-		FROM {} po \
-		WHERE po.scenario_id={} AND po.po_run={}""".format(possible_itineraries_table, scenario_id, po_run)
-
-	d = read_data(connection=connection,
-				query=sql)
-
-	ds = read_passenger_flows(connection=connection,
-							scenario_id=scenario_id,
-							table=pax_flow_table)
-
-	d = pd.merge(d,
-				ds[['id','volume','fare']],
-				on=['id'],
-				how='left',
-				suffixes=('','_x'))
-
-	return d
-
-### OLD STUFF
-def read_flight_set(connection, subset_table='flight_subset', set_id=0):
-	sql = "SELECt flight_id FROM " + subset_table + " WHERE subset=" + str(set_id) 
-
-	return read_data(connection=connection, query=sql)
-
-# Read winds
-def read_iedf_wind_dict(connection, table='iedf_wind_static',type_wind=None):
-	sql="SELECt iw.icao_country_orig, iw.icao_country_dest, \
-		 iw.type_wind, iw.x, iw.y, iw.`index` \
-		 FROM iedf_wind_static iw"
-
-	if type_wind != None:
-		if ("LIKE" in type_wind) or ("like" in type_wind):
-			sql = sql + " WHERE iw.type_wind "+type_wind
-		else:
-			sql = sql + " WHERE iw.type_wind=\""+type_wind+"\""
-
-	sql = sql+" ORDER BY iw.`index`"
-
-	d_iedf=read_data(connection=connection, query=sql)
-
-	groups=d_iedf.groupby(['icao_country_orig','icao_country_dest'])
-
-	dict_w_iedf={}
-	for name, group in groups:   
-		dict_w_iedf[name[0],name[1]]={'icao_country_orig': name[0], 'icao_country_des': name[1],
-									   'iedf': interp1d(group['x'],group['y']),
-									   'type_wind':group[['type_wind']].iloc[0][0]}
-
-	return dict_w_iedf
-
-def read_ATFM_at_airports_old(connection, regulation_table="atfm_regulation_at_airport", regulation_capacity_table="regulation_capacity_period", scenario=None):
-	sql = "SELECt r.scenario_id, r.regulation_id, r.airport_icao, rcp.start_time, rcp.end_time,  rcp.capacity_acc_hour\
-		  FROM "+regulation_table+" r \
-		  JOIN "+regulation_capacity_table+" rcp ON rcp.regulation_id=r.regulation_id "
-
-	if scenario is not None:
-		sql += " WHERE scenario_id="+str(scenario)
-
-	sql = sql + " ORDER BY r.scenario_id, r.regulation_id, r.airport_icao, rcp.start_time"
-
-	df = read_data(connection=connection, query=sql)
-
-	return df
-
-def read_perc_min_perc_max_regulations_days(engine, table="perc_day_min_max_reg_airports", scenario=None):
-	if scenario is not None:
-		scenarios_ids_available = list(read_mysql(query="SELECt DISTINCT scenario_id FROM "+table, engine=engine)['scenario_id'])
-		if not (int(scenario) in scenarios_ids_available):
-			scenario = 0
-
-	sql = "SELECt perc_day_min, perc_day_max FROM "+table+" WHERE scenario_id="+str(scenario)
-	
-	df = read_mysql(query=sql, engine=engine)
-
-	return df['perc_day_min'].iloc[0].item(), df['perc_day_max'].iloc[0].item()
-
-def read_countries_ATFM_NAS(engine, airport_table="airport_info_static"):
-	sql = "select distinct nas, atfm_area from "+airport_table+" where atfm_area=1"
-	return read_mysql(query=sql, engine=engine)
-
-#CRCO
-def read_crco(engine, crco_vat_table="crco_vat_static", crco_fix_table="crco_fix_static", 
-	crco_overfly_table = "crco_overfly_static", crco_weight_table = "crco_weight_static"):
-	dvat = read_mysql(query="SELECt sid, vat FROM "+crco_vat_table, engine=engine)
-	dfix = read_mysql(query="SELECt sid, unit_rate FROM "+crco_fix_table, engine=engine)
-	doverfly = read_mysql(query="SELECt sid, unit_rate FROM "+crco_overfly_table,  engine=engine)
-	dweight = read_mysql(query="SELECt sid, from_t, to_t, unit_rate FROM "+crco_weight_table,  engine=engine)
-	crco_data = {'vat':dvat, 'fix':dfix, 'overfly':doverfly, 'weight':dweight}
-
-	return crco_data
-
-def read_airport_coords(engine, airport_table="airport_info_static", icao_id=None):
-	sql = "SELECt a.icao_id, ST_X(a.coords) as lat, ST_Y(a.coords) as lon FROM "+airport_table+" a"
-	if icao_id is not None:
-		sql = sql + " where a.icao_id=\""+icao_id+"\""
-
-	d_airport_coords = read_mysql(query=sql, engine=engine)
-	return d_airport_coords
-
-def read_flight_plan_ansps_weights_for_crco(engine):
-	sql = "SELECt f.id, \
-		IF(bada4_mtow.mtow is not null, bada4_mtow.mtow, amtow.mtow) AS mtow, \
-		fp.sequence, fp.ansp, ST_X(fp.coords) AS lat, ST_Y(fp.coords) AS lon \
-		FROM fp_pool_m f \
-		JOIN fp_pool_point_m fp on fp.fp_pool_id=f.id \
-		LEFT JOIN (select bada_code_ac_model, mtow FROM ac_eq_badacomputed_static aebc \
-		JOIN bada4_2.ac_models_selected a_m_s ON aebc.bada_code_ac_model=a_m_s.ac_model AND aebc.ac_icao=a_m_s.icao_model \
-		JOIN ac_mtow_static amtow on amtow.ac=aebc.ac_icao) AS bada4_mtow ON bada4_mtow.bada_code_ac_model=f.bada_code_ac_model \
-		LEFT JOIN ac_mtow_static amtow ON amtow.ac=f.bada_code_ac_model \
-		ORDER BY f.id, fp.sequence"
-
-#Airspace
-def read_airspace_static(engine, airspace_table="airspace_static"):
-	sql = "SELECt a.id, a.sid, a.type, a.name FROM "+airspace_table+" a"
-	return read_mysql(query=sql, engine=engine)
-
-def read_route_pool_static(engine, route_pool_table="route_pool_static"):
-	sql = "SELECt rp.id as route_pool_id, rp.tact_id, rp.f_airac_id, rp.icao_orig, rp.icao_dest, \
-		  rp.fp_distance_km,rp.f_database,rp.type \
-		  FROM "+route_pool_table+" rp"
-
-	d_route_pool = read_mysql(query=sql, engine=engine)
-	return d_route_pool
-
-def read_route_pool_o_d_generated(engine, route_pool_o_d_table="route_pool_o_d_generated", condition = None):
-	sql = "SELECt rp.id as route_pool_id, rp.icao_orig, rp.icao_dest, \
-				rp.fp_distance_km,rp.type, rp.based_route_pool_static_1_id, \
-				rp.based_route_pool_static_2_id, rp.type  \
-				FROM "+route_pool_o_d_table+" rp"
-
-	if condition is not None:
-		sql = sql + " WHERE "+condition
-
-	d_route_pool = read_mysql(query=sql, engine=engine)
-	return d_route_pool
-
-def read_nas_route_pool(engine, route_pool_table="route_pool", route_pool_has_airspace_table="route_pool_has_airspace_static", 
-	airspace_table = "airspace_static", fab_table = "fab_static", include_fabs = False):
-	sql = "SELECt rp.id as route_pool_id, rpha.gcd_km, \
-			ST_X(rpha.entry_point) as lat_entry, ST_Y(rpha.entry_point) as lon_entry, \
-			ST_X(rpha.exit_point) as lat_exit, ST_Y(rpha.exit_point) as lon_exit, \
-			rpha.sequence, a.sid as nas_sid"
-
-	if include_fabs:
-		sql = sql + ", fs.fab"
-
-	sql = sql + " FROM "+route_pool_table+" rp \
-				JOIN "+route_pool_has_airspace_table+" rpha \
-				ON rpha.route_pool_id=rp.id \
-				JOIN "+airspace_table+" a on a.id=rpha.airspace_id"
-
-	if include_fabs:
-		sql = sql + " LEFT JOIN "+fab_table+" fs on fs.ansp=a.sid"
-
-	sql = sql + " ORDER BY rp.id, rpha.sequence"
-
-	d_nas = read_mysql(query=sql, engine=engine)
-
-	if include_fabs:
-		d_nas.loc[d_nas['fab'].isnull(),'fab']=d_nas.loc[d_nas['fab'].isnull(),'nas_sid']
-
-	return d_nas
-
-def read_nas_route_pool_static_o_d(engine, table="route_pool_static_has_airspace_static",only_fids=None):
-	sql = "SELECt rpha.route_pool_id, rpha.airspace_id, rpha.sequence, ST_X(rpha.entry_point) lat_entry, ST_Y(rpha.entry_point) lon_entry, \
-			ST_X(rpha.exit_point) lat_exit, ST_Y(rpha.exit_point) lon_exit, \
-			rpha.distance_entry, rpha.distance_exit, rpha.gcd_km, rpha.airspace_orig_sid \
-			FROM "+table+" rpha"
-
-	if only_fids is not None:
-		sql = sql + " WHERE rpha.route_pool_id IN ("+str(only_fids)[1:-1]+")"
-
-	sql = sql + " ORDER BY rpha.route_pool_id, rpha.sequence"
-
-	d_nas_route_pool_static = read_mysql(query=sql, engine=engine)
-	
-	return d_nas_route_pool_static
-
-def read_od_in_historic_od_computed_pool(engine, route_pool_table="route_pool_static", route_pool_o_d_table="route_pool_o_d_generated"):
-	sql = "SELECt DISTINCT icao_orig, icao_dest FROM "+route_pool_table
-	d_od = read_mysql(query=sql,  engine=engine)
-
-	sql = "SELECt DISTINCT icao_orig, icao_dest FROM "+route_pool_o_d_table
-
-	d_od = d_od.append(read_mysql(query=sql, engine=engine),ignore_index=True)
-
-	d_od = d_od.drop_duplicates()
-
-	return d_od
-
-def get_information_routes_o_d_generated(engine, icao_orig, icao_dest, route_pool_o_d_table="route_pool_o_d_generated"):
-
-	sql = "select id, based_route_pool_static_1_id, based_route_pool_static_2_id, \
-	icao_orig, icao_dest, fp_distance_km, type \
-	FROM "+route_pool_o_d_table+" \
-	WHERE icao_orig=\""+icao_orig+"\" AND icao_dest=\""+icao_dest+"\""
-
-	return read_mysql(query=sql, engine=engine)
-
-def read_orig_destination_via_intermediate_shortest(engine, icao_orig, icao_dest, route_pool_table="route_pool_static"):
-	sql ="Select fs1.icao_orig, fs1.icao_dest as icao_inter, fs2.icao_dest, \
-		(fs1.fp_distance_km + fs2.fp_distance_km) as total_fp_dist_km \
-		from "+route_pool_table+" fs1 \
-		join "+route_pool_table+" fs2 on fs2.icao_orig=fs1.icao_dest \
-		join ( \
-		select fs1.icao_orig, fs1.icao_dest as icao_inter, fs2.icao_dest, \
-		max(fs1.fp_distance_km + fs2.fp_distance_km) as max_total_fp_dist_km \
-		from "+route_pool_table+" fs1 \
-		join "+route_pool_table+" fs2 on fs2.icao_orig=fs1.icao_dest \
-		join (select fs1.icao_orig, fs1.icao_dest as icao_inter, fs2.icao_dest \
-		  from "+route_pool_table+" fs1 \
-		  join "+route_pool_table+" fs2 on fs2.icao_orig=fs1.icao_dest \
-		  where fs1.icao_orig=\""+icao_orig+"\" and fs2.icao_dest=\""+icao_dest+"\" \
-		  order by (fs1.fp_distance_km + fs2.fp_distance_km) ASC limit 1) as sortest_inter \
-				  on sortest_inter.icao_orig=fs1.icao_orig and \
-					  sortest_inter.icao_inter=fs1.icao_dest and \
-					  sortest_inter.icao_dest=fs2.icao_dest \
-		group by fs1.icao_orig, fs1.icao_dest, fs2.icao_dest) as max_dist_sortest_inter \
-		  on max_dist_sortest_inter.icao_orig=fs1.icao_orig and \
-			  max_dist_sortest_inter.icao_dest=fs2.icao_dest and \
-			  max_dist_sortest_inter.max_total_fp_dist_km >= (fs1.fp_distance_km + fs2.fp_distance_km) \
-		where fs1.icao_orig=\""+icao_orig+"\" and fs2.icao_dest=\""+icao_dest+"\""
-
-	d_od_inter = read_mysql(query=sql, engine=engine)
-
-	return d_od_inter
-
-def read_trajectories(engine, condition_trajectory_id=None):
-	dt = read_trajectories_dataframe(engine, condition_trajectory_id)
-
-	trajectories={}
-	for tid in dt['trajectory_id'].unique():
-
-		dt_t = dt.loc[dt['trajectory_id']==tid, ['ac_icao','ac_model','bada_version','fp_distance','fp_distance_orig','fp_time','fp_fuel',
-										 'fp_weight_0','fp_weight_1','oew','mpl','pl','pl_perc','fp_fl_0','fp_fl_1','fp_fl_max',
-										 'fp_status']].copy().drop_duplicates().reset_index(drop=True)
-
-		t=Trajectory(dt_t.loc[0,'ac_icao'],dt_t.loc[0,'ac_model'],dt_t.loc[0,'bada_version'],dt_t.loc[0,'oew'],dt_t.loc[0,'mpl'],
-					dt_t.loc[0,'fp_distance_orig'])
-
-		t.status = dt_t.loc[0,'fp_status']
-
-		dt_ts = dt.loc[dt['trajectory_id']==tid, ['segment_order', 'segment_type', 'segment_distance',
-				'segment_time', 'segment_fuel', 'segment_weight_0', 'segment_weight_1',
-				'segment_fl_0', 'segment_fl_1', 'segment_avg_m', 'segment_status']].copy().reset_index(drop=True)
-
-
-		for i in dt_ts.index:
-			ts = t.trajectory_segment(dt_ts.loc[i,'segment_fl_0'],dt_ts.loc[i,'segment_fl_1'],dt_ts.loc[i,'segment_distance'],
-									   dt_ts.loc[i,'segment_time'],dt_ts.loc[i,'segment_fuel'],dt_ts.loc[i,'segment_weight_0'],
-									   dt_ts.loc[i,'segment_weight_1'],dt_ts.loc[i,'segment_type'])
-
-			ts.status = dt_ts.loc[i,'segment_status']
-			ts.avg_m = dt_ts.loc[i,'segment_avg_m']
-			t.add_back_trajectory_segment(ts)
-			
-			trajectories[tid] = t
-
-	return trajectories
-
-def read_trajectories_dataframe(engine, condition_trajectory_id=None):
-	sql_condition = ""
-
-	if condition_trajectory_id!=None:
-		sql_condition = "WHERE tp.trajectory_id LIKE \""+condition_trajectory_id+"%\""
-
-	sql="SELECt tp.trajectory_id, tp.ac_icao, tp.ac_model, \
-		tp.bada_version, tp.fp_distance, tp.fp_distance_orig, \
-		tp.fp_time, tp.fp_fuel, tp.fp_weight_0, tp.fp_weight_1, \
-		tp.oew, tp.mpl, tp.pl, tp.pl_perc, tp.fp_fl_0, tp.fp_fl_1, \
-		tp.fp_fl_max, tp.fp_status, \
-		tps.segment_order, tps.segment_type, tps.segment_distance, \
-		tps.segment_time, tps.segment_fuel, tps.segment_weight_0, \
-		tps.segment_weight_1, tps.segment_fl_0, tps.segment_fl_1, \
-		tps.segment_avg_m, tps.segment_status \
-		FROM trajectory_perf tp \
-		JOIN trajectory_perf_segments tps ON tps.trajectory_id=tp.trajectory_id "\
-		+sql_condition+" "+\
-		"ORDER BY tp.trajectory_id, tps.segment_order"
-
-	d_trajectories=read_mysql(query=sql, engine=engine)
-
-	return d_trajectories
-
-def read_trajectories_options(engine, tg_run=None, scenario_id=None, sm_run=None, rg_run=None, reduced=False, fields=None):
-	sql = "SELECt id as trajectory_id, option_number, schedule_id, route_pool_id, \
-		icao_orig, icao_dest, ac_icao, ac_eq, bada_code_ac_model, \
-		bada_version, mtow, tow, fp_distance_nm, fp_min, fp_fuel_kg, fp_carbon_kg, \
-		climb_nm, cruise_nm, descent_nm, climb_min, cruise_min, descent_min, \
-		climb_fuel_kg, cruise_fuel_kg, descent_fuel_kg, avg_fl, \
-		cruise_nom_m, cruise_nom_kt, cruise_avg_wind_kt, cruise_ground_kt, \
-		cruise_avg_weight, scenario, SM_run, RG_run, TG_run \
-		FROM trajectories_options"
-
-	if reduced:
-		sql = "SELECt id as trajectory_id, option_number, schedule_id, route_pool_id, \
-		mtow, fp_distance_nm, fp_min, fp_fuel_kg, fp_carbon_kg, \
-		scenario, SM_run, RG_run, TG_run \
-		FROM trajectories_options"
-
-	if fields is not None:
-		sql = "SELECt "+fields+" FROM trajectories_options"
-
-	if (scenario_id is not None) or (tg_run is not None) or (sm_run is not None) or (rg_run is not None):
-		sql = sql +" WHERE"
-
-	if tg_run is not None:
-		sql = sql + " AND tg_run="+str(tg_run)
-	if scenario_id is not None:
-		sql = sql + " AND scenario="+str(scenario_id)
-	if sm_run is not None:
-		sql = sql + " AND SM_run="+str(sm_run)
-	if rg_run is not None:
-		sql = sql + " AND RG_run="+str(rg_run)
-
-	sql = sql.replace("WHERE AND", "WHERE ")
-
-	return read_mysql(query=sql, engine=engine)
-
-def read_coord_trajectory_route_based_on_id(engine, rps_id,
-	table_pool="route_pool_static",table_airspace="route_pool_static_has_airspace_static"):
-	
-	sql = "SELECt coords.id, coords.icao_orig, coords.icao_dest, coords.lat, coords.lon, coords.distance FROM \
-		(select rps.id, rps.icao_orig, rps.icao_dest, \
-		  ST_X(rpshas.entry_point) as lat, ST_Y(rpshas.entry_point) as lon, a.sid, \
-		  rpshas.distance_entry as distance \
-		from "+table_pool+" rps \
-		join "+table_airspace+" rpshas on rpshas.route_pool_id=rps.id \
-		join airspace_static a on a.id=rpshas.airspace_id \
-		where rps.id in ("+str(rps_id)+") \
-		UNION \
-		select rps.id, rps.icao_orig, rps.icao_dest, \
-		ST_X(rpshas.exit_point) as lat, ST_Y(rpshas.exit_point) as lon, \
-		a.sid, rpshas.distance_exit as distance \
-		from "+table_pool+" rps \
-		join "+table_airspace+" rpshas on rpshas.route_pool_id=rps.id \
-		join airspace_static a on a.id=rpshas.airspace_id \
-		where rps.id in ("+str(rps_id)+")) as coords \
-		order by coords.id, coords.distance ASC"
-
-	d_coords = read_mysql(query=sql, engine=engine)
-
-	d_coords = d_coords.drop_duplicates()
-
-	return d_coords
-

@@ -84,7 +84,49 @@ def load_mercury_module(path_module=None, module_name=None):
 	except FileNotFoundError:
 		raise Exception("Module {} couldn't be found.".format(module_name))
 
-	return cred
+	try:
+		full_path = path_module / name_base / (name_file + '.toml')
+		module_specs = read_toml(full_path)
+	except FileNotFoundError:
+		raise Exception("Module specs for {} couldn't be found. Check that the toml "
+						"file has exactly the same name than the module".format(module_name))
+
+	# In agent_modif, replace all string names of methods by classes themselves
+	# Iterate through all agents
+	#print ()
+	for agent, d in module_specs['agent_modif'].items():
+		# Iteration through all modifications planned for the agent
+		#print ('Loading modifications for agent:', agent)
+		for modif_name_agent, modif_agent in d.items():
+			# print('MODIF NAME AGENT:', modif_name_agent)
+			if modif_name_agent == 'on_init':
+				# In this case, a method of the agent itself is modified. This should
+				# happen with the on_init_agent.
+				#print('Loading on_init for initialisation of agent')
+				module_specs['agent_modif'][agent][modif_name_agent] = cred.__getattribute__(modif_agent)
+			elif type(modif_agent) is dict:
+				# In this case, this is a modification of roles.
+				# Iterate through the modifications for this role
+				for modif_name_role, modif_role in modif_agent.items():
+					#print('MODIF NAME ROLE:', modif_name_role)
+					if modif_name_role == 'new_methods':
+						# In this case, this is a list of new methods
+						#print('Loading new methods for role {}: {}'.format(modif_name_agent, [new_method for new_method in modif_role]))
+						module_specs['agent_modif'][agent][modif_name_agent][modif_name_role] = \
+							[cred.__getattribute__(new_method) for new_method in modif_role]
+					else:
+						# In this case, it is just a modification of an existing method
+						#print ('Modyfing method for role {}: {}'.format(modif_name_agent, modif_name_role))
+						module_specs['agent_modif'][agent][modif_name_agent][modif_name_role] = \
+							cred.__getattribute__(modif_role)
+
+		#print()
+
+	# If exists, add the get_metric method
+	if module_specs['info']['get_metric'] is not None:
+		module_specs['info']['get_metric'] = cred.__getattribute__('get_metric')
+
+	return cred, module_specs
 
 
 def get_module_paras(path_module=None, module_name=None):

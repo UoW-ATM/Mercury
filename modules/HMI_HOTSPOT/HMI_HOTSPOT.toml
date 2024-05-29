@@ -1,0 +1,26 @@
+[module_specs]
+name = "HMI_HOTSPOT"
+description = "Human in the loop interface for regulations"
+incompatibilities = []
+requirements = [
+    "CM",
+]
+apply_to = "apply_to"
+
+[agent_modif.AirlineOperatingCentre.AirlineFlightPlanner]
+on_init = "on_init_remote_hmi"
+make_hotspot_decision = "make_hotspot_decision_hmi"
+new = [
+    "send_regulation_info_to_hmi",
+    "compute_hotspot_decision",
+    "receive_regulation_decisions_remote_hmi",
+    "receive_final_allocation",
+    "send_final_allocation_to_hmi",
+]
+receive = "receive_new_messages"
+
+[agent_modif.NetworkManager.HotspotManager]
+notify_AOCs_of_final_allocation = "notify_AOCs_of_final_allocation_hmi"
+new = [
+    "send_final_allocation_to_airline",
+]

@@ -12,7 +12,7 @@ class Aircraft(simpy.Resource):
 		super().__init__(env, capacity=1)
 
 		self.uid = uid
-		self.bada_performances = None
+		self.performances = None
 		# self.flights_uid_list = []
 		# self.idx_current_flight = 0
 

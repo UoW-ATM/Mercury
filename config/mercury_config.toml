@@ -1,16 +1,19 @@
 [read_profile]
-type = "parquet"#file"
-fmt = "parquet"#"csv"
+type = "parquet" # 'file' or 'mysql'
+fmt = "parquet" # 'mysql' or 'csv' or 'pickle' or 'parquet'
 connection = "local"
-scenario_loader = "ScenarioLoaderStandardLocal" #ScenarioLoaderStandard"#"ScenarioLoaderSimple"
+# In the following, put "false/true when you're not sure your data has changed ('safe loading'), and "true/false"
+# once you're sure about your data ('fast' loading). You can control that with the -fl arg in the cli.
+load_compiled_data_if_exists = false  #  Put "false" if you run Mercury on this scenario/case study before and you modified the data
+force_save_compiled_data = true # if true, will save the compiled data even if it exists on the disk
 path = "../input/"
 
 
 [write_profile]
 type = "file" # 'file' or 'mysql'. Put "None" if you don't want a raw output (note: independent of aggregator)
-fmt = "csv" # csv or pickle
+fmt = "csv" # 'csv' or 'pickle'
 connection = "local" # None if creds are included in read. 'local' for local saving of files.
-mode = "replace" # can be update or replace
+mode = "replace" # can be 'update' or 'replace'
 path = "../results" # path folder where to save results.
 				  # relative path are relative to base_path from profile file.
 				  # Otherwise you can put absolute paths, it will override base_path.
@@ -18,12 +21,31 @@ prefix = "model_scenario_cs_it" # Destination folder for output files
 
 [computation]
 parallel = false
-pc = 1 #Parallel computing when possible -- number of parallel processes (i.e., 1=no parallel)
+pc = 1 # Parallel computing when possible -- number of parallel processes (i.e., 1=no parallel)
 num_iter = 1
 first_iter = 0 # iteration number to start from.
 deep_clean_each_iteration = true
 verbose = false
 batch_size = 0 # Put a positive number N to have a deep memory clean every N iterations (batches)
+	[computation.ac_performance]
+		# Table with relationship between AC ICAO code, wake turbulence category and engine type
+
+		# Class with functions to generate dictionaries with performance models
+		# performance_model_data_access = 'DataAccessPerformanceBADA3'
+		# Path to performance implementation folder (can be relative from Mercury or absolute)
+
+		path_to_performance_models = "libs/performance_models/"
+		performance_model = 'openap' # Can be 'openap', 'bada3', 'bada4'
+
+		[computation.ac_performance.default_ac_icao]
+			# Default ac types to be used if ac needed not available
+			L_JET = 'C510'
+			M_JET = 'A320'
+			H_JET = 'A343'
+			J_JET = 'A388'
+			L_PISTON = 'PA27'
+			L_TURBOPROP = 'E190' # 'BE99'
+			M_TURBOPROP = 'E190' # 'AT72'
 
 
 [logging]
@@ -51,7 +73,7 @@ path = 'agents/modules'
 
 [hmi]
 # If hmi, can be server or client. If no hmi, can keep None
-hmi = "none" # "client" # 'server' # None
+hmi = "none" # can be "client", 'server', or 'None'
 port_hmi = 5555 # that's for the server
 port_hmi_client = 5556 # that's for the client
 
@@ -95,7 +117,6 @@ skip_computation_if_results_exists = false
 
 
 [debug]
-seed_table = "output_RNG"#If using seed from which table to read it
+seed_table = "output_RNG" # If using seed from which table to read it
 count_messages = true # Count messages
 count_events = true # Count events
-# paras_to_keep_in_output =

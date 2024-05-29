@@ -4,7 +4,7 @@ import numpy as np
 import simpy
 
 from Mercury.core.delivery_system import Letter
-from Mercury.libs.uow_tool_belt.general_tools import clock_time, get_first_matching_element
+from Mercury.libs.uow_tool_belt.general_tools import get_first_matching_element
 from Mercury.modules.nostromo_EAMAN.optimiser_advanced import optimizer_advanced, NoSolution
 from Mercury.modules.nostromo_EAMAN.optimiser_baseline_fast import optimizer_baseline
 
@@ -161,10 +161,9 @@ def generate_probas_speed_gen(eta, current_time, slot_times, mu=0., d=200., sig=
 
 # ------------------ EAMAN ------------------ #
 def on_init_agent(self):
-	# self.paras_EA = self.module_agent_paras['nostromo_EAMAN']# for easy access
-	self.data_horizon = self.nostromo_EAMAN__data_horizon  # self.paras_EA['c']
-	self.planning_horizon = self.nostromo_EAMAN__command_horizon  # self.nostromo_EAMAN__command_horizon
-	self.tactical_horizon = self.nostromo_EAMAN__tactical_horizon  # self.nostromo_EAMAN__tactical_horizon
+	self.data_horizon = self.nostromo_EAMAN__data_horizon
+	self.planning_horizon = self.nostromo_EAMAN__command_horizon
+	self.tactical_horizon = self.nostromo_EAMAN__tactical_horizon
 
 	self.n_for_test = 0
 
@@ -194,10 +193,6 @@ def _compute_speeds(fp, first_point=0):
 		speed['min'] = min(speed['nominal'], speed['min'])
 		speed['max'] = max(speed['nominal'], speed['max'])
 
-		# if (point.dict_speeds['mrc_kt'] is not None and point.dict_speeds['mrc_kt']>point.dict_speeds['speed_kt']) or (point.dict_speeds['max_kt'] is not None and point.dict_speeds['speed_kt']>point.dict_speeds['max_kt']):
-		# 	print ('AAALLLO', point, point.dict_speeds['mrc_kt'], point.dict_speeds['speed_kt'], point.dict_speeds['max_kt'])
-		# 	raise Exception ('COIN!!!')
-
 		distance = point.planned_dist_segment_nm
 
 		# Sometimes the distance is null, for instance when the flight
@@ -219,7 +214,6 @@ def build_matrices(self, flights, slot_times, etas, max_fuel_cost=1e4):
 	matrix_cost = np.zeros((len(flights), len(slot_times)))
 
 	for i, flight in enumerate(flights):
-		#with clock_time(message_before='Matrices 0...', oneline=True):
 		fp = self.agent.cr.get_flight_plan(flight)
 		first_point = len(fp.points_executed)
 
@@ -240,8 +234,6 @@ def build_matrices(self, flights, slot_times, etas, max_fuel_cost=1e4):
 		time_nom = r_info['time_nom'] + t_now
 		uncertainty_wind = r_info['uncertainty_wind']
 
-		# print ('MIN/NOM/MAX TIMES:', min_time, time_nom, max_time)
-		
 		def f_coin(t):
 			if t<time_nom+min_time:
 				return func(min_time)
@@ -255,24 +247,16 @@ def build_matrices(self, flights, slot_times, etas, max_fuel_cost=1e4):
 		else:
 			cost_fuel = np.zeros(len(slot_times))
 
-		# print ('COST OF FUEL:', cost_fuel)
-
-		# with clock_time(message_before='Matrices 1...', oneline=True):
 		self.waiting_on_cost_function_event[flight] = simpy.Event(self.agent.env)
 		self.send_request_for_cost_function(flight)
 
 		yield self.waiting_on_cost_function_event[flight]
-			
-		# with clock_time(message_before='Matrices 2...', oneline=True):
-			
+
 		cf = self.flight_cost_function[flight]
 
 		slt = fp.get_planned_landing_time()
 
 		cost_delay = np.array([cf(t-slt) for t in slot_times])
-		# print ('COST OF DELAY:', cost_delay)
-
-		#with clock_time(message_before='Matrices 3...', oneline=True):
 		matrix_cost[i, :] = cost_fuel + cost_delay
 
 		# Probabilites
@@ -283,8 +267,6 @@ def build_matrices(self, flights, slot_times, etas, max_fuel_cost=1e4):
 									slot_times,
 									d=tot_distance,
 									sig=uncertainty_wind,
-									# min_time=time_nom+min_time,
-									# max_time=time_nom+max_time,
 									min_time=etas[i]+min_time,
 									max_time=etas[i]+max_time
 									)
@@ -298,8 +280,6 @@ def send_request_for_cost_function(self, flight_uid):
 	msg['to'] = flight_uid
 	msg['type'] ='request_cost_delay_function'
 	msg['body'] = {'flight_uid':flight_uid}
-
-	# print (self.agent, 'SENDS COST FUNCTION REQUEST TO FLIGHT', flight_uid)
 
 	self.send(msg)
 
@@ -333,20 +313,10 @@ def prepare_data_for_optimizer_baseline(self, flight_uid):
 	flight_all = flights_fixed + flights_var
 
 	index_fixed_flights = [flight_all.index(f) for f in flights_fixed]
-	#index_var_flights = [flight_all.index(f) for f in flights_var]
 	index_commanded_flights = [flight_all.index(flight_uid)]
 
 	# TODO: the latter should be done using an agent-based paradigm.
 	etas = np.array([self.agent.flight_elt[fid] for fid in flight_all])
-
-	# print ('GGEGGE', flight_uid, index_commanded_flights)
-	# print ('GGEGGE', flight_uid, etas[index_commanded_flights[0]])
-	# print ('GGEGGE', flight_uid, self.agent.flight_elt[flight_uid])
-
-	# print ('QUOILA?', self.agent.flight_elt)
-	# print ('GLORY', all_flights_EAMAN)
-	# print ('GLORY', flight_all)
-	# print ('GLORY', etas)
 
 	speeds = {'min':[], 'max':[], 'nominal':[]}
 	for fid in flight_all:
@@ -357,26 +327,20 @@ def prepare_data_for_optimizer_baseline(self, flight_uid):
 		# print (fid, 'POINTS PLANNED AFTER TOD', fp.points_planned_tod_landing)
 		# print (fid, 'POINTS EXECUTED:', fp.points_executed)
 		first_point = len(fp.points_executed)
-		# print (fid, 'POINTS REMAINING:', fp.get_list_points_missing(first_point))
 		speedss = _compute_speeds(fp, first_point=first_point)
 
 		for t in ['min', 'max', 'nominal']:
 			speeds[t].append(speedss[t])
 
-	#slots = [time for time in self.agent.queue.get_all_slot_times() if time>=self.agent.env.now-20 and time<max(etas)+30]
 	slots = [time for time in self.agent.queue.get_all_slot_times() if time>=min(etas)-10 and time<max(etas)+30]
-
-	# print ('SLOTS LENGTH (MAX/ACTUAL):', len(self.agent.queue.get_all_slot_times()), len(slots))
 
 	return flight_all, etas, index_fixed_flights, index_commanded_flights,\
 				np.array(speeds['nominal'])/60., np.array(speeds['min'])/60., np.array(speeds['max'])/60., slots
 
 def prepare_data_for_optimizer_advanced(self, flight_uid):
-	#with clock_time(message_before='preparing baseline data...', oneline=True):
 	flight_all, etas, index_fixed_flights, index_commanded_flights,\
 		nominal_speeds, min_speeds, max_speeds, slots = self.prepare_data_for_optimizer_baseline(flight_uid)
 
-	#with clock_time(message_before='preparing build matrices data...', oneline=False):
 	yield self.agent.env.process(self.build_matrices(flight_all, slots, etas))
 
 	distances = 500. * np.ones(len(etas))
@@ -404,7 +368,6 @@ def wait_for_estimated_landing_time_NEW(self, msg):
 	self.request_flight_arrival_information(flight_uid, slots_times)
 
 def wait_for_flight_arrival_information_NEW(self, msg):
-	# mprint("EAMAN PLANNING for flight", msg['body']['flight_uid'])
 	flight_uid = msg['body']['flight_uid']
 	fai = msg['body']['fai']
 	elt = fai['elt']
@@ -418,7 +381,6 @@ def wait_for_flight_arrival_information_NEW(self, msg):
 		# TODO for advanced
 
 def receive_new_messages(self, msg):
-	#print (self, 'RECEIVES A MESSAGE OF TYPE:', msg['type'])
 	if msg['type'] == 'flight_potential_delay_recover_information':
 		self.app.wait_for_flight_potential_delay_recover_information(msg)
 		return True
@@ -434,7 +396,6 @@ def update_arrival_sequence_planning_NEW(self, flight_uid, elt, df_costs_slots, 
 			self.agent.n_for_test += 1
 
 			if self.agent.nostromo_EAMAN__optimiser == 'baseline':
-				#with clock_time(message_before='preparing data for optimisation...'):
 				flight_all, etas, index_fixed_flights, index_commanded_flights,\
 						nominal_speeds, min_speeds, max_speeds, slots = self.prepare_data_for_optimizer_baseline(flight_uid)
 
@@ -489,13 +450,6 @@ def update_arrival_sequence_planning_NEW(self, flight_uid, elt, df_costs_slots, 
 																			)
 				except NoSolution:
 					print ('Solver could not find a solution for the problem, input is saved in input_optimiser.pic')
-					# import pickle
-					# with open('input_optimiser.pic', 'wb') as f:
-					# 	pickle.dump((etas, actual_speeds, index_fixed_flights, index_commanded_flights,
-					# 				min_speeds, nominal_speeds, max_speeds, slots, matrix_cost, matrix_prob,
-					# 				self.agent.nostromo_EAMAN__data_horizon, self.agent.nostromo_EAMAN__command_horizon, self.agent.nostromo_EAMAN__tactical_horizon), f)
-
-				# 	raise
 					pass
 				except:
 					print ("Something's wrong in optimiser, input is saved in input_optimiser.pic")
@@ -511,29 +465,11 @@ def update_arrival_sequence_planning_NEW(self, flight_uid, elt, df_costs_slots, 
 			else:
 				raise Exception('Unrecognised optimiser: {}'.format(self.agent.paras_EA['optimiser']))
 			
-			# print ('NEW/OLD/MIN/MAX SPEED:', new_speeds[0], nominal_speeds[index_commanded_flights[0]], min_speeds[index_commanded_flights[0]], max_speeds[index_commanded_flights[0]])
-			new_speed = new_speeds[0]
-			holding = holdings[0] # TODO: inject the holding into the update flight plan instead of recalculating it there
+			# new_speed = new_speeds[0]
+			# holding = holdings[0] # TODO: inject the holding into the update flight plan instead of recalculating it there
 			slot_time = slot_times[0]
-			# print ('new_speed:', new_speed, 'holding:', holding)
 
-			eta = etas[index_commanded_flights[0]]
-
-			from Mercury.libs.uow_tool_belt.general_tools import get_first_matching_element
-
-			# try:
-			# 	index_slot_before, slot_time_before = get_first_matching_element(list(zip(list(range(len(slots))), slots)),
-			# 																	condition=lambda x: x[1] >= eta,
-			# 																	default='')
-			# 	index_slot_before -= 1
-			# 	index_slot_after, slot_time_after = get_first_matching_element(list(zip(list(range(len(slots))), slots)),
-			# 																	condition=lambda x: x[1] >= slot_time,
-			# 																	default='')
-			# 	index_slot_after -= 1
-			# except:
-			# 	print ('ETA / slot time', etas[index_commanded_flights[0]], slot_time)
-			# 	print ('slot_times:', slots)
-			# 	raise
+			# eta = etas[index_commanded_flights[0]]
 
 			# testing area
 			FNCD = [idx for idx in range(len(etas)) if not idx in index_fixed_flights]
@@ -541,15 +477,15 @@ def update_arrival_sequence_planning_NEW(self, flight_uid, elt, df_costs_slots, 
 			idx_cd = index_commanded_flights[0]
 			index_slot_before = initial_allocation[idx_cd]
 			index_slot_after = allocation[idx_cd]
-			d_idx = index_slot_after - index_slot_before
+			# d_idx = index_slot_after - index_slot_before
 
-			delay_needed = slot_time - slots[index_slot_after]#etas[index_commanded_flights[0]]
+			delay_needed = slot_time - slots[index_slot_after]
 			
 			cost_before = compute_allocation_for_all_flights(matrix_cost, matrix_prob, initial_allocation, initial_allocation)
 			
 			cost_after = compute_allocation_for_all_flights(matrix_cost, matrix_prob, allocation, initial_allocation)
 
-			if cost_after>cost_before:
+			if cost_after > cost_before:
 				cost_before_cd = compute_allocation_cost_for_flight(idx_cd, matrix_cost, matrix_prob, initial_allocation, initial_allocation)
 				cost_after_cd = compute_allocation_cost_for_flight(idx_cd, matrix_cost, matrix_prob, allocation, initial_allocation)
 						
@@ -610,7 +546,6 @@ def update_arrival_sequence_planning_NEW(self, flight_uid, elt, df_costs_slots, 
 		except NoSolution:
 			print ('Optimiser found no solution, moving on...')
 	else:
-		#print ('SKIPPING OPTIMISATION FOR FLIGHT', flight_uid)
 		pass
 
 	yield self.agent.env.timeout(0)
@@ -639,7 +574,6 @@ def ask_radar_update_NEW(self, flight_uid):
 											'landing':{'name':'landing'}
 										}
 						}
-	# mprint (self.agent, 'asks updates to radar for flight_uid', flight_uid)
 	self.send(msg_back)
 
 # FlightInAMANHandlerE
@@ -647,7 +581,6 @@ def wait_for_flight_in_eaman_NEW(self, msg):
 	update = msg['body']['update_id']
 	flight_uid = msg['body']['flight_uid']
 
-	#mprint (self.agent, "received flight update for flight", msg['body']['flight_uid'])
 	# print ("\n{} received flight update for flight {} at time t={}, it reached {}".format(self.agent,
 																						# msg['body']['flight_uid'],
 																						# self.agent.env.now,
@@ -662,65 +595,17 @@ def wait_for_flight_in_eaman_NEW(self, msg):
 	elif update == "landing":
 		self.notify_flight_landing(flight_uid)
 	else:
-		#aprint("Notification EAMAN does not recognise " + update)
-		#print("Notification EAMAN does not recognise " + update)
 		raise Exception("Notification EAMAN does not recognise {}".format(update))
 
 def notify_flight_in_data_horizon(self, flight_uid):
 	# Internal message 
-	#mprint(self.agent, "sees flight", flight_uid, "entering its planning horizon")
 	msg = Letter()
 	msg['to'] = self.agent.uid
 	msg['type'] = 'flight_at_planning_horizon'
 	msg['body'] = {'flight_uid':flight_uid}
-	
-	# Uncomment this line if you want to use central messaging server
-	# self.send(msg)	
 
 	self.agent.app.wait_for_flight_in_data_horizon(msg)
 
 def notify_flight_landing(self, flight_uid):
-	# msg = Letter()
-	# msg['to'] = self.agent.uid
-	# msg['type'] = 'flight_at_planning_horizon'
-	# msg['body'] = {'flight_uid':flight_uid}
-	
-	# print ('REMOVING FLIGHT {} FROM FLIGHT LOCATION'.format(flight_uid))
 	del self.agent.flight_location[flight_uid]
 
-
-module_specs = {'name':'nostromo_EAMAN',
-				'description':"EAMAN optimisation implemented in NOSTROMO",
-				'agent_modif':{'EAMAN':{'ArrivalPlannerProvider':{'on_init':on_init,
-																	'wait_for_estimated_landing_time':wait_for_estimated_landing_time_NEW,
-																	'update_arrival_sequence_planning':update_arrival_sequence_planning_NEW,
-																	'new':[wait_for_flight_in_data_horizon, prepare_data_for_optimizer_baseline,
-																			prepare_data_for_optimizer_advanced, build_matrices,
-																			send_request_for_potential_delay_recovery_request,
-																			wait_for_flight_potential_delay_recover_information, send_request_for_cost_function,
-																			wait_for_cost_function],
-																	'wait_for_flight_arrival_information':wait_for_flight_arrival_information_NEW,
-																	'receive':receive_new_messages},
-																	#'on_finalise':on_finalise_CM,
-																	#'on_prepare':on_prepare_CM
-										'ArrivalQueuePlannedUpdaterE':{
-																		'ask_radar_update':ask_radar_update_NEW,
-																		},
-										'FlightInAMANHandlerE':{
-																'wait_for_flight_in_eaman':wait_for_flight_in_eaman_NEW,
-																'new':[notify_flight_in_data_horizon, notify_flight_landing],
-																},
-										'on_init': on_init_agent,
-										'new_parameters': ['data_horizon',
-														   'command_horizon',
-														   'tactical_horizon',
-														   'ratio_flight_optimised',
-														   'optimiser'],
-										#'receive':receive_new_messages,
-										},
-								},
-				'incompatibilities':[], # other modules.
-				#'get_metric':get_metric, 
-				'requirements':[],#['CM'], # other modules, should be loaded first.
-				#'apply_to':apply_to 
-				}

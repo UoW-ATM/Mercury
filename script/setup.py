@@ -36,14 +36,14 @@ from Mercury.model_version import model_version
 
 name = 'Mercury'
 
-libraries = ['libs/Hotspot', 'libs/uow_tool_belt', 'libs/performance_trajectory']#, 'agents/modules']
+libraries = ['libs/Hotspot', 'libs/uow_tool_belt', 'libs/performance_tools']#, 'agents/modules']
 stuff_to_ignore = ['__pycache__', '.ipynb_checkpoints', '.idea', '.git']
 
 extensions = [Extension("agents.*", ["agents/*.py"]),
 				Extension("commodities.*", ["agents/commodities/*.py"]),
 				#Extension("modules.*", ["agents/modules/*.py"]),
 				Extension("libs.*", ["libs/*.py"]),
-				Extension("performance_trajectory.*", ["libs/performance_trajectory/*.py"]),
+				Extension("performance_tools.*", ["libs/performance_tools/*.py"]),
 				Extension("Hotspot.*", ["libs/Hotspot/*.py"]),
 				Extension("uow_tool_belt.*", ["libs/uow_tool_belt/*.py"]),
 				]
@@ -85,7 +85,7 @@ class MyBuildExt(build_ext):
 		self.copy_file(Path('agents/commodities') / '__init__.py', root_dir, target_dir)
 		#self.copy_file(Path('agents/modules') / '__init__.py', root_dir, target_dir)
 		self.copy_file(Path('libs') / '__init__.py', root_dir, target_dir)
-		self.copy_file(Path('libs/performance_trajectory') / '__init__.py', root_dir, target_dir)
+		self.copy_file(Path('libs/performance_tools') / '__init__.py', root_dir, target_dir)
 		self.copy_file(Path('libs/Hotspot') / '__init__.py', root_dir, target_dir)
 		self.copy_file(Path('libs/uow_tool_belt') / '__init__.py', root_dir, target_dir)
 		
@@ -140,7 +140,7 @@ setup(
 							),
 	cmdclass=dict(build_ext=MyBuildExt),
 	#package_dir={'':'/home/earendil/Documents/Westminster/NOSTROMO/Model/Mercury'},
-	packages=[],# ["agents", 'libs', "agents/commodities", "libs/performance_trajectory"]
+	packages=[],# ["agents", 'libs', "agents/commodities", "libs/performance_tools"]
 	license='Exclusive',
 	install_requires=['pandas', #TODO
 						'numpy',

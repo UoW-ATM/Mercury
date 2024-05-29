@@ -1,0 +1,28 @@
+# Use with `docker build -t mercury_nb -f Mercury/DockerfileNotebook .` from outside the Mercury root folder.
+
+# Specify python version
+FROM python:3.10
+
+# Copy source files. Note: exlusions can be found in .dockerignore in the Mercury root folder.
+COPY . /app/Mercury/
+
+# Set working directory
+WORKDIR /app/Mercury
+
+# Download latest data
+RUN ["wget", "https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1", "-O", "/app/mercury_public_dataset.zip"]
+RUN ["unzip", "/app/mercury_public_dataset.zip", "-d", "/app/input/"]
+RUN ["rm", "/app/mercury_public_dataset.zip"]
+
+# Just for testing!
+# COPY ../input/scenario=-1/ /app/input/scenario=-1/
+
+# Install required packages and python modules
+RUN apt-get update && apt-get clean
+RUN apt-get -y install libproj-dev libgeos-dev build-essential python3-dev proj-data proj-bin
+RUN python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
+RUN pip3 install notebook
+RUN cat /app/Mercury/requirements.txt | xargs -n 1 pip3 install
+
+# Run a notebook when you run the docker image
+CMD ["jupyter", "notebook", "Mercury.ipynb", "--allow-root", "--ip=0.0.0.0"]

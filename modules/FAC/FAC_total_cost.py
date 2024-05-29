@@ -89,11 +89,11 @@ def compute_costs_slots_arrival_delay_cost_func_slots_times(self, elt, slots_tim
 	points_planned_list = list(self.agent.FP.points_planned.values())
 	
 	holding_altitude = self.agent.default_holding_altitude
-	ff_holding = self.agent.aircraft.bada_performances.estimate_holding_fuel_flow(
+	ff_holding = self.agent.aircraft.performances.estimate_holding_fuel_flow(
 									min(holding_altitude,points_planned_list[-2].alt_ft),points_planned_list[-1].weight)
 
 	#if ff_holding<0:
-	#    ff_holding = self.agent.aircraft.bada_performances.estimate_holding_fuel_flow(
+	#    ff_holding = self.agent.aircraft.performances.estimate_holding_fuel_flow(
 	#                                min(holding_altitude,points_planned_list[-2].alt_ft),points_planned_list[-1].weight,
 	#                                compute_min_max=True)
 

@@ -10,6 +10,7 @@ in a similar fashion than the object-oriented method included in the
 
 import sys
 sys.path.insert(1, '..')
+sys.path.insert(1, 'libs/openap')
 
 from pathlib import Path
 
@@ -23,8 +24,8 @@ from Mercury import Mercury
 from Mercury.libs.uow_tool_belt.general_tools import clock_time
 from Mercury.libs.uow_tool_belt.connection_tools import generic_connection, write_data
 from Mercury.core.parametriser import ParametriserSelector
-from Mercury.core.module_management import load_mercury_module, available_modules, get_module_paras
-from Mercury.core.read_config import read_mercury_config, read_scenario_config, read_toml, find_paras_categories
+from Mercury.core.module_management import available_modules, get_module_paras
+from Mercury.core.read_config import read_mercury_config, read_toml, find_paras_categories
 
 # Parametriser to use
 parametriser_name = 'ParametriserStandard'
@@ -43,9 +44,9 @@ profile_write_agg = {'type': 'file',  # 'file' or 'mysql'.
 					
 
 def manual_bool_cast(string):
-	if string in ['false', 'f', 'False', 'F']:
+	if string in ['false', 'f', 'False', 'F', False]:
 		return False
-	elif string in ['true', 't', 'True', 'T']:
+	elif string in ['true', 't', 'True', 'T', True]:
 		return True
 	else:
 		raise Exception("Can't cast {} to boolean".format(string))
@@ -95,6 +96,10 @@ if __name__=='__main__':
 								required=False,
 								default=5556,
 								nargs='?')
+	parser.add_argument('-fl', '--fast_loading',
+								help='enables loading from compiled data',
+								required=False,
+								action='store_true')
 
 	# Initialise a parametriser
 	parametriser = ParametriserSelector().select(parametriser_name)()
@@ -157,6 +162,18 @@ if __name__=='__main__':
 	scenarios = [int(sc) for sc in args.id_scenario]
 
 	case_studies = [int(cs) for cs in args.case_study]
+
+	# Fast loading allows you to load 'compiled' data instead of loading data from parquet, once you're sure your
+	# dataset is stable.
+	if args.fast_loading is not None:
+		if manual_bool_cast(args.fast_loading):
+			# Fast loading: load compiled data if exists and do not overwrite them
+			paras_simulation['read_profile']['load_compiled_data_if_exists'] = True
+			paras_simulation['read_profile']['force_save_compiled_data'] = False
+		else:
+			# Safe loading: load uncompiled data, and overwrites the compiled data
+			paras_simulation['read_profile']['load_compiled_data_if_exists'] = False
+			paras_simulation['read_profile']['force_save_compiled_data'] = True
 	
 	# For all parameters that are included in the parametriser,
 	# check if the parser has this parameter and add it to the 
@@ -205,7 +222,7 @@ if __name__=='__main__':
 		paras_simulation['computation__pc'] = int(args.n_proc)
 
 	if args.batch_size is not None:
-		paras_simulation['computation_batch_size'] = int(args.batch_size)
+		paras_simulation['computation__batch_size'] = int(args.batch_size)
 
 	if args.no_notifications != 'not_given':
 		paras_simulation['notification__notifications'] = False
@@ -248,8 +265,9 @@ if __name__=='__main__':
 							base_path=profile_write_agg.get('path')) as connection:
 		
 		file_name = 'results.csv'
-		# file_name = paras_simulation['results_file_name']
-		
+
+		print('Saving summarised results here: {}'.format((Path(connection['base_path']) / file_name).resolve()))
+
 		write_data(data=results,
 					fmt=profile_write_agg['fmt'],
 					path=profile_write_agg['path'],
@@ -261,9 +279,12 @@ if __name__=='__main__':
 		for stuff, res in results_seq.items():
 			with generic_connection(profile=profile_write_agg['connection'],
 								typ=profile_write_agg['type']) as connection:
-			
+
 				file_name = 'results_seq_{}.csv'.format(stuff)
-				
+
+				print('Saving summarised additional results here: {}'.format(
+						(Path(connection['base_path']) / file_name).resolve()))
+
 				write_data(data=res,
 							fmt=profile_write_agg['fmt'],
 							path=profile_write_agg['path'],
