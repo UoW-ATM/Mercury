@@ -1,5 +1,5 @@
 import numpy as np
-
+import inspect
 
 class CentralRegistry:
 	"""
@@ -15,6 +15,7 @@ class CentralRegistry:
 		self.flight_registery = {}
 		self.gtfs = {}
 		self.airport_stations = {}
+		self.flight_uids = {}
 
 	def get_obt(self, flight_uid):
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
@@ -95,6 +96,10 @@ class CentralRegistry:
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
 		return aoc.aoc_flights_info[flight_uid]['status']
 
+	def get_aoc(self, flight_uid):
+		aoc = self.airlines[self.registry[flight_uid]]['aoc']
+		return aoc
+
 	def get_tat(self, airport_uid, flight_uid):
 		"""
 		Returns a typical turnaround time based on the type of aircraft of flight_uid
@@ -144,6 +149,9 @@ class CentralRegistry:
 
 		self.flight_registery = {flight_uid: {'aoc_uid': aoc_uid,
 											 } for aoc_uid, dic in self.airlines.items() for flight_uid in dic['aoc'].aoc_flights_info.keys()}
+		for flight_uid in self.flight_registery:
+			idd = self.airlines[self.registry[flight_uid]]['aoc'].aoc_flights_info[flight_uid]['idd']
+			self.flight_uids[idd] = flight_uid
 
 	def register_airline(self, aoc):
 		"""
@@ -169,6 +177,11 @@ class CentralRegistry:
 	def register_train_operator(self, train_operator):
 
 		train_operator.cr = self
+
+	def register_notifier(self, notifier):
+
+		notifier.cr = self
+		notifier.cr_functions = {x[0]:x[1] for x in inspect.getmembers(self, predicate=inspect.ismethod)}
 
 	def register_gtfs(self, gtfs):
 

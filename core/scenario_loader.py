@@ -101,7 +101,6 @@ class ScenarioLoader:
 
 		# This dictionary is for all other parameters
 		self.paras = paras_scenario
-
 		self.loaded_data = {}
 
 		global mprint

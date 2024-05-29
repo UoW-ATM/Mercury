@@ -440,6 +440,7 @@ class AirlineOperatingCentre(Agent):
 		self.aoc_flights_info[flight.uid] = {
 									'flight_uid': flight.uid,
 									'flight_db_id': flight.id,
+									'idd': flight.id,
 									'callsign': flight.callsign,
 									'status': 'scheduled',
 									'international': flight.international,
