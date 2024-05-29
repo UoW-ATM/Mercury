@@ -14,8 +14,11 @@ If you need information, you can check the readme file or contact the University
    :maxdepth: 2
    :caption: Contents:
 
+   Overview.rst
    Quickstart.rst
-   Manual.rst
+   Basic usage.rst
+   Advanced usage.rst
+   Model presentation.rst
    api.rst
    about.rst
 
