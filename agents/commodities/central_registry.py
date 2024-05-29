@@ -1,4 +1,5 @@
 import numpy as np
+import inspect
 
 
 class CentralRegistry:
@@ -13,6 +14,7 @@ class CentralRegistry:
 
 		self.registry = {}
 		self.flight_registery = {}
+		self.flight_uids = {}
 
 	def get_obt(self, flight_uid):
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
@@ -142,6 +144,9 @@ class CentralRegistry:
 
 		self.flight_registery = {flight_uid: {'aoc_uid': aoc_uid,
 											 } for aoc_uid, dic in self.airlines.items() for flight_uid in dic['aoc'].aoc_flights_info.keys()}
+		for flight_uid in self.flight_registery:
+			idd = self.airlines[self.registry[flight_uid]]['aoc'].aoc_flights_info[flight_uid]['idd']
+			self.flight_uids[idd] = flight_uid
 
 	def register_airline(self, aoc):
 		"""
@@ -159,6 +164,12 @@ class CentralRegistry:
 		ONLY FOR TESTING PURPOSES
 		"""
 		nm.cr = self
+
+
+	def register_notifier(self, notifier):
+
+		notifier.cr = self
+		notifier.cr_functions = {x[0]:x[1] for x in inspect.getmembers(self, predicate=inspect.ismethod)}
 
 	def register_agent(self, agent):
 		"""
