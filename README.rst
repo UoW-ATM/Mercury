@@ -29,11 +29,12 @@ NEW! Docker versions are now available for:
 - the GUI version: (coming soon).
 
 Docker allows you to use the model on any OS without installing anything except a docker environment (see https://www.docker.com/get-started/).
-With a terminal (e.g. powershell in windows), you can download the docker image like this, for instance for the notebook version:
+With a terminal (e.g. powershell in windows), you can download the docker images like this:
 
 .. code:: bash
 
     docker pull ghcr.io/uow-atm/mercury/mercury_nb:latest
+    docker pull ghcr.io/uow-atm/mercury/mercury_cli:latest
 
 In a terminal you can then use the docker image like this:
 
@@ -41,13 +42,13 @@ In a terminal you can then use the docker image like this:
 
 .. code:: bash
 
-    docker run mercury_cli -id -1 -cs -1
+    docker run ghcr.io/uow-atm/mercury/mercury_cli:latest -id -1 -cs -1
 
 - for the notebook:
 
 .. code:: bash
 
-    docker run -p 8888:8888 mercury_nb
+    docker run -p 8888:8888 ghcr.io/uow-atm/mercury/mercury_nb:latest
 
 - for the GUI: (coming soon)
 
