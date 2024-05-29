@@ -10,6 +10,6 @@ get the output from the model.
     Concepts from Mercury.rst
     Data Input.rst
     Data Output.rst
-    CLI usage.rst
-    Notebook usage.rst
-    GUI usage.rst
+    CLI.rst
+    Notebook.rst
+    GUI.rst

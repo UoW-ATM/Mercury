@@ -1,7 +1,7 @@
 .. _overview:
 
-Overview of Mercury
-===================
+Overview
+========
 
 What is Mercury?
 ----------------

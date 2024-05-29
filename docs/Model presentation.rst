@@ -1,7 +1,7 @@
 .. _model_presentation:
 
-Model presentation
-==================
+Model
+=====
 
 This is the presentation of the underlying model for Mercury (in construction).
 
