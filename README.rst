@@ -26,7 +26,7 @@ NEW! Docker versions are now available for:
 
 - the command line interface (CLI) version: `mercury_cli <https://github.com/orgs/UoW-ATM/packages/container/package/mercury%2Fmercury_cli>`_;
 - the notebook version: `mercury_nb <https://github.com/orgs/UoW-ATM/packages/container/package/mercury%2Fmercury_nb>`_;
-- the GUI version: (coming soon).
+- the GUI version: (coming soon)
 
 Docker allows you to use the model on any OS without installing anything except a docker environment (see https://www.docker.com/get-started/).
 With a terminal (e.g. powershell in windows), you can download the docker images like this:

@@ -2,7 +2,7 @@ name: Publish Docker images
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "test_docker_deployment" ]
 #  pull_request:
 #    branches: [ "master" ]
 
