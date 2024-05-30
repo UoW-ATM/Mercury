@@ -60,14 +60,23 @@ The NB (Jupyter NoteBook) version is good for quick and easy use, and to show th
 wrap Mercury in another piece of code.
 
 The CLI (command line interface) is destined to provide an easy interface for for instance for cluster computation. Most
-of the pogrammatic capabilities are included in the CLI version.
+of the programmatic capabilities are included in the CLI version.
 
 **What are the Docker packages? Should I use that?**
 
-Docker is a widly used software that uses virtualisation to run super light versions of OSs on other OS for specific
+Docker is a wildly used software that uses virtualisation to run super light versions of OSs on other OS for specific
 application. You do not need to use Docker, you can just install and run the Mercury application natively, but Docker
 provides you with a way of doing it is just a few lines of code.
 
+**What is the difference between this models and other models like RNEST or Blue Sky?**
+
+RNEST is a model developed by EUROCONTROL mainly focused on air traffic management and airspace usage, while Mercury
+is more focused on systemic interactions beetwen airports, ATFM, passenger, and flights. Moreover, RNEST is completely
+closed and undocumented, whereas Mercury is open.
+
+Blue Sky is another simulator developed by TU Delft, it is open. It is however for focused on aircraft performance, ATC
+control airspace dynamics etc. On the contrary, Mercury is relatively crude when it comes to the trajectory management,
+even though it using OpenAP (like Blue Sky) and can be used with BADA3 and BADA4 for accurate fuel burn estimations.
 
 
 
