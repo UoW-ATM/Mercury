@@ -40,6 +40,7 @@ from Mercury.agents.commodities.alliance import Alliance
 from Mercury.agents.commodities.aircraft import Aircraft
 from Mercury.agents.commodities.slot_queue import CapacityPeriod
 from Mercury.agents.commodities.atfm_regulation import ATFMRegulation
+from Mercury.agents.notifier import Notifier
 
 from Mercury.agents.seed import my_seed
 from Mercury.model_version import model_version
@@ -319,6 +320,10 @@ class World:
 			self.create_pax()
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
+		if self.paras['hmi__hmi'] == 'rabbitmq':
+			with clock_time(message_before='Creating Notifier...',
+							oneline=True, print_function=mmprint):
+				self.create_Notifiers()
 		# self.check_consistency()
 
 		# Put all agents in a list for easy access
@@ -1056,6 +1061,20 @@ class World:
 			for airline in airlines:
 				airline.register_pax_itinerary_group(pax)
 			self.paxs.append(pax)
+
+	def create_Notifiers(self):
+		self.notifiers = {}
+		max_time = (self.sc.df_schedules['sibt'].max()-self.sc.reference_dt).total_seconds()/60.
+		min_time = (self.sc.df_schedules['sobt'].min()-self.sc.reference_dt).total_seconds()/60. -180 #fp submitted 3 h before
+		notifier = Notifier(self.postman,uid=self.uid,
+						log_file=self.log_file_it,
+						env=self.env,
+						min_time=min_time,
+						max_time=max_time,
+						reference_dt=self.sc.reference_dt)
+		self.notifiers[notifier.uid] = notifier
+		self.uid+=1
+		self.cr.register_notifier(self.notifiers[notifier.uid])
 
 	def dump_all_results(self, n_iter, connection, profile, save_path):
 		print('Saving full results to:', str(Path(save_path).resolve()))

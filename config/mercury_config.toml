@@ -73,8 +73,8 @@ path = 'agents/modules'
 
 [hmi]
 # If hmi, can be server or client. If no hmi, can keep None
-hmi = "none" # can be "client", 'server', or 'None'
-port_hmi = 5555 # that's for the server
+hmi = "none" # can be "client", 'server', 'rabbitmq' or 'None'
+port_hmi = 'localhost' #5555 # that's for the server
 port_hmi_client = 5556 # that's for the client
 
 
