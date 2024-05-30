@@ -63,6 +63,24 @@ Installation
 Mercury has been tested on ubuntu-like machines and to a lesser extent Windows, using anaconda. Python 3.10 is
 recommended, Python 3.12 will raise issues.
 
+Quick install
+^^^^^^^^^^^^^
+
+A bash script is available for quick installations in Linux. You can download it from
+`here https://github.com/UoW-ATM/Mercury/blob/master/mercury_quick_install_stable.sh`_ for the stable version (master
+branch) and `here https://github.com/UoW-ATM/Mercury/blob/dev/mercury_quick_install_dev.sh`_ for the dev version. You
+need to download them first and then run them in a terminal like this:
+
+.. code:: bash
+
+    ./mercury_quick_install_dev.sh
+
+This might or might not work depending on your specific environment, in particular your virtual environment setting. If
+it fails, you can follow the steps below.
+
+Full install
+^^^^^^^^^^^^
+
 -  Start by cloning the repository, for instance:
 
 .. code:: bash
@@ -95,7 +113,14 @@ In Windows, you probably just need to install the requirements:
 You may also need to install Visual studio C++ built tools if it's not the case already.
 
 -  Download the sample data here:
-   https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side).
+   https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side). You can also use the following commands from inside the Mercury root folder to achieve the same result:
+
+.. code:: bash
+
+    wget https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1 -O ../mercury_public_dataset.zip
+    unzip ../mercury_public_dataset.zip -d ../input/
+    rm ../mercury_public_dataset.zip
+
 
 By default, Mercury uses the `OpenAP <https://github.com/TUDelft-CNS-ATM/openap>`_ model for aircraft performance.
 However, Mercury also supports the BADA models developed by EUROCONTROL. If you want to use it, you can request a licence
@@ -120,7 +145,7 @@ You can test the model by running:
 
 .. code:: bash
 
-   ./mercury.py -id -1
+   ./mercury.py -id -1 -cs -1
 
 Use ``-h`` to have list of all the possible arguments.
 
