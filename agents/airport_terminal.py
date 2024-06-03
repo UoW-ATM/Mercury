@@ -149,7 +149,7 @@ class ProvideConnectingTime(Role):
 	"""
 
 	def wait_for_connecting_times_request(self, msg):
-		mprint(self.agent, 'receives connecting times request from AOC', msg['from'],
+		print(self.agent, 'receives connecting times request from AOC', msg['from'],
 			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type,
 			   'and connection_type', msg['body']['connection_type'])
 

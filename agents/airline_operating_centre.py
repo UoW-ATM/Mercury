@@ -4320,7 +4320,7 @@ class AirlinePaxHandler(Role):
 			int2 = self.agent.aoc_flights_info[next_flight]['international']
 			pax.previous_flight_international = int2
 
-			if pax.idx_last_flight > 0:
+			if pax.idx_last_flight > -1:
 				#only for air-air connecting pax. rail-air pax will have idx_last_flight==-1
 				self.request_connecting_times(pax, (int1, int2))
 
