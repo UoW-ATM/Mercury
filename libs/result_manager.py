@@ -18,7 +18,9 @@ class Result_manager:
 
     def read_results(self):
 
-        result_path = Path('../../results').absolute()
+        #result_path = Path('../../results').absolute()
+        result_path = Path('../results').absolute()
+
         iterations = [f.name for f in os.scandir(result_path) if f.is_dir()]
         #print('iterations',iterations)
 

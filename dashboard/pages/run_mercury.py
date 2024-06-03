@@ -1,5 +1,6 @@
 import sys
 sys.path.insert(1, '../..')
+sys.path.insert(1, '..')
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from Mercury.libs.input_manager import Input_manager
@@ -112,8 +113,10 @@ def run_fn(n_clicks,sc,cs):
     case_studies = [c.split('=')[1] for c in cs if '=' in c]
     #print(sc,cs,sc.split('=')[1],[c.split('=')[1] for c in cs if c '=' in c])
     print('scenarios',scenarios,case_studies)
-    paras_simulation = read_mercury_config(config_file='../config/mercury_config.toml')
-    paras_simulation['read_profile']['path'] = Path('../') / Path(paras_simulation['read_profile']['path'])#'../../input/'
+    #paras_simulation = read_mercury_config(config_file='../config/mercury_config.toml')
+    paras_simulation = read_mercury_config(config_file='config/mercury_config.toml')
+    #paras_simulation['read_profile']['path'] = Path('../') / Path(paras_simulation['read_profile']['path'])#'../../input/'
+    paras_simulation['read_profile']['path'] = Path(paras_simulation['read_profile']['path'])
 
     # Initialise simulation
     mercury = Mercury(paras_simulation=paras_simulation)

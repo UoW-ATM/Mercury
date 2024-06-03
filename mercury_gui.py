@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.insert(1, '..')
+sys.path.insert(1, 'libs/openap')
+
 from dash import Dash, html, dcc
 import dash
 import logging
@@ -8,7 +12,12 @@ import logging
 
 
 external_stylesheets = []
-app = Dash(__name__, use_pages=True, assets_folder='assets',external_stylesheets=external_stylesheets,suppress_callback_exceptions=True)
+app = Dash(__name__,
+           use_pages=True,
+           assets_folder='dashboard/assets',
+           pages_folder="dashboard/pages",
+           external_stylesheets=external_stylesheets,
+           suppress_callback_exceptions=True)
 
 app.layout = html.Div([
 
