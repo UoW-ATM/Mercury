@@ -15,7 +15,7 @@ from Mercury.core.read_config import read_toml
 # TODO: support for flavours
 # Note: this is for automatic module parameter handling, in case
 # modules are loaded differently in different iterations.
-available_modules = ['nostromo_EAMAN']#, 'HMI_HOTSPOT', 'HMI_FP_SEL', 'CM', 'FAC_FIFO_queue']
+available_modules = ['nostromo_EAMAN','airport_operating_centre_taxi']#, 'HMI_HOTSPOT', 'HMI_FP_SEL', 'CM', 'FAC_FIFO_queue']
 
 def check_incompatibilities(list_modules):
 	pass #TODO

@@ -703,7 +703,8 @@ class World:
 													verbose=self.paras['computation__verbose'],
 													log_file=self.log_file_it,  # TODO: remove
 													rs=self.rs,
-													module_agent_modif=self.module_agent_modif.get('GroundAirport', {}),
+													module_agent_modif=self.module_agent_modif.get('AirportOperatingCentre', {}),
+													**self.module_agent_paras.get('AirportOperatingCentre', {}),
 												    min_tt=min_tt, # Default minimum taxi time (part of AirsideMobility)
 												    exot=10. # Default taxi out time (part of AirsideMobility)
 													)
