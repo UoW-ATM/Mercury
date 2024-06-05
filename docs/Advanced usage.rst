@@ -7,6 +7,7 @@ This sections covers the advanced usage of Mercury, in particular how to define 
 messaging system, and how to expand the model door-to-door.
 
 .. toctree::
+    code_organisation.rst
     Modules.rst
     External messaging system.rst
     Door-to-door extension.rst

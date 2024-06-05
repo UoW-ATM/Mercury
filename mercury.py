@@ -24,7 +24,7 @@ from Mercury import Mercury
 from Mercury.libs.uow_tool_belt.general_tools import clock_time
 from Mercury.libs.uow_tool_belt.connection_tools import generic_connection, write_data
 from Mercury.core.parametriser import ParametriserSelector
-from Mercury.core.module_management import available_modules, get_module_paras
+from Mercury.core.module_management import get_available_modules, get_module_paras
 from Mercury.core.read_config import read_mercury_config, read_toml, find_paras_categories
 
 # Parametriser to use
@@ -132,6 +132,7 @@ if __name__=='__main__':
 		root_path = Path(__file__).resolve().parent
 		path_module = root_path / path_module
 
+	available_modules = get_available_modules(path_module)
 	for module in available_modules:
 		paras_modules = get_module_paras(path_module=path_module, module_name=module)
 		for k in paras_modules.keys():

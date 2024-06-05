@@ -1,2 +1,4 @@
-Notebook usage
-==============
+.. _notebook:
+
+Notebook
+========

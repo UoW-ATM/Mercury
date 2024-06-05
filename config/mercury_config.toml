@@ -67,8 +67,8 @@ notifications = false
 email = false
 
 
-[modules]
-path = 'agents/modules'
+#[modules]
+#path = 'modules'
 
 
 [hmi]

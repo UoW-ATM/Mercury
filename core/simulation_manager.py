@@ -11,18 +11,17 @@ every N simulations or not (batches). Within batches, can be parallelised
 from pathlib import Path
 import subprocess
 from copy import copy, deepcopy
-import datetime as dt
 import uuid
 
 from Mercury.model_version import model_version
 
 from Mercury.core.world_builder import World
-from Mercury.core.read_config import read_scenario_config, read_toml, find_paras_categories, read_mercury_config
-from Mercury.core.module_management import load_mercury_module, get_module_paras
+from Mercury.core.read_config import read_scenario_config, read_mercury_config
+from Mercury.core.module_management import find_actual_module_name, get_module_paras
 from Mercury.core.results_aggregator import ResultsAggregatorSelector
 from Mercury.core.parametriser import ParametriserSelector
 
-from Mercury.libs.uow_tool_belt.connection_tools import generic_connection, read_data
+from Mercury.libs.uow_tool_belt.connection_tools import generic_connection
 from Mercury.libs.uow_tool_belt.general_tools import clock_time, parallelize, spread_integer, logging, loop
 from Mercury.libs.db_access_functions import *
 
@@ -543,9 +542,11 @@ class Mercury:
 							module_paras = get_module_paras(path_module=paras_scenario['modules__path'],
 															module_name=module_name)
 
+							name_base, name_file = find_actual_module_name(module_name)
+
 							paras_scenario[module_name] = {}
 							for k, v in module_paras.items():
-								long_name = '{}__{}'.format(module_name, k)
+								long_name = '{}__{}'.format(name_base, k)
 								paras_scenario[long_name] = v
 
 						# This allows to load the modules in the next bit

@@ -1,7 +1,13 @@
-.. _concepts:
+.. _model:
 
-Concepts from Mercury
-=====================
+Model
+=====
+
+This is the presentation of the underlying model for Mercury (in construction).
+
+
+Overview of the model
+---------------------
 
 Mercury has a strong agent implementation, with different autonomous instances interacting with each other through
 messages. It is event-driven, with a central even engine driving the simulation. Agents can create, trigger, or destroy
@@ -18,11 +24,13 @@ Note that if notionally these actions are independent and happen in-simulation a
 Mercury is not multi-core or multi-threads. The Simpy library is used as the event engine, see
 `here <https://simpy.readthedocs.io/en/latest/>`_ for more details.
 
-The agents are instances of several agent types. All the agent types are listed below:
+The agents are instances of several agent types. The most important agent types are listed below:
 
 - Airline Operating Center, tasked with managing the flights,
 - Flight, tasked with operating the trajectory,
-- Network Manager, managing Air Traffic Flow Management delays.
--
+- Network Manager, managing Air Traffic Flow Management delays,
+- Arrival Manager, taking care of inbound flights at each airport,
+- Departure Manger, taking care of outbound traffic,
+- Ground Airports, tasked with "moving" passengers inside the airport, and turnaround processes.
 
-
+TBC

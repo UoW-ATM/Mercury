@@ -15,7 +15,7 @@ from Mercury.core.read_config import read_toml
 # TODO: support for flavours
 # Note: this is for automatic module parameter handling, in case
 # modules are loaded differently in different iterations.
-available_modules = ['nostromo_EAMAN']#, 'HMI_HOTSPOT', 'HMI_FP_SEL', 'CM', 'FAC_FIFO_queue']
+# available_modules = ['nostromo_EAMAN', 'XMAN']#, 'HMI_HOTSPOT', 'HMI_FP_SEL', 'CM', 'FAC_FIFO_queue']
 
 def check_incompatibilities(list_modules):
 	pass #TODO
@@ -25,10 +25,27 @@ def get_all_modules():
 	pass #TODO
 
 
+def get_available_modules(path_module):
+	paths = sorted([path for path in path_module.iterdir() if path.is_dir()])
+
+	# Read the modules to be ignored (because too old for instance). This avoids to have too many unnecessary options
+	# in the CLI interface.
+	try:
+		with open(path_module / 'moduleignore', 'r') as f:
+			text = f.read()
+		ignored_modules = text.split("\n")
+	except FileNotFoundError:
+		ignored_modules = []
+
+	modules = [str(path.stem) for path in paths if not str(path.stem) in ['__pycache__'] + ignored_modules]
+
+	return modules
+
+
 def find_actual_module_name(module_name):
 	"""
 	Because modules can have different flavours, the name of the module does not always match
-	the name of the file definining it. For instance, FP module can define two flavours, L1 and
+	the name of the file defining it. For instance, FP module can define two flavours, L1 and
 	L2, that may be chosen from like this: FP|L1 and FP|L2. In this case, the file name corresponding
 	to FP|L1 should be FP_L1.py.
 
@@ -93,34 +110,26 @@ def load_mercury_module(path_module=None, module_name=None):
 
 	# In agent_modif, replace all string names of methods by classes themselves
 	# Iterate through all agents
-	#print ()
 	for agent, d in module_specs['agent_modif'].items():
 		# Iteration through all modifications planned for the agent
-		#print ('Loading modifications for agent:', agent)
 		for modif_name_agent, modif_agent in d.items():
 			# print('MODIF NAME AGENT:', modif_name_agent)
 			if modif_name_agent == 'on_init':
 				# In this case, a method of the agent itself is modified. This should
 				# happen with the on_init_agent.
-				#print('Loading on_init for initialisation of agent')
 				module_specs['agent_modif'][agent][modif_name_agent] = cred.__getattribute__(modif_agent)
 			elif type(modif_agent) is dict:
 				# In this case, this is a modification of roles.
 				# Iterate through the modifications for this role
 				for modif_name_role, modif_role in modif_agent.items():
-					#print('MODIF NAME ROLE:', modif_name_role)
 					if modif_name_role == 'new_methods':
 						# In this case, this is a list of new methods
-						#print('Loading new methods for role {}: {}'.format(modif_name_agent, [new_method for new_method in modif_role]))
 						module_specs['agent_modif'][agent][modif_name_agent][modif_name_role] = \
 							[cred.__getattribute__(new_method) for new_method in modif_role]
 					else:
 						# In this case, it is just a modification of an existing method
-						#print ('Modyfing method for role {}: {}'.format(modif_name_agent, modif_name_role))
 						module_specs['agent_modif'][agent][modif_name_agent][modif_name_role] = \
 							cred.__getattribute__(modif_role)
-
-		#print()
 
 	# If exists, add the get_metric method
 	if module_specs['info']['get_metric'] is not None:
