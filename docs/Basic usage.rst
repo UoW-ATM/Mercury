@@ -7,6 +7,7 @@ This sections covers the basic usage of Mercury, in particular how to run it, ho
 get the output from the model.
 
 .. toctree::
+    Installation.rst
     How to run Mercury.rst
     docker.rst
     Data Input.rst
