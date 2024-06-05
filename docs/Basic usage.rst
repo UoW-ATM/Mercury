@@ -7,11 +7,10 @@ This sections covers the basic usage of Mercury, in particular how to run it, ho
 get the output from the model.
 
 .. toctree::
-    How to use Mercury.rst
-    CLI.rst
-    Notebook.rst
-    GUI.rst
-    Simulation parameters.rst
-    Scenario parameters.rst
+    How to run Mercury.rst
     Data Input.rst
     Data Output.rst
+    CLI.rst
+    Programmatic use.rst
+    GUI.rst
+

@@ -31,9 +31,12 @@ Mercury is particularly well suited to answer to problem related to:
 - passenger centric-issues, like modifications to passenger compensation.
 
 If you want to have a quick start, go there: :ref:`quickstart`. If you want have more details about how to run Mercury,
-like how the options to run it and the input/output data specs, go there: :ref:`basic_usage`. If you need more details
-about advanced usage of Mercury like Module creation, go there: :ref:`advanced_usage`. If you want to have a look at the
-underlying model, go there: :ref:`model_presentation`. If you want to access the API, go there: :ref:`api`.
+like the options and the input/output data specs, go there: :ref:`basic_usage`. If you need more details
+about advanced usage of Mercury like Module creation, go there: :ref:`advanced_usage`. If you need a detailed description
+of all tables in input and output, as well as all the parameters of the model, go there: :ref:`io_specs`.
+If you want to know more about the underlying model, go there: :ref:`model_presentation`.
+If you want more details about the code itself, go there: :ref:`api`.
+
 
 Quick FAQ
 ---------

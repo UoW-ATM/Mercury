@@ -18,6 +18,7 @@ If you need information, you can check the readme file or contact the University
    Quickstart.rst
    Basic usage.rst
    Advanced usage.rst
+   IO specifications.rst
    Model presentation.rst
    api.rst
    about.rst
