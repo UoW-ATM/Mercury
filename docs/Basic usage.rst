@@ -9,7 +9,6 @@ get the output from the model.
 .. toctree::
     Installation.rst
     How to run Mercury.rst
-    docker.rst
     Data Input.rst
     Data Output.rst
     CLI.rst

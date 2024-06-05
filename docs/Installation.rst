@@ -3,10 +3,13 @@
 Installation
 ============
 
-Docker Installation
--------------------
+Docker
+------
 
-`Tested on Windows and Linux, should be running in MacOS.`
+Docker installation
+^^^^^^^^^^^^^^^^^^^
+
+`Tested in Windows and Linux, should be running in MacOS.`
 
 A easy way to use Mercury is to use the docker images. Docker is an open-source platform designed to automate the
 deployment, scaling, and management of applications. It achieves this by using containerization technology,
@@ -27,7 +30,12 @@ using:
     docker pull ghcr.io/uow-atm/mercury/mercury_cli:latest
     docker tag ghcr.io/uow-atm/mercury/mercury_cli:latest mercury_cli
 
-in a terminal. You can then use the CLI versions or launch a notebook from your terminal. For the CLI you need to run:
+in a terminal.
+
+Docker usage
+^^^^^^^^^^^^
+
+ You can then use the CLI versions or launch a notebook from your terminal. For the CLI you need to run:
 
 .. code:: bash
 
@@ -44,6 +52,26 @@ For the notebook, you can run:
 
 and then copy the url that appears in the terminal to your browser. Then open the Mercury.ipynb and you can use Mercury
 normally (see :ref:`notebook`).
+
+However, using docker like this means that input and output folder are also part of the image. You can use bash to
+copy data back and forth, but it's not very handy. Instead, you can link folders on your machine to the folders inside
+docker. To do this you can use the following command (note: this method only works for the CLI for now):
+
+.. code:: bash
+
+    docker run --user $(id -u):$(id -g) -v /absolute/path/to/your/host/results:/app/results -v /absolute/path/to/your/host/input:/app/input mercury_cli -id -1 -cs -1
+
+In linux you can even use an alis to shorten the command. Edit your ``~/.bashrc`` file and add the line:
+
+.. code:: bash
+
+    alias mercury_cli_docker='docker run --user $(id -u):$(id -g) -v /absolute/path/to/your/host/results:/app/results -v /absolute/path/to/your/host/input:/app/input mercury_cli'
+
+Restart your terminal, and you can then just use for instance:
+
+.. code:: bash:
+
+    mercury_cli_docker -id -1 -cs -1
 
 
 Full installation
