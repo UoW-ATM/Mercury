@@ -21,15 +21,16 @@ organised as explained in :ref:`data_input` to be readable by Mercury. In partic
 "scenario_config.py", which is compiling all the necessary information to run this particular scenario. It is organised
 in two parts:
 
-- the path too all tables needed to run the scenario, all of them included in the data folder.
+- the path to all tables needed to run the scenario, all of them included in the data folder.
 - the parameters needed to set the simulation up. These parameters are linked to the agent behaviours (e.g.price of fuel).
 
-All scenario parameters are described here: :ref:`scenario_parameter_file`.
+More details about the input data can be found here :ref:`data_intput` and all scenario parameters are described here:
+:ref:`scenario_parameter_file`.
 
-The mercury config also includes the path to where the results will be saved, but default in ``../results``. The structure
+The mercury config also includes the path to where the results will be saved, by default in ``../results``. The structure
 of the results is discussed and explained in :ref:`data_output`.
 
-All parameters both from the mercury_config.toml file and the scenario parameter file can be set at runtime, in the cli
+All parameters both from the ``mercury_config.toml`` file and the scenario parameter file can be set at runtime, in the cli
 version, with the Mercury object, or in the GUI (e.g. using the argument ``--airlines__fuel_price 1.2`` in the CLI).
 
 Finally, the three entry points (CLI, Mercury object, GUI) are available as Docker images, which requires only the

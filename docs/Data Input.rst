@@ -3,16 +3,15 @@
 Data Input
 ==========
 
-Running Mercury requires to input some data in the right format.
-
 Note: a sample of data is provided with Mercury and can be downloaded
 `here <https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1>`_.
 
-The input data is organised in scenarios and case studies. Scenarios can be seen typically as a set of schedules,
+Running Mercury requires to input some data in the right format. The input data is organised in scenarios and case
+studies. Scenarios can be seen typically as a set of schedules,
 passenger itineraries, as well as the definition other agents like the AMAN. A case study is usually represented by a
 subset of flights and/or different operational configuration. When running Mercury, one has to specify as least the id
-of the scenario, and optionally the if of the case study. If no case study is chosen, Mercury will run the case "0",
-coinciding exactly with the data and parameters defined by APIthe scenario itself.
+of the scenario, and optionally the id of a case study. If no case study is chosen, Mercury will run the case "0",
+coinciding exactly with the data and parameters defined by the scenario itself.
 
 The scenarios are read from the input folder, defined in the ``mercury_config.toml`` file, by default ``../input``. The
 input folder should follow the following structure:
@@ -60,18 +59,46 @@ The second part of this file is composed by parameters and their values, for ins
     delay_estimation_lag = 60
 
 Like in the first part, the parameters are organised in different sections and subsections, here for instance "modules"
-and "airlines". This important when using the CLI or the programmatic interface, because the parameters have to be called
-based on their subsections, for instance "airlines__non_ATFM_delay_loc", i.e. the name of the section, two underscores
+and "airlines". This is important when using the CLI or the programmatic interface, because the parameters have to be called
+based on their section, for instance ``airlines__non_ATFM_delay_loc``, i.e. the name of the section, two underscores
 ``__``, then the name of the parameter. A full description of the parameters can be found here:
-:ref:`scenarios_parameters`.
+:ref:`scenario_parameter_file`.
 
 The tables listed in the first part have to be included in the scenario folder, in ``data``, following the same structure
-than the toml file. All tables must be in parquet format.
+than the toml file. All tables must be in parquet format. A detailed description of the all the input tables can be
+found here: :ref:`input_tables`.
 
-A detailed description of the all the input tables can be found here: :ref:`input_tables`.
+When defining a case study for a scenario, one has to follow a similar approach. First, all case studies for a scenario
+should be included in the ``case_studies`` folder inside the scenario directory. Then one has to put a case study
+configuration file called ``case_study_config.toml``1, similar to the scenario's. However, one only needs to put the modification with respect to the
+scenario in this new folder. For instance, this config file:
+
+.. code:: toml
+
+    [info]
+        case_study_id = -1
+        description = "Only flights departing from ED"
+
+    [data]
+        [data.schedules]
+            input_subset = "flight_subset"
+
+    [paras]
+        [paras.airlines]
+        fuel_price = 0.1
+
+        [paras.modules]
+        modules_to_load = ["nostromo_EAMAN"]
+
+    [agents_configuration]
+
+All the four main sections (``info``, ``data``, ``paras``, ``agents_configurations``) have to appear in the files but
+some can be empty. Only parameters that are different need to appear, in this case ``fuel_price`` and ``modules_to_load``.
+ Moreover, one can replace or modify some of the data included in the scenario by including new tables in the ``data``
+folder inside the case study one, and mention it in the toml file (here the ``flight_subset``).
 
 Finally, note that the GUI version of Mercury provides an easy way of exploring the different types of data, modifying
-them, creating scenarios, etc. More information here: :ref:`gui`.
+them, creating scenarios and case studies, etc. More information here: :ref:`gui`.
 
 
 

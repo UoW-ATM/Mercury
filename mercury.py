@@ -264,15 +264,15 @@ if __name__=='__main__':
 	with generic_connection(profile=profile_write_agg['connection'],
 							typ=profile_write_agg['type'],
 							base_path=profile_write_agg.get('path')) as connection:
-		
-		file_name = 'results.csv'
 
-		print('Saving summarised results here: {}'.format((Path(connection['base_path']) / file_name).resolve()))
+		file_name_agg = paras_simulation['outputs_handling__file_aggregated_results'] # 'results.csv'
+
+		print('Saving summarised results here: {}'.format((Path(connection['base_path']) / file_name_agg).resolve()))
 
 		write_data(data=results,
 					fmt=profile_write_agg['fmt'],
 					path=profile_write_agg['path'],
-					file_name=file_name,
+					file_name=file_name_agg,
 					connection=connection,
 					how=profile_write_agg['mode'])
 
@@ -281,7 +281,8 @@ if __name__=='__main__':
 			with generic_connection(profile=profile_write_agg['connection'],
 								typ=profile_write_agg['type']) as connection:
 
-				file_name = 'results_seq_{}.csv'.format(stuff)
+				# file_name = 'results_seq_{}.csv'.format(stuff)
+				file_name = '{}_seq_{}.csv'.format(file_name_agg.split('.csv')[0], stuff)
 
 				print('Saving summarised additional results here: {}'.format(
 						(Path(connection['base_path']) / file_name).resolve()))

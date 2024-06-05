@@ -748,7 +748,6 @@ class World:
 
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
 
-
 	def create_AMANs(self):
 		"""
 		Creates all AMANs, including EAMANs.

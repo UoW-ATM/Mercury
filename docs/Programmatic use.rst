@@ -25,7 +25,7 @@ It can then be used to run simulation, by passing various arguments. For instanc
     results, results_seq = mercury.run(scenarios=scenarios,
                                           case_studies=case_studies)
 
-will run case study 0 and and -1 from scenario -1, both included in the default input folder (``../input``).
+will run case study 0 and and -1 from scenario -1.
 
 Just like the CLI, one can fix or iterate over any argument included in the Mercury config file or the scenario/case
 study config file, with a slightly different interface than the CLI:
@@ -59,7 +59,7 @@ study config file, with a slightly different interface than the CLI:
 
 In this case we need to load the mercury config file independently beforehand, then modify a parameter inside. There is
 however no need to load the scenario config file, and parameter can be fixed or iterated through the use of two
-dictionary. Note that teh syntax for the parameters are the same than for the CLI, i.e.
+dictionaries, respectively ``paras_sc_fixed`` and ``paras_sc_iterated``. Note that the syntax for the parameters are the same than for the CLI, i.e.
 ``[section of config file]__[name of parameter]``.
 
 The run method returns two dataframes containing the results from the runs. The first one corresponds to the one saved
@@ -69,8 +69,8 @@ the full detailed results (for each iteration), similarly to the CLI, by default
 
 Note that contrary to the CLI version, in general string parameters can be iterated with the object interface.
 
-The Mercury object can also use two important features to help the user, the parmametriser and the aggregator. Both
-are described in detail in the advanced usage, here: :ref:`parametriser_aggregator`
+The Mercury object can also use two important features to help the user, the parametriser and the aggregator. Both
+are described in detail in the advanced usage section, here: :ref:`parametriser_aggregator`
 
 
 
