@@ -60,7 +60,7 @@ You probably need to copy the url appearing in the terminal after this command a
 
 Installation
 ------------
-Mercury has been tested on ubuntu-like machines and to a lesser extent Windows, using anaconda. Python 3.10 is
+Mercury has been tested on ubuntu-like machines and to a lesser extent Windows, using minicoonda/anaconda. Python 3.10 is
 recommended, Python 3.12 will raise issues.
 
 Quick install
@@ -104,7 +104,7 @@ In Linux, use:
    python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
    pip install -r requirements.txt
 
-In Windows, you probably just need to install the requirements:
+In Windows, you need to install the requirements in the dedicated environment:
 
 .. code-block:: bash
 

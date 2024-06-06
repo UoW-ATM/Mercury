@@ -9,7 +9,7 @@ There are three entry points to the model, all in the root folder:
 - ``Mercury.ipynb``: Jupyter notebook. Useful to play with the Mercury object, importable in other scripts. See :ref:`notebook`.
 - ``mercury_gui.py``: Dash interface. Useful to explore the input data and prepare new datasets. See :ref:`gui`.
 
-To run the simulator all of them use the same underlying engine. The behaviour of the engin can be driven via parameter
+All three entry points use the same underlying engine to run the simulations. The behaviour of the engine can be driven via parameter
 files and input data. The main configuration file for Mercury can be found in ``config/mercury_config.toml``. This file
 contains parameters related to **how** Mercury runs, for instance the location of the input data, their format,
 parallelisation, etc. By default, the three interfaces will read this file for the parameters. You can also use another
@@ -21,16 +21,16 @@ organised as explained in :ref:`data_input` to be readable by Mercury. In partic
 "scenario_config.py", which is compiling all the necessary information to run this particular scenario. It is organised
 in two parts:
 
-- the path to all tables needed to run the scenario, all of them included in the data folder.
-- the parameters needed to set the simulation up. These parameters are linked to the agent behaviours (e.g.price of fuel).
+- the path to all the tables needed to run the scenario, all of them included in the data folder.
+- the parameters needed to set the simulation up. These parameters are linked to the agent behaviour (e.g.price of fuel).
 
 More details about the input data can be found here :ref:`data_intput` and all scenario parameters are described here:
 :ref:`scenario_parameter_file`.
 
-The mercury config also includes the path to where the results will be saved, by default in ``../results``. The structure
+The Mercury config also includes the path to where the results will be saved, by default in ``../results``. The structure
 of the results is discussed and explained in :ref:`data_output`.
 
-All parameters both from the ``mercury_config.toml`` file and the scenario parameter file can be set at runtime, in the cli
+All parameters, from both the ``mercury_config.toml`` file and the scenario parameter file can be set at runtime, in the CLI
 version, with the Mercury object, or in the GUI (e.g. using the argument ``--airlines__fuel_price 1.2`` in the CLI).
 
 Finally, the three entry points (CLI, Mercury object, GUI) are available as Docker images, which requires only the

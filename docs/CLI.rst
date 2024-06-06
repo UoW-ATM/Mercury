@@ -3,7 +3,7 @@
 Command Line Interface
 ======================
 
-The CLI version of Mercury is usable in any shell, e.g. bash in linux or powershell in Windows. Its basic syntax is the
+The CLI version of Mercury is usable in any shell, e.g. bash in Linux or powershell in Windows. Its basic syntax is the
 following:
 
 .. code:: bash
@@ -13,7 +13,7 @@ following:
 This will for instance run one iteration of scenario "-1", reading the default ``config/mercury_config.toml``
 config file. Another path to the config file can be set using the "-psi" option, see below.
 
-The CLI can be used in a very agile way. Indeed, all parameters from the mercury config are accessible through the
+The CLI can be used in a very agile way. Indeed, all parameters from the Mercury config are accessible through the
 interface. All parameters
 are listed in :ref:`simulation_parameters` but some have shortcuts and the most important ones are explained here:
 
@@ -24,10 +24,10 @@ are listed in :ref:`simulation_parameters` but some have shortcuts and the most 
   folder in the input directory.
 - "-n": number of iterations to run a given set of parameters.
 - "-fl": once the input data is stable, this option can be used to speed up the data loading.
-- "-pc": number of core to use in parallel for multiple iterations (a single run of Mercury is always single-core and
+- "-pc": number of cores to use in parallel for multiple iterations (a single run of Mercury is always single-core and
   single thread)
 
-On top of that, one can use the cli to set and iterate over parameters . Iterable parameters
+On top of that, one can use the CLI to set and iterate over parameters. Iterable parameters
 include scenario ids, case study ids. For instance, this command performs one iteration on scenario -1
 and one iteration on scenarios -2:
 
@@ -63,8 +63,8 @@ of 0.5, etc.
 
 By default, the CLI will save two kinds of results:
 
-- some aggregated results, by default saved in ``../results/results.csv``
-- some detailed results on each flight, passenger, airport, etc, by default in the
+- aggregated results, by default saved in ``../results/results.csv``
+- detailed results on each flight, passenger, airport, etc, by default in the
   ``../results/[model version]_[scenario id]_[case study id]_[iteration number]`` folder
 
 More details on the output data can be found in :ref:`data_output`.

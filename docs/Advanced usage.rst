@@ -4,7 +4,7 @@ Advanced usage
 ==============
 
 This sections covers the advanced usage of Mercury, in particular how to define new modules, how to use the external
-messaging system, and how to expand the model door-to-door.
+messaging system, and how to expand the door-to-door model.
 
 .. toctree::
     Parametriser and aggregator.rst
