@@ -1,0 +1,33 @@
+[info]
+name = "XMAN" # This is the name of the module
+description = "Dummy module" # Short description, just for info
+incompatibilities = [] # known incompatibilities with other modules
+requirements = []  # required modules to run this one
+get_metric = "get_metric" # method to gather information during simulation.
+
+[agent_modif] # Information on modifications of existing agents and role
+    [agent_modif.AMAN] # Top level is the agent
+    on_init = "on_init_agent" # allows to run a method when agent is initiated.
+    apply_to = [] # allows to modify only some instances of the agents, for instance only an airport
+    new_parameters = [
+        "optimisation_horizon",
+        "data_horizon",
+    ] # list all the new parameters introduced by the module.
+
+        [agent_modif.AMAN.FlightInAMANHandler] # we want to attach the methods to this agent
+        on_init = "on_init_FlightInAMANHandler" # you can also run something when the role is created.
+        wait_for_flight_in_eaman = "wait_for_flight_in_eaman" # on the left is the name that the method will have,
+                                                              # on the right is the name as defined in the python file
+        new_methods = [
+            "notify_flight_in_optimisation_horizon",
+            "notify_flight_in_data_horizon",
+        ] # lists all new methods to be attached to this class.
+
+        # in this case we would need also to add another method to the "atp" (short for "ArrivalTacticalProvider")
+        # role that receives the new notification, like this
+        [agent_modif.AMAN.ArrivalTacticalProvider] # we want to attach the methods to this agent
+        on_init = "on_init_ArrivalTacticalProvider" # you can also run something when the role is created.
+        new_methods = [
+            "notify_flight_in_optimisation_horizon",
+            "notify_flight_in_data_horizon",
+        ] # lists all new methods to be attached to this class.

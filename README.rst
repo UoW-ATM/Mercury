@@ -132,8 +132,7 @@ In the following command, replace ``BADA3_FILES_PATH`` with the location of the 
 
    python generate_bada3_input.py -s BADA3_FILES_PATH -d .
 
-Ensure you copy the generated parquet files into
-``/home/earendil/Documents/Westminster/Mercury/Mercury/libs/performance_models/bada3/data/``.
+Ensure you copy the generated parquet files into ``Mercury/libs/performance_models/bada3/data/``.
 
 If you want to use BADA4, please contact us directly and we'll offer general guidance. We are also working on a support
 for EUROCONTROL's pyBADA library.
@@ -165,7 +164,6 @@ new scenarios, case studies, etc. Use the following command to start it:
 
 .. code:: bash
 
-   cd dashboard
    python mercury_gui.py
 
 .. inclusion-marker-do-not-remove2

@@ -15,7 +15,7 @@ from pathlib import Path
 import pickle
 
 from .delivery_system import Postman
-from .module_management import load_mercury_module
+from .module_management import load_mercury_module, find_actual_module_name
 from .scenario_loader import ScenarioLoader
 
 from Mercury.libs.uow_tool_belt.general_tools import build_step_multi_valued_function, build_step_bivariate_function
@@ -194,6 +194,8 @@ class World:
 			cred, mspecs = load_mercury_module(path_module=self.path_module,
 									   module_name=module)
 
+			name_base, name_file = find_actual_module_name(module)
+
 			# This allows modules to compute their proper metrics. For this they need to define a function called
 			# "get_metric" that has a single argument, the world builder.
 			if not mspecs.get('get_metric', None) is None:
@@ -201,7 +203,7 @@ class World:
 
 			# Here if we go through all the modifications specified in all the module files
 			for agent, role_modif in mspecs.get('agent_modif', {}).items():
-				self.module_agent_paras[agent] = {'{}__{}'.format(module, para_name): self.sc.paras['{}__{}'.format(module, para_name)] for para_name in role_modif.get('new_parameters', [])}
+				self.module_agent_paras[agent] = {'{}__{}'.format(name_base, para_name): self.sc.paras['{}__{}'.format(name_base, para_name)] for para_name in role_modif.get('new_parameters', [])}
 
 				if agent not in self.module_agent_modif.keys():
 					self.module_agent_modif[agent] = {}
@@ -751,7 +753,6 @@ class World:
 
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
 
-
 	def create_AMANs(self):
 		"""
 		Creates all AMANs, including EAMANs.
@@ -800,7 +801,8 @@ class World:
 							acolor=self.paras['print_colors__alert'],
 							verbose=self.paras['computation__verbose'],
 							log_file=self.log_file_it,
-							module_agent_modif=self.module_agent_modif.get('AMAN', {}))
+							module_agent_modif=self.module_agent_modif.get('AMAN', {}),
+							 **self.module_agent_paras.get('AMAN', {}))
 				eaman.build()
 
 				self.cr.register_agent(eaman)

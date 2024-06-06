@@ -1,0 +1,3 @@
+[paras]
+optimisation_horizon = 800 # In NM.
+optimiser = 'basic'
