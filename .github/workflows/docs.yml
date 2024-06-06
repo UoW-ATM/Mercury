@@ -2,7 +2,7 @@ name: "Sphinx: Render docs"
 
 on:
   push:
-    branches: [documentation]
+    branches: [master, dev, documentation]
   release:
     types: [created]
 

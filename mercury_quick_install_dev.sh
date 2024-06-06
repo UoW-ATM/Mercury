@@ -1,4 +1,4 @@
-echo 'Quick install for Mercury, dev branch'
+echo 'Quick install and test run for Mercury, dev branch\n\n'
 
 git clone -b dev https://github.com/UoW-ATM/Mercury
 
@@ -6,7 +6,11 @@ cd Mercury
 
 git submodule update --recursive --remote --init
 
-deactivate
+# Source the virtualenvwrapper script
+source /usr/local/bin/virtualenvwrapper.sh  # Update this path to where your virtualenvwrapper.sh is located
+
+# Deactivate any active virtual environment
+deactivate 2>/dev/null || true
 
 rmvirtualenv mercury-install-test
 
@@ -25,3 +29,5 @@ unzip ../mercury_public_dataset.zip -d ../input/
 rm ../mercury_public_dataset.zip
 
 ./mercury.py -id -1 -cs -1
+
+echo '\n\nInstallation and test run went well. Test virtual environment is mercury-install-test'

@@ -84,6 +84,11 @@ Full installation
 `Tested in Linux Mint 21.3, Kubuntu 22.04.4, Windows 10 with miniconda, and Ubuntu 18.04 in Windows with WSL.
 Some issues are expected with MacOS. Python 3.12 raises some issues, 3.10 is safe.`
 
+The steps below (+ cloning + test run) are included in two bash scripts called ``mercury_quick_install_stable.sh`` (for
+the master branch) and ``mercury_quick_install_dev.sh`` (for the dev branch). If you are on a linux machine that looks
+like the ones listed above, it may work for you right away. Download the script manually from github, change the
+permission to execute it if needed, then run it in an empty folder.
+
 Installing dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^
 
