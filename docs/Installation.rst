@@ -19,8 +19,8 @@ Before using Docker, you will need to check if virtualisation if enabled on your
 `here for Windows <https://techviral.net/check-if-virtualization-is-enabled>`_). If virtualisation is disabled,
 you can either try to enable it or switch to a full installation of Mercury, see below.
 
-If the virtualisation is enabled, you can install docker in linux, see here
-`here <https://www.docker.com/products/docker-desktop/>`_). Once Docker is install, you can download the Mercury images
+If the virtualisation is enabled, you can install docker in linux, see
+`here <https://www.docker.com/products/docker-desktop/>`_. Once Docker is installed, you can download the Mercury images
 using:
 
 .. code:: bash
@@ -35,7 +35,7 @@ in a terminal.
 Docker usage
 ^^^^^^^^^^^^
 
- You can then use the CLI versions or launch a notebook from your terminal. For the CLI you need to run:
+You can then use the CLI versions or launch a notebook from your terminal. For the CLI you need to run:
 
 .. code:: bash
 
@@ -55,7 +55,9 @@ normally (see :ref:`notebook`).
 
 However, using docker like this means that input and output folder are also part of the image. You can use bash to
 copy data back and forth, but it's not very handy. Instead, you can link folders on your machine to the folders inside
-docker. To do this you can use the following command (note: this method only works for the CLI for now):
+docker. First, download and extract the data as explained in the next section :ref:`installation_data`.
+Then use the following command to link this input folder to the image, and link another result folder as well
+(note: this method only works for the CLI for now, and might not work in Windows):
 
 .. code:: bash
 
@@ -67,23 +69,25 @@ In linux you can even use an alis to shorten the command. Edit your ``~/.bashrc`
 
     alias mercury_cli_docker='docker run --user $(id -u):$(id -g) -v /absolute/path/to/your/host/results:/app/results -v /absolute/path/to/your/host/input:/app/input mercury_cli'
 
-Restart your terminal, and you can then just use for instance:
+Restart your terminal, and you can now run:
 
-.. code:: bash:
+.. code:: bash
 
     mercury_cli_docker -id -1 -cs -1
+
+And the results should appear in the ``/absolute/path/to/your/host/results`` folder.
 
 
 Full installation
 -----------------
 
 `Tested in Linux Mint 21.3, Kubuntu 22.04.4, Windows 10 with miniconda, and Ubuntu 18.04 in Windows with WSL.
-Some issues are expected with MacOS`
+Some issues are expected with MacOS. Python 3.12 raises some issues, 3.10 is safe.`
 
 Installing dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-To install the natively Mercury on your machine, you can follow the following steps:
+To install natively Mercury on your machine, you can follow these steps:
 
 -  Start by cloning the repository, for instance:
 
@@ -116,6 +120,8 @@ In Windows, you probably just need to install the requirements:
 
 You may also need to install Visual studio C++ built tools if it's not the case already.
 
+
+.. _installation_data:
 
 Setting up data and performance models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
