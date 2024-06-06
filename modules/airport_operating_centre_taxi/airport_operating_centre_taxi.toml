@@ -1,0 +1,21 @@
+[info]
+name = "airport_operating_centre_taxi"
+description = "taxi out modification for workshop demo"
+incompatibilities = []
+requirements = []
+get_metric = "None"
+
+[agent_modif.AirportOperatingCentre]
+on_init = "on_init_agent"
+new_parameters = [
+        "taxi_const",
+    ]
+
+[agent_modif.AirportOperatingCentre.TaxiOutProvider]
+on_init = "on_init"
+compute_taxi_out_time = "compute_taxi_out_time_NEW"
+
+
+receive = "receive_new_messages"
+
+
