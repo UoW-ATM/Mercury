@@ -12,16 +12,16 @@ Modules can be defined by adding a folder to the "modules" directory (but defaul
 config file). The name chosen for this folder (e.g. XMAN) can then we used
 for adding it to the list of modules that are loaded at runtime. In general at least three files are required for a module:
 
-- a main description of the new roles, events, and roles, included in a file called exactly like the module's name
+- a main description of the new roles, events, and agents, included in a file named as its module
   (e.g. ``XMAN.py``).
 - a toml file describing the changes that will be implemented by the simulator based on the previous file. This file
-  need to be called "X.toml" where X is the name of the module (e.g. ``XMAN.toml``).
-- a toml file including all the new parameters introduced by the module and their default value. This file should be
+  needs to be called "X.toml" where X is the name of the module (e.g. ``XMAN.toml``).
+- a toml file including all the new parameters introduced by the module and their default values. This file should be
   called "paras_X.toml" where X is the name of the module (e.g. ``paras_XMAN.toml``).
 
-The module can then be loaded by adding it to the list of modules used a in simulation, via the scenario parameter
+The module can then be loaded by adding it to the list of modules used in a simulation, via the scenario parameter
 ``paras.modules.modules_to_load``, present in the scenario and case study parameter files. Note that choosing the modules
-from the CLI does not work at the moment, you need to change in the parameter in the file directly, or use the Mercury
+from the CLI does not work at the moment, you need to insert the change via the parameter in the file directly, or use the Mercury
 object programmatically and set the parameter for instance like this:
 
 .. code:: python
@@ -39,7 +39,7 @@ instance, a parameter called "optimisation_horizon" defined by the module XMAN c
 
     ./mercury.py -id -1 -XMAN__optimisation_horizon 500
 
-or even iterated using several values, e.g. ``-XMAN__optimisation_horizon 500 600 700``. The same behaviour is
+or even iterated over by using several values, e.g. ``-XMAN__optimisation_horizon 500 600 700``. The same behaviour is
 available with the Mercury object.
 
 Note: the XMAN dummy module can be found in ``modules/XMAN``.
@@ -71,7 +71,7 @@ python class describing a role in the AMAN:
 
 
 This role simply waits for a flight to cross the boundary of the Arrival Manager and notifies another role (``self.atp``)
-when it's the case. Now imagine that you want to modify this rule to add another horizon where you'll perform some other type of
+when this happens. Now imagine that you want to modify this rule to add another horizon where you'll perform some other type of
 optimisation. The role could now look like this:
 
 .. code:: python
@@ -110,7 +110,7 @@ independently from each other, and thus some classes could potentially inherit f
 specific run.
 
 We thus use a different strategy, by assigning methods dynamically at runtime to roles. For instance, in this example,
-we would first define the new or modified methods outside of any classes:
+we would first define the new or modified methods outside of any class:
 
 
 .. code:: python
@@ -133,7 +133,7 @@ we would first define the new or modified methods outside of any classes:
         self.agent.atp.wait_for_flight_in_optimisation_horizon(msg)
 
 Note that these are `functions`, not methods, but that we use the name ``self`` for the first argument to make it look
-like they are methods, which they will be at runtime. Note also that do not need to rewrite a function that has not been
+like they are methods, which they will be at runtime. Note also that there is no need to rewrite a function that has not been
 modified (here the ``notify_flight_in_execution_horizon``), exactly like we would do for an inheritance.
 
 Now at runtime we do something like this:
@@ -144,16 +144,16 @@ Now at runtime we do something like this:
     role.wait_for_flight_in_eaman = wait_for_flight_in_eaman
     role.notify_flight_in_optimisation_horizon = notify_flight_in_optimisation_horizon
 
-i.e., we add the method to the instance of the role. After that, the role had all the required methods as they were
-defined from scratch. This has several added benefit compared to inheritance:
+i.e., we add the method to the instance of the role. After that, the role has all the required methods as they were
+defined from scratch. This has several added benefits compared to inheritance:
 
 - it's easier to check for incompatibilities among modules, i.e. we can check beforehand if several modules modify the
   same methods.
-- modules that modify the same classes but not the same methods do not need to care for each other, i.e. they don't to
+- modules that modify the same classes but not the same methods do not need to care about each other, i.e. they don't 
   inherit one from another.
 - it's marginally easier to modify specific agents, since modifications are done after instantiation. For instance, if
-  we want to add our new role only to the agent corresponding to Rome Fiumiccino, it is easier to do after the AMAN for
-  Rome had been instantiated.
+  we want to add our new role only to the agent corresponding to Rome Fiumiccino, it is easier to do that after the AMAN for
+  Rome has been instantiated.
 
 
 This method however requires that the module creator tells to Mercury which method should be attached to which classes.
@@ -162,11 +162,11 @@ This method however requires that the module creator tells to Mercury which meth
 How to define the module
 ------------------------
 
-The first step to define a module is thus to write the new methods in a file (the ``XMAN.py`` for instance), as explained
-above. The second step is to create the toml file that allows to assign methods to classes. In our example above, this
+The first step in defining a module is to write the new methods in a file (the ``XMAN.py`` for instance), as explained
+above. The second step is to create the toml file that allows assignment of methods to classes. In our example above, this
 file could look this:
 
-.. code:: toml
+.. cod.e:: toml
 
     [info]
     name = "XMAN" # This is the name of the module
@@ -199,8 +199,8 @@ file could look this:
                 "notify_flight_in_optimisation_horizon",
             ] # lists all new methods to be attached to this class.
 
-In this case, we have modified the existing ``wait_for_flight_in_eaman`` function with our new one, and add the new method
-``notify_flight_in_optimisation_horizon``, both for the ``FlightInAMANHandler`` of the ``AMAN`` agent. We would also need
+In this case, we have modified the existing ``wait_for_flight_in_eaman`` function with the new one, and added the new method
+``notify_flight_in_optimisation_horizon`` for the ``FlightInAMANHandler`` of the ``AMAN`` agent. We would also need
 to add a new function to the ``ArrivalTacticalProvider`` that is supposed to do to something with the new optimisation
 horizon. One can also add something to run during the initialisation of the agent.
 For instance, in our example we'll probably need to add the value of the new horizon to the agent, for instance adding
@@ -396,7 +396,7 @@ We can then use the flavour by adding the new module flavour to the scenario con
     [paras.modules]
     modules_to_load = ["XMAN|data"]
 
-Flavours are indicated with a ``|``, i.e. if a module "XXX|YYY" is the be loaded, Mercury will look for ``XXX_YYY.py``,
+Flavours are indicated with a ``|``, i.e. if a module "XXX|YYY" is to be loaded, Mercury will look for ``XXX_YYY.py``,
 ``XXX_YYY.toml``, and ``paras_XXX_YYY.toml`` files inside a ``XXX`` folder.
 
 Finally, note that it is not required to add the flavour when calling some parameters from the CLI or elsewhere. For

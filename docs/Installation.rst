@@ -11,16 +11,16 @@ Docker installation
 
 `Tested in Windows and Linux, should be running in MacOS.`
 
-A easy way to use Mercury is to use the docker images. Docker is an open-source platform designed to automate the
+An easy way to use Mercury is to use the docker images. Docker is an open-source platform designed to automate the
 deployment, scaling, and management of applications. It achieves this by using containerization technology,
 which allows applications to run in isolated environments called containers.
 
-Before using Docker, you will need to check if virtualisation if enabled on your machine (see for instance
+Before using Docker, you will need to check if virtualisation is enabled on your machine (see for instance
 `here for Windows <https://techviral.net/check-if-virtualization-is-enabled>`_). If virtualisation is disabled,
 you can either try to enable it or switch to a full installation of Mercury, see below.
 
-If the virtualisation is enabled, you can install docker in linux, see
-`here <https://www.docker.com/products/docker-desktop/>`_. Once Docker is installed, you can download the Mercury images
+If the virtualisation is enabled, you can install docker in Linux, see
+`here <https://www.docker.com/products/docker-desktop/>`_. Once the Docker is installed, you can download the Mercury images
 using:
 
 .. code:: bash
@@ -41,7 +41,7 @@ You can then use the CLI versions or launch a notebook from your terminal. For t
 
     docker run mercury_cli -id -1 -cs -1
 
-You should now able to use the CLI exactly like in the full installation version (see :ref:`cli`), just prefacing every command by
+You should now be able to use the CLI exactly like in the full installation version (see :ref:`cli`), just prefacing every command by
 ``docker run``.
 
 For the notebook, you can run:
@@ -53,7 +53,7 @@ For the notebook, you can run:
 and then copy the url that appears in the terminal to your browser. Then open the Mercury.ipynb and you can use Mercury
 normally (see :ref:`notebook`).
 
-However, using docker like this means that input and output folder are also part of the image. You can use bash to
+However, using docker like this means that input and output folders are also part of the image. You can use bash to
 copy data back and forth, but it's not very handy. Instead, you can link folders on your machine to the folders inside
 docker. First, download and extract the data as explained in the next section :ref:`installation_data`.
 Then use the following command to link this input folder to the image, and link another result folder as well
@@ -63,7 +63,7 @@ Then use the following command to link this input folder to the image, and link 
 
     docker run --user $(id -u):$(id -g) -v /absolute/path/to/your/host/results:/app/results -v /absolute/path/to/your/host/input:/app/input mercury_cli -id -1 -cs -1
 
-In linux you can even use an alis to shorten the command. Edit your ``~/.bashrc`` file and add the line:
+In Linux you can even use an alias to shorten the command. Edit your ``~/.bashrc`` file and add the line:
 
 .. code:: bash
 
@@ -112,7 +112,7 @@ In Linux, use:
    python -m pip install shapely cartopy --no-binary shapely --no-binary cartopy
    pip install -r requirements.txt
 
-In Windows, you probably just need to install the requirements:
+In Windows powershell, in the dedicated environment, you need to install the requirements:
 
 .. code-block:: bash
 
@@ -132,7 +132,7 @@ the "input" folder outside of the main Mercury root folder (side by side) (or yo
 input data, see :ref:`input_data`).
 
 By default, Mercury uses the `OpenAP <https://github.com/TUDelft-CNS-ATM/openap>`_ model for aircraft performance.
-However, Mercury also supports the BADA models developed by EUROCONTROL. If you want to use it, you can request a licence
+However, Mercury also supports the BADA models developed by EUROCONTROL. If you want to use BADA, you can request a licence
 from EUROCONTROL (here: https://www.eurocontrol.int/model/bada), then use the script ``generate_bada3_input.py`` to
 transform the AFP, OFP and PTD files from BADA3 into tables (parquet files) that will be read by Mercury.
 In the following command, replace ``BADA3_FILES_PATH`` with the location of the downloaded bada files:

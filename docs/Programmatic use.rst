@@ -4,19 +4,19 @@ Programmatic use
 ================
 
 
-The ``Mercury.ipynb`` notebook included in the repository shows examples of how use Mercury programmatically, using the
+The ``Mercury.ipynb`` notebook included in the repository shows examples of how to use Mercury programmatically, using the
 Mercury object.
 
-The Mercury object is designed to provide an entry to Mercury to users that would like to include Mercury in their own
+The Mercury object is designed to provide an entry to Mercury for users that would like to include Mercury in their own
 scripts. It has almost the same capabilities than the CLI interface, with added flexibility for output management.
 
-By default, the object can initialised without any parameters:
+By default, the object can be initialised without any parameters:
 
 .. code:: python
 
     mercury = Mercury()
 
-It can then be used to run simulation, by passing various arguments. For instance:
+It can then be used to run the simulation, by passing various arguments. For instance:
 
 .. code:: python
 
@@ -27,8 +27,8 @@ It can then be used to run simulation, by passing various arguments. For instanc
 
 will run case study 0 and and -1 from scenario -1.
 
-Just like the CLI, one can fix or iterate over any argument included in the Mercury config file or the scenario/case
-study config file, with a slightly different interface than the CLI:
+Just like in the CLI, one can fix or iterate over any argument included in the Mercury config file or the scenario/case
+study config file, with a slightly different interface than the CLI one:
 
 .. code:: python
 
@@ -57,7 +57,7 @@ study config file, with a slightly different interface than the CLI:
                                         paras_simulation=ps
                                       )
 
-In this case we need to load the mercury config file independently beforehand, then modify a parameter inside. There is
+In this case we need to load the Mercury config file independently beforehand, then modify a parameter inside. There is
 however no need to load the scenario config file, and parameter can be fixed or iterated through the use of two
 dictionaries, respectively ``paras_sc_fixed`` and ``paras_sc_iterated``. Note that the syntax for the parameters are the same than for the CLI, i.e.
 ``[section of config file]__[name of parameter]``.
