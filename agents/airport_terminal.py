@@ -252,8 +252,10 @@ class MoveGate2KerbTime(Role):
 			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated gate2kerb_time_estimation ', msg['body']['gate2kerb_time_estimation'])
 
 		start_time = self.agent.env.now
+		pax = msg['body']['pax']
 		#self.move_gate2kerb_times(msg['body']['pax'], msg['body']['gate2kerb_time_estimation'])
 		gate2kerb_time = max(0,msg['body']['gate2kerb_time_estimation'] + self.agent.gate2kerb_add_dists.rvs(random_state=self.agent.rs))
+		pax.gate2kerb_time += gate2kerb_time
 		# print ('Actual gate2kerb times:',gate2kerb_time)
 		self.agent.env.process(self.move_gate2kerb_times(msg['body']['pax'], gate2kerb_time, msg['body']['event']))
 		self.return_times(msg['from'],
@@ -265,8 +267,10 @@ class MoveGate2KerbTime(Role):
 			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated kerb2gate_time_estimation ', msg['body']['kerb2gate_time_estimation'], 'late:', msg['body']['late'])
 
 		start_time = self.agent.env.now
+		pax = msg['body']['pax']
 		#self.move_gate2kerb_times(msg['body']['pax'], msg['body']['gate2kerb_time_estimation'])
 		kerb2gate_time = max(0,msg['body']['kerb2gate_time_estimation'] + self.agent.kerb2gate_add_dists.rvs(random_state=self.agent.rs))
+		pax.kerb2gate_time += kerb2gate_time
 		# print ('Actual gate2kerb times:',gate2kerb_time)
 		self.agent.env.process(self.move_gate2kerb_times(msg['body']['pax'], kerb2gate_time, msg['body']['event']))
 		self.return_times(msg['from'],

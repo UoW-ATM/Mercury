@@ -352,7 +352,8 @@ class TurnaroundOperations(Role):
 				if pax.destination2 in self.agent.trains_info[train_uid]['pax_to_unboard']:
 					if pax not in self.agent.trains_info[train_uid]['pax_to_unboard'][pax.destination2]:
 						self.agent.trains_info[train_uid]['pax_to_unboard'][pax.destination2].append(pax)
-				pax.aobts.append(self.agent.env.now)
+				#pax.aobts.append(self.agent.env.now)
+				pax.board_next_train(self.agent.env.now)
 				#pax.in_transit_to = pax.itinerary[0]
 			else:
 				print(pax, 'missed the train', train_uid)
@@ -369,7 +370,7 @@ class TurnaroundOperations(Role):
 			if pax in self.agent.trains_info[train_uid]['pax_on_board']:
 				print(pax, 'unboards the train', train_uid, 'at t=', self.agent.env.now)
 				pax.time_at_platform = self.agent.env.now
-				pax.unboard_from_flight(self.agent.env.now)
+				pax.unboard_from_train(self.agent.env.now)
 				self.agent.trains_info[train_uid]['pax_on_board'].remove(pax)
 
 				if pax.rail['rail_pre'] is not None:
@@ -407,6 +408,19 @@ class TurnaroundOperations(Role):
 		else:
 			pax.final_aibt = None
 			# mprint(pax, 'has not taken any flight (bis).')
+		if len(pax.rail_aobts) > 0:
+			if pax.initial_aobt is not None:
+				if pax.initial_aobt > pax.rail_aobts[0]:
+					pax.initial_aobt = pax.rail_aobts[0]
+			else:
+				pax.initial_aobt = pax.rail_aobts[0]
+
+		if len(pax.rail_aibts) > 0:
+			if pax.final_aibt is not None:
+				if pax.final_aibt < pax.rail_aibts[-1]:
+					pax.final_aibt = pax.rail_aibts[-1]
+			else:
+				pax.final_aibt = pax.rail_aibts[-1]
 		if overnight:
 			tot_arrival_delay = 10000
 			for i in range(len(pax.aobts), len(pax.itinerary)):

@@ -4082,6 +4082,19 @@ class AirlinePaxHandler(Role):
 
 		it_so_far = pax.get_itinerary_so_far()
 
+		if len(pax.rail_aobts) > 0:
+			if pax.initial_aobt is not None:
+				if pax.initial_aobt > pax.rail_aobts[0]:
+					pax.initial_aobt = pax.rail_aobts[0]
+			else:
+				pax.initial_aobt = pax.rail_aobts[0]
+
+		if len(pax.rail_aibts) > 0:
+			if pax.final_aibt is not None:
+				if pax.final_aibt < pax.rail_aibts[-1]:
+					pax.final_aibt = pax.rail_aibts[-1]
+			else:
+				pax.final_aibt = pax.rail_aibts[-1]
 		if overnight:
 			tot_arrival_delay = 10000
 			for i in range(len(pax.aobts), len(pax.itinerary)):

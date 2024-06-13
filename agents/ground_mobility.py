@@ -256,7 +256,7 @@ class MobilityProvider(Role):
 		actual_ground_mobility = self.agent.ctp.calculate_ground_mobility(msg['body']['origin'], msg['body']['destination'], estimate)
 
 		# print ('Estimated gate2kerb times:',estimate)
-		self.agent.env.process(self.do_ground_mobility(actual_ground_mobility, msg['body']['event']))
+		self.agent.env.process(self.do_ground_mobility(actual_ground_mobility, msg['body']['event'], msg['body']['pax']))
 		self.return_ground_mobility(msg['from'],
 									 msg['body']['pax'],
 									 actual_ground_mobility, 'ground_mobility_to_kerb_time')
@@ -279,12 +279,12 @@ class MobilityProvider(Role):
 		actual_ground_mobility = self.agent.ctp.calculate_ground_mobility(msg['body']['origin'], msg['body']['destination'], estimate)
 
 		# print ('Estimated gate2kerb times:',estimate)
-		self.agent.env.process(self.do_ground_mobility(actual_ground_mobility, msg['body']['event']))
+		self.agent.env.process(self.do_ground_mobility(actual_ground_mobility, msg['body']['event'], msg['body']['pax']))
 		self.return_ground_mobility(msg['from'],
 									 msg['body']['pax'],
 									 actual_ground_mobility, 'ground_mobility_to_platform_time')
 
-	def do_ground_mobility(self, ground_mobility_time, event):
+	def do_ground_mobility(self, ground_mobility_time, event, pax):
 		"""
 		Wait the ground_mobility time and then succeed the event
 		"""
@@ -294,5 +294,6 @@ class MobilityProvider(Role):
 		yield self.agent.env.timeout(ground_mobility_time)
 
 		#print(pax, 'finished ground_mobility at', self.agent.env.now)
+		pax.ground_mobility_time += ground_mobility_time
 
 		event.succeed()

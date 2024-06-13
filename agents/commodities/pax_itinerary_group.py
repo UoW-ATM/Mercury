@@ -70,6 +70,14 @@ class PaxItineraryGroup:
 		self.ct = -10
 		self.mct = -10
 		self.split_pax = []
+		#multimodal kpis
+		self.ground_mobility_time = 0
+		self.gate2kerb_time = 0
+		self.kerb2gate_time = 0
+		self.rail_aobts = []
+		self.rail_aibts = []
+		self.rail_sobts = []
+		self.rail_sibts = []
 		
 		self.rs = rs
 
@@ -94,6 +102,15 @@ class PaxItineraryGroup:
 		self.aibts.append(aibt)
 		self.on_board = None
 		
+	def board_next_train(self, aobt):
+
+		self.rail_aobts.append(aobt)
+
+
+	def unboard_from_train(self, aibt):
+		self.rail_aibts.append(aibt)
+		self.on_board = None
+
 	def give_itinerary(self, itinerary):
 		"""
 		itinerary must be a list of flight_uids
@@ -180,12 +197,16 @@ class PaxItineraryGroup:
 			self.initial_sobt = self.rail['rail_pre'].times[self.origin1]['departure_time']
 			self.multimodal = True
 			self.time_at_gate = 9999999
+			self.rail_sobts.append(self.rail['rail_pre'].times[self.origin1]['departure_time'])
+			self.rail_sibts.append(self.rail['rail_pre'].times[self.destination1]['arrival_time'])
 		
 		if self.rail['rail_post'] is None:
 			self.final_sibt = last_flight.sibt
 		else:
 			self.final_sibt = self.rail['rail_post'].times[self.destination2]['arrival_time']
 			self.multimodal = True
+			self.rail_sobts.append(self.rail['rail_post'].times[self.origin2]['departure_time'])
+			self.rail_sibts.append(self.rail['rail_post'].times[self.destination2]['arrival_time'])
 
 		self.origin_airport = first_flight.origin_airport_uid
 		self.destination_airport = last_flight.destination_airport_uid

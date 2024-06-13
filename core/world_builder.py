@@ -1885,7 +1885,22 @@ class World:
 		to_get['final_destination_reached'] = 'final_destination_reached'
 		to_get['multimodal'] = 'multimodal'
 		to_get['missed_air2rail'] = 'missed_air2rail'
-		to_get['missed_rail2air'] = 'missed_rail2air'
+		to_get['ground_mobility_time'] = 'ground_mobility_time'
+		to_get['gate2kerb_time'] = 'gate2kerb_time'
+		to_get['kerb2gate_time'] = 'kerb2gate_time'
+		to_get['rail_pre_sobt'] = 'rail_pre_sobt'
+		to_get['rail_pre_sibt'] = 'rail_pre_sibt'
+		to_get['rail_pre_aobt'] = 'rail_pre_aobt'
+		to_get['rail_pre_aibt'] = 'rail_pre_aibt'
+		to_get['rail_pre_delay'] = 'rail_pre_delay'
+		to_get['rail_post_sobt'] = 'rail_post_sobt'
+		to_get['rail_post_sibt'] = 'rail_post_sibt'
+		to_get['rail_post_aobt'] = 'rail_post_aobt'
+		to_get['rail_post_aibt'] = 'rail_post_aibt'
+		to_get['rail_post_delay'] = 'rail_post_delay'
+		to_get['tot_journey_time'] = 'tot_journey_time'
+		to_get['tot_sch_journey_time'] = 'tot_sch_journey_time'
+
 
 		# all_paxs = self.paxs + [new_pax for pax in self.paxs for new_pax in pax.clones]
 		all_paxs = self.paxs + [new_pax for aoc in self.aocs.values() for new_pax in aoc.new_paxs]
@@ -2005,6 +2020,92 @@ class World:
 							missed_rail2air = True
 
 					pouet['missed_rail2air'][j] = missed_rail2air
+				elif k == 'rail_pre_sobt':
+					if len(pax.rail_sobts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_sobts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_sibt':
+					if len(pax.rail_sibts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_sibts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_aobt' :
+					if len(pax.rail_aobts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_aobts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_aibt':
+					if len(pax.rail_aibts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_aibts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_delay':
+					if pouet['rail_pre_aibt'][j] is not None and pouet['rail_pre_sibt'][j] is not None:
+						time = (pouet['rail_pre_aibt'][j] - pouet['rail_pre_sibt'][j]).total_seconds()/60.
+					else:
+						time = None
+
+					pouet[k][j] = time
+				elif k == 'rail_post_sobt':
+					if len(pax.rail_sobts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail['rail_post'].times[pax.origin2]['departure_time']
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_sibt':
+					if len(pax.rail_sibts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail['rail_post'].times[pax.destination2]['arrival_time']
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_aobt':
+					if len(pax.rail_aobts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail_aobts[-1]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_aibt':
+					if len(pax.rail_aibts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail_aibts[-1]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_delay':
+					if pouet['rail_post_aibt'][j] is not None and pouet['rail_post_sibt'][j] is not None:
+						time = (pouet['rail_post_aibt'][j] - pouet['rail_post_sibt'][j]).total_seconds()/60.
+					else:
+						time = None
+
+					pouet[k][j] = time
+				elif k == 'tot_journey_time' :
+
+					time = pax.final_aibt - pax.initial_aobt
+					pouet[k][j] = time
+				elif k == 'tot_sch_journey_time' :
+
+					time = pax.final_sibt - pax.initial_sobt
+					pouet[k][j] = time
 				else:
 					pouet[k][j] = getattr(pax, k)
 
