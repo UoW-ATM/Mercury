@@ -1,4 +1,6 @@
-echo 'Quick install and test run for Mercury, dev branch\n\n'
+echo 'Quick install and test run for Mercury, dev branch'
+echo ''
+echo ''
 
 git clone -b dev https://github.com/UoW-ATM/Mercury
 
@@ -30,4 +32,6 @@ rm ../mercury_public_dataset.zip
 
 ./mercury.py -id -1 -cs -1
 
-echo '\n\nInstallation and test run went well. Test virtual environment is mercury-install-test'
+echo ''
+echo ''
+echo 'Installation and test run went well. Test virtual environment is mercury-install-test'
