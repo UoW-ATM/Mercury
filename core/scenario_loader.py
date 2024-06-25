@@ -60,7 +60,10 @@ data_to_load = ['dict_ac_model_perf',
 				'l_ids_propagate_to_curfew',
 				'airports_already_with_reg_list',
 				'dict_fp_ac_icao_ac_model',
-				'dict_ac_icao_perf'
+				'dict_ac_icao_perf',
+				'df_ground_mobility_connection_times',
+				'df_airport_stations',
+				'df_gtfs'
 				]
 
 optional_data_to_load = ['df_dregs_airports_manual',
