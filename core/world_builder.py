@@ -208,15 +208,16 @@ class World:
 
 			# Here if we go through all the modifications specified in all the module files
 			for agent, role_modif in mspecs.get('agent_modif', {}).items():
+				print('MODULE:', module, agent, role_modif)
 				self.module_agent_paras[agent] = {'{}__{}'.format(name_base, para_name): self.sc.paras['{}__{}'.format(name_base, para_name)] for para_name in role_modif.get('new_parameters', [])}
 
 				if agent not in self.module_agent_modif.keys():
 					self.module_agent_modif[agent] = {}
 
 				for role, modif in role_modif.items():
+					print('ROLE MODIF:', role, modif)
 					if role == 'on_init':
-						# Case where one needs to apply some stuff at the initialisation of the
-						# AGENT.
+						# Case where one needs to apply some stuff at the initialisation of the AGENT.
 						self.module_agent_modif[agent]['on_init'] = self.module_agent_modif[agent].get('on_init',
 																									   []) + [modif]
 					elif role == 'apply_to':
@@ -265,6 +266,8 @@ class World:
 		# 		print ()
 
 		# print('\nModule agent modifications post:', self.module_agent_modif_post)
+
+		# raise Exception()
 
 	def build_agents(self, log_file=None):
 		self.build_print(log_file)
@@ -680,7 +683,6 @@ class World:
 		self.airport_terminals_per_icao = {}  # keys are ICAO
 
 		for i, row in list(df.iterrows()):
-
 			airport_terminal = AirportTerminal(self.postman,
 										  idd=i,
 										  uid=self.uid,
@@ -691,7 +693,9 @@ class World:
 										  verbose=self.paras['computation__verbose'],
 										  log_file=self.log_file_it,  # TODO: remove
 										  rs=self.rs,
-										  module_agent_modif=self.module_agent_modif.get('airport_terminal', {}))
+										  module_agent_modif=self.module_agent_modif.get('AirportTerminal', {}),
+										**self.module_agent_paras.get('AirportTerminal', {})
+											   )
 
 			self.uid += 1
 

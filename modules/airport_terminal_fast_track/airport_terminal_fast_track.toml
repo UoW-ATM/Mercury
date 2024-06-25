@@ -6,12 +6,13 @@ requirements = []
 get_metric = 'None'
 
 [agent_modif]
-    [agent_modif.airport_terminal]
+    [agent_modif.AirportTerminal]
         on_init = "on_init_agent"
         new_parameters = [
+            'fast_track_speed_up'
         ]
 
-        [agent_modif.airport_terminal.MoveGate2KerbTime]
+        [agent_modif.AirportTerminal.MoveGate2KerbTime]
         on_init = "on_init"
         wait_for_move_kerb2gate_times_request = "wait_for_move_kerb2gate_times_request_NEW"
         new_methods = [

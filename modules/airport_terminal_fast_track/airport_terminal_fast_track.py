@@ -1,10 +1,4 @@
-import pandas as pd
-import pathlib
 import numpy as np
-import simpy
-
-from Mercury.core.delivery_system import Letter
-
 
 
 def rescale(a, indx):
@@ -17,10 +11,10 @@ def rescale(a, indx):
 # =================== Agent Modification =================== #
 # These functions should be created for each modified agent
 
-# ------------------ EAMAN ------------------ #
+# ------------------ Airport Terminal ------------------ #
 def on_init_agent(self):
 	# self.paras_EA = self.module_agent_paras['nostromo_EAMAN']# for easy access
-	self.fast_track_speed_up = 1
+	self.fast_track_speed_up = self.airport_terminal_fast_track__fast_track_speed_up
 	self.n_for_test = 0
 
 # MoveGate2KerbTime
@@ -61,21 +55,3 @@ def receive_new_messages(self, msg):
 		return True
 	else:
 		return False
-
-module_specs = {'name':'airport_terminal_fast_track',
-				'description':"airport_terminal_fast_track for Multimodx project. Implements a faster kerb2gate time if a multimodal pax is delayed",
-				'agent_modif':{'airport_terminal':{'MoveGate2KerbTime':{'on_init':on_init,
-																	'wait_for_move_kerb2gate_times_request':wait_for_move_kerb2gate_times_request_NEW,
-																	'new':[],
-																	'receive':receive_new_messages},
-										'on_init': on_init_agent,
-										'new_parameters': [
-														   ],
-										#'receive':receive_new_messages,
-										},
-								},
-				'incompatibilities':[], # other modules.
-				#'get_metric':get_metric,
-				'requirements':[],#['CM'], # other modules, should be loaded first.
-				#'apply_to':apply_to
-				}

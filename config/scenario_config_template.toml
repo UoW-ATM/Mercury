@@ -1,4 +1,4 @@
-[scenario]
+[info]
 scenario_id = 0
 description = "Test"
 
@@ -56,6 +56,14 @@ description = "Test"
 	[data.schedules]
 	input_schedules = 'flight_schedule' # table name
 
+	[data.ac_performance]
+		[data.ac_performance.bada]
+			#CR
+		#BADA performances databases
+		db_bada3 = "bada3"
+		db_bada4 = "bada4_2"
+		input_aircraft_eq_badacomputed = 'ac_eq_badacomputed_static_old1409'
+
 	[data.flight_plans]
 		[data.flight_plans.crco]
 		#CRCO if computing FPs
@@ -90,10 +98,19 @@ description = "Test"
 
 [paras]
 	[paras.general]
-	first_datetime_shift = -360
+	first_datetime_shift = -1440#-360 #shift simulation time earlier so trains can arrive
+	buffers = 'D' # can be 'L', 'D', or 'H'
+	delay_level = 'D' # can be 'L', 'D', or 'H'
+	eaman_uptake = 'D' # can be 'L', 'D', or 'H'
+
+	[paras.regulations]
+	regulations_airport_day = 'None'
+	manual_airport_regulations = 'None'
+	stochastic_airport_regulations = 'R'
 
 	[paras.modules]
-	modules = []
+	modules_to_load = []
+	path = 'modules'
 
 	[paras.airlines]
 	non_ATFM_delay_loc =  0.0
@@ -138,17 +155,32 @@ description = "Test"
 	hotspot_time_before_resolution = 120.0
 	# Minimum size of a hotspot (inclusive) for which it will be solved
 	hostpot_minimum_resolution_size = 5
+	ATFM_regulation_mechanism = 'None'
 
 	[paras.flights]
 	default_holding_altitude = 200 #FL,
 	default_holding_ff = 20 #kg/min
 	use_trajectory_uncertainty = true
-	use_wind_uncertainty = true
+	wind_uncertainty = 0.5
+	wind_uncertainty_consistency = 0.6
 
 	[paras.flight_plans]
-	trajectories_version = 0
+	trajectories_version = 3
 	compute_fp_using_pool = 1 #0 - route_pool, 1 - fp_pool
 	compute_missing_flight_plans = false
 	number_trajectories_batch_computation = 'None' #A number of trajectories to compute them in batches e.g., 700
 	min_trajectory_compute = 'None'
 	max_trajectory_compute = 'None'
+	scenario_in_schedules = false
+
+	[paras.trains]
+	delay_prob = 1 #probability of train being delayed
+	delay_mean = 0 #mean delay value
+	delay_std = 5
+
+	[paras.ground_mobility]
+	delay_mean = 30 #mean delay value
+	delay_std = 0
+
+
+
