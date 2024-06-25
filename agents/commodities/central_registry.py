@@ -1,7 +1,6 @@
 import numpy as np
 import inspect
 
-
 class CentralRegistry:
 	"""
 	This class should be used to access flights' up to date information
@@ -14,6 +13,8 @@ class CentralRegistry:
 
 		self.registry = {}
 		self.flight_registery = {}
+		self.gtfs = {}
+		self.airport_stations = {}
 		self.flight_uids = {}
 
 	def get_obt(self, flight_uid):
@@ -95,6 +96,10 @@ class CentralRegistry:
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
 		return aoc.aoc_flights_info[flight_uid]['status']
 
+	def get_aoc(self, flight_uid):
+		aoc = self.airlines[self.registry[flight_uid]]['aoc']
+		return aoc
+
 	def get_tat(self, airport_uid, flight_uid):
 		"""
 		Returns a typical turnaround time based on the type of aircraft of flight_uid
@@ -165,11 +170,22 @@ class CentralRegistry:
 		"""
 		nm.cr = self
 
+	def register_pax_handler(self, pax_handler):
+
+		pax_handler.cr = self
+
+	def register_train_operator(self, train_operator):
+
+		train_operator.cr = self
 
 	def register_notifier(self, notifier):
 
 		notifier.cr = self
 		notifier.cr_functions = {x[0]:x[1] for x in inspect.getmembers(self, predicate=inspect.ismethod)}
+
+	def register_gtfs(self, gtfs):
+
+		self.gtfs = gtfs
 
 	def register_agent(self, agent):
 		"""
@@ -228,6 +244,9 @@ class CentralRegistry:
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
 		return aoc.aoc_flights_info[flight_uid][attribute]
 
+	def get_gtfs(self):
+
+		return self.gtfs
 	# def get_flight_live_attribute(self, flight_uid, attribute):
 	# 	aoc = self.airlines[self.registry[flight_uid]]['aoc']
 	# 	if attribute=='sobt':
@@ -240,3 +259,13 @@ class CentralRegistry:
 	# 		return aoc.aoc_flights_info[flight_uid]['FP'].get_ibt()
 	# 	else:
 	# 		self.get_flight_attribute(flight_uid, attribute)
+
+	def register_airport_station(self, airport_stations):
+		self.airport_stations = airport_stations
+
+	def get_station_airport(self, stop_id):
+
+		if stop_id in self.airport_stations:
+			return self.airport_stations[stop_id]
+		else:
+			return None

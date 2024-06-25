@@ -104,7 +104,15 @@ class Flight(Agent):
 			self.destination_airport_uid = self.destination_airport_uid
 		else:
 			self.destination_airport_uid = None
+		if hasattr(self, 'origin_airport_terminal_uid'):
+			self.origin_airport_terminal_uid = self.origin_airport_terminal_uid
+		else:
+			self.origin_airport_terminal_uid = None
 
+		if hasattr(self, 'destination_airport_terminal_uid'):
+			self.destination_airport_terminal_uid = self.destination_airport_terminal_uid
+		else:
+			self.destination_airport_terminal_uid = None
 		if not hasattr(self, 'international'):
 			self.international = False
 

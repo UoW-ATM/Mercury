@@ -4,7 +4,7 @@ import simpy
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import compress
-
+import datetime as dt
 from Mercury.core.delivery_system import Letter
 from Mercury.libs.other_tools import clone_pax, flight_str
 from Mercury.libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
@@ -81,6 +81,7 @@ class AirlineOperatingCentre(Agent):
 		self.alliance = None # Alliance for the arline. To be filled when registering airline into alliance
 
 		self.nm_uid = None  # NetworkManager Agent UID
+		self.pax_handler_uid = None #PaxHandler UID
 		self.cr = None  # Pointer to the Central Registry. To be filled when registering airline to CR
 
 		# Atributes passed on construction in init
@@ -418,6 +419,12 @@ class AirlineOperatingCentre(Agent):
 		Register NetworkManager
 		"""
 		self.nm_uid = nm.uid
+
+	def register_pax_handler(self, pax_handler):
+		"""
+		Register NetworkManager
+		"""
+		self.pax_handler_uid = pax_handler.uid
 	
 	def register_flight(self, flight):
 		"""
@@ -591,6 +598,12 @@ class AirlineOperatingCentre(Agent):
 
 		elif msg['type'] == 'request_hotspot_decision':
 			self.afp.wait_for_request_hotspot_decision(msg)
+
+		elif msg['type'] == 'request_time_at_gate_update_in_aoc':
+			self.aph.wait_for_time_at_gate_update_in_aoc_request(msg)
+
+		elif msg['type'] == 'reallocation_options_request':
+			self.pr.wait_for_reallocation_options_request(msg)
 
 		else:
 			hit = False
@@ -986,7 +999,7 @@ class AirlineFlightPlanner(Role):
 			possible_fp_pool = self.agent.fp_pool[(origin_airport_uid, destination_airport_uid,
 												   self.agent.dict_fp_ac_icao_ac_model.get(ac_icao, ac_icao))]
 		except:
-			print('COICOIN', list(self.agent.fp_pool.keys()))
+			print('COICOIN', list(self.agent.fp_pool.keys()), aoc_flight_info)
 			raise
 
 		fp_options = []
@@ -3327,7 +3340,7 @@ class PassengerReallocation(Role):
 		with keep_time(self.agent, key='check_push_back'):
 			paxs = self.compute_missed_connecting_pax(flight_uid)
 
-			mprint('do_reallocation triggered from check_push_back of', flight_str(flight_uid), 'for paxs:', paxs, 'at t=', self.agent.env.now)
+			print('do_reallocation triggered from check_push_back of', flight_str(flight_uid), 'for paxs:', paxs, 'at t=', self.agent.env.now)
 
 			self.do_reallocation(paxs)
 
@@ -3348,7 +3361,7 @@ class PassengerReallocation(Role):
 
 		return pax_needing_reallocation
 
-	def compute_reallocation_options(self, pax, from_time=None, from_airport=None):
+	def compute_reallocation_options(self, pax, from_time=None, from_airport=None, to_airport=None):
 		"""
 		Note: only direct flights and flights with one connection
 		are considered.
@@ -3361,6 +3374,8 @@ class PassengerReallocation(Role):
 			# List of outbound flights of the current airports departing after now.
 			# Added +1 in the now below to be sure that the pax does not select a flight which is departing
 			# now (like the one it missed).
+			if to_airport is None:
+				to_airport = pax.destination_uid
 			outbound_flights = [flight_uid for flight_uid, flight_info in self.agent.aoc_flights_info.items()
 										if (flight_info['origin_airport_uid']==from_airport)
 										and (self.agent.get_obt(flight_uid) > from_time + 1)
@@ -3368,7 +3383,7 @@ class PassengerReallocation(Role):
 
 			# First select direct itineraries
 			direct_itineraries = [((flight_uid, self.agent.uid), ) for flight_uid in outbound_flights
-											if (self.agent.aoc_flights_info[flight_uid]['destination_airport_uid']==pax.destination_uid)
+											if (self.agent.aoc_flights_info[flight_uid]['destination_airport_uid']==to_airport)
 											and self.agent.aoc_flights_info[flight_uid]['status']!='cancelled']
 
 			direct_itineraries = [it for it in direct_itineraries if self.agent.get_number_seats_itinerary(it)>0]
@@ -3385,7 +3400,7 @@ class PassengerReallocation(Role):
 				# Then search indirect itineraries
 				# List of inbound flights of the final destination departing after now.
 				inbound_flights = [flight_uid for flight_uid, flight_info in self.agent.aoc_flights_info.items()
-											if (flight_info['destination_airport_uid'] == pax.destination_uid)
+											if (flight_info['destination_airport_uid'] == to_airport)
 											and (self.agent.get_obt(flight_uid) >= from_time)
 											and flight_info['status'] != 'cancelled']
 
@@ -3429,7 +3444,7 @@ class PassengerReallocation(Role):
 
 				# Select direct flights
 				direct_itineraries = [((flight_uid, aoc2_uid), ) for flight_uid, aoc2_uid in outbound_flights
-												if (aoc2_uid != self.agent.uid) and (self.agent.get_destination(flight_uid) == pax.destination_uid)
+												if (aoc2_uid != self.agent.uid) and (self.agent.get_destination(flight_uid) == to_airport)
 												and self.agent.get_status(flight_uid) != 'cancelled']
 				direct_itineraries = [it for it in direct_itineraries if self.agent.get_number_seats_itinerary(it) > 0]
 
@@ -3446,7 +3461,7 @@ class PassengerReallocation(Role):
 					inbound_flights = [(flight_uid, aoc_uid2)
 											for aoc_uid2 in self.agent.get_airlines_in_alliance()
 											 for flight_uid in self.agent.get_flights(aoc_uid2)
-												if (self.agent.get_destination(flight_uid) == pax.destination_uid)
+												if (self.agent.get_destination(flight_uid) == to_airport)
 												and (self.agent.get_obt(flight_uid) >= from_time)
 												and self.agent.get_status(flight_uid) != 'cancelled']
 
@@ -3477,7 +3492,7 @@ class PassengerReallocation(Role):
 							# for flight_uid, flight_info in self.airlines[aoc2_uid]['aoc'].aoc_flights_info.items():
 							for flight_uid in self.agent.get_flights(aoc2_uid):
 								if (self.agent.get_origin(flight_uid) == from_airport)\
-									and (self.agent.get_destination(flight_uid) == pax.destination_uid)\
+									and (self.agent.get_destination(flight_uid) == to_airport)\
 									and (self.agent.get_obt(flight_uid) >= from_time)\
 									and self.agent.get_status(flight_uid) != 'cancelled':
 										if self.agent.get_number_seats_itinerary(((flight_uid, aoc2_uid), )) > 0:
@@ -3516,12 +3531,13 @@ class PassengerReallocation(Role):
 		for pax in paxs:
 			mprint('do_reallocation triggered for', pax)
 			reallocation_options = self.compute_reallocation_options(pax, from_time=self.agent.env.now, from_airport=pax.active_airport)
-			mprint('Options for reallocation for', pax, ':', reallocation_options['itineraries'])
+			print('Options for reallocation for', pax, ':', reallocation_options['itineraries'])
 			mprint('Capacities of pot. new itineraries for', pax, ':', reallocation_options['capacities'])
 			if len(reallocation_options['itineraries']) > 0:
+				print('successful_reallocation_options')
 				self.reallocate_pax(pax, reallocation_options)
 			else:
-				mprint(self.agent, 'could not find any other itineraries for', pax)
+				print(self.agent, 'could not find any other itineraries for', pax)
 				# Remove passengers from boarding lists of all remaining flights.
 				for flight_uid in pax.get_next_flights():
 					if flight_uid in self.agent.aoc_flights_info.keys():
@@ -3579,10 +3595,21 @@ class PassengerReallocation(Role):
 					everyone_allocated = True
 				else:
 					# Split passengers
+					print('splitting', pax, available_seats)
+					rail = pax.rail
+					split_pax = pax.split_pax
+					pax.rail = None
+					pax.split_pax=None
 					new_pax = clone_pax(pax, available_seats)
+					new_pax.rail = copy(rail)
+					pax.rail = rail
+					new_pax.split_pax=split_pax
+					pax.split_pax = split_pax
+					pax.split_pax.append(new_pax)
+
 					self.agent.new_paxs.append(new_pax)
 					pax.n_pax -= available_seats
-					mprint('Splitting pax. New clone of', pax, 'is', new_pax)
+					print('Splitting pax. New clone of', pax, 'is', new_pax)
 					mprint('Remaining pax:', pax.n_pax, 'in', pax)
 
 					pax_to_consider = new_pax
@@ -3618,7 +3645,10 @@ class PassengerReallocation(Role):
 		mprint(self.agent, 'is reallocating', pax, 'to itinerary', itinerary, 'at t=', self.agent.env.now)
 
 		# Reallocate pax to option
-		pax.time_at_gate = -10  # to make sure that they don't miss the new flight
+		if pax.status == 'at_airport':
+			pax.time_at_gate = -10  # to make sure that they don't miss the new flight
+		else:
+			pax.time_at_gate = 999999
 		pax.old_itineraries = list(pax.old_itineraries) + [copy(pax.itinerary)]
 
 		# Remove passengers from boarding listing of flights in old itinerary
@@ -3706,6 +3736,25 @@ class PassengerReallocation(Role):
 		# self.agent.env.process(self.do_reallocation(msg['body']['paxs']))
 		self.do_reallocation(msg['body']['paxs'])
 
+
+	def wait_for_reallocation_options_request(self, msg):
+		"""
+		provide reallocation options to PaxHandler
+		"""
+		print('reallocation options request received for paxs:',
+				msg['body']['pax'], 'from', msg['from'], 'at t=', self.agent.env.now)
+
+		options = self.compute_reallocation_options(msg['body']['pax'], from_time=msg['body']['from_time'], from_airport=msg['body']['from_airport'], to_airport=msg['body']['to_airport'])
+
+		self.return_reallocation_options(msg['body']['pax'], options, msg['from'])
+
+	def return_reallocation_options(self, pax, options, pax_handler_uid):
+		msg = Letter()
+		msg['to'] = pax_handler_uid
+		msg['from'] = self.agent.uid
+		msg['type'] = 'air_reallocation_options'
+		msg['body'] = {'options': options, 'pax': pax}
+		self.send(msg)
 
 class TurnaroundOperations(Role):
 	"""
@@ -3977,9 +4026,11 @@ class AirlinePaxHandler(Role):
 		"""
 		pax_to_remove = []
 		mprint('Pax to board for', flight_str(flight_uid), ':', self.agent.aoc_flights_info[flight_uid]['pax_to_board'])
+		print('time now:', self.agent.env.now)
 		for pax in self.agent.aoc_flights_info[flight_uid]['pax_to_board']:
 			if pax.in_transit_to == flight_uid and pax.time_at_gate <= self.agent.env.now:
 				# pax ready to board
+				print(pax, 'is ready to board:', flight_str(flight_uid), '; arrival time at gate:', pax.time_at_gate)
 				pax_to_remove.append(pax)
 				self.agent.aoc_flights_info[flight_uid]['pax_on_board'].append(pax)
 
@@ -3996,7 +4047,7 @@ class AirlinePaxHandler(Role):
 			else:
 				# pax not ready to board
 				# The passenger reallocation role picks them up and reallocate them
-				mprint(pax, 'is not ready to board:', flight_str(flight_uid), '; arrival time at gate:', pax.time_at_gate)
+				print(pax, 'is not ready to board:', flight_str(flight_uid), '; arrival time at gate:', pax.time_at_gate)
 				# pax.idx_current_flight -= 1
 				# pax.active_flight = pax.itinerary[pax.idx_current_flight]
 				# mprint(pax, 'active flight is reverted to previous one:', pax.active_flight)
@@ -4006,30 +4057,54 @@ class AirlinePaxHandler(Role):
 
 	def arrive_pax(self, pax, overnight=False):
 		"""
-		If overnight is True, the passenger need to be cared for for the night.
+		If overnight is True, the passenger need to be cared for the night.
 		WARNING: this method assumes that it is executed exactly when at the in-block
 		time of the last flight.
 		Note: paxs are paid first, then costs for airlines are computed.
 		"""
 		# Passengers arrived
 		pax.status = 'arrived'
-		mprint(pax, 'has finished their journey.')
+		print(pax, 'has finished their journey at', self.agent.env.now)
 
 		if len(pax.aobts) > 0:
 			pax.initial_aobt = pax.aobts[0]
-			# mprint(pax, 'has an initial_aobt:', pax.initial_aobt)
+			print(pax, 'has an initial_aobt:', pax.initial_aobt)
 		else:
 			pax.initial_aobt = None
-			mprint(pax, 'has not taken any flight.')
+			print(pax, 'has not taken any flight.')
 
 		if len(pax.aibts) > 0:
 			pax.final_aibt = pax.aibts[-1]
-			# mprint(pax, 'has an final_aibt:', pax.final_aibt)
+			print(pax, 'has a final_aibt:', pax.final_aibt)
 		else:
 			pax.final_aibt = None
-			# mprint(pax, 'has not taken any flight (bis).')
+			print(pax, 'has not taken any flight (bis).')
 
 		it_so_far = pax.get_itinerary_so_far()
+
+		if len(pax.rail_aobts) > 0:
+			if pax.initial_aobt is not None:
+				if pax.initial_aobt > pax.rail_aobts[0]:
+					pax.initial_aobt = pax.rail_aobts[0]
+			else:
+				pax.initial_aobt = pax.rail_aobts[0]
+		else:
+			if pax.initial_aobt is None:
+				# Pax has taken no flight and no train.
+				pax.initial_aobt = self.agent.env.now
+
+		if len(pax.rail_aibts) > 0:
+			if pax.final_aibt is not None:
+				if pax.final_aibt < pax.rail_aibts[-1]:
+					pax.final_aibt = pax.rail_aibts[-1]
+					print(pax, 'has the final aibt from rail: {}'.format(pax.final_aibt))
+			else:
+				pax.final_aibt = pax.rail_aibts[-1]
+				print(pax, 'has taken only flights and has a final aibt from rail: {}'.format(pax.final_aibt))
+		else:
+			if pax.final_aibt is None:
+				# Pax has taken no flight and no train.
+				pax.final_aibt = self.agent.env.now
 
 		if overnight:
 			tot_arrival_delay = 10000
@@ -4047,7 +4122,7 @@ class AirlinePaxHandler(Role):
 
 		pax.final_destination_reached = len(it_so_far) > 0 and self.agent.get_destination(it_so_far[-1]) == pax.destination_airport
 
-		# Soft cost is payed with compensation, during the blame
+		# Soft cost is paid with compensation, during the blame
 		soft_cost = pax.soft_cost_func(min(300., tot_arrival_delay))
 
 		pax.soft_cost = soft_cost
@@ -4112,9 +4187,12 @@ class AirlinePaxHandler(Role):
 					try:
 						assert idx >= 0
 					except:
-						aprint(pax, 'DEBUG', original_itinerary, pax.itinerary, pax.old_itineraries)
-						aprint(pax, 'DEBUG')
-						raise
+						if pax.rail['rail_pre'] is not None:
+							pass #first flight is after train
+						else:
+							aprint(pax, 'DEBUG', original_itinerary, pax.itinerary, pax.old_itineraries)
+							aprint(pax, 'DEBUG')
+							raise
 					# Rmq: idx should not be -1, because it would mean that they missed the first
 					# flight, which is only possible if it has been cancelled. In the latter case,
 					# the cancelled flight has already been blamed.
@@ -4240,6 +4318,16 @@ class AirlinePaxHandler(Role):
 			mprint(self.agent, 'is sending pax connection handling request for paxs:', paxs2)
 			self.send(new_msg)
 
+	def request_pax_rail_connection_handling(self, pax):
+		print('pax_handler_uid is', self.agent.pax_handler_uid)
+
+		new_msg = Letter()
+		new_msg['type'] = 'pax_rail_connection_handling'
+		new_msg['to'] = self.agent.pax_handler_uid
+		new_msg['body'] = {'pax': pax, 'airport_terminal_uid': self.agent.aoc_airports_info[pax.active_airport]['airport_terminal_uid'], 'airport_icao': self.agent.aoc_airports_info[pax.active_airport]['ICAO']}
+		mprint(self.agent, 'is sending pax rail connection handling request for pax:', pax)
+		self.send(new_msg)
+
 	def handle_pax_connection(self, paxs):
 		mprint(self.agent, 'handles the paxs:', paxs)
 
@@ -4256,7 +4344,9 @@ class AirlinePaxHandler(Role):
 			int2 = self.agent.aoc_flights_info[next_flight]['international']
 			pax.previous_flight_international = int2
 
-			self.request_connecting_times(pax, (int1, int2))
+			if pax.idx_last_flight > -1:
+				#only for air-air connecting pax. rail-air pax will have idx_last_flight==-1
+				self.request_connecting_times(pax, (int1, int2))
 
 			# Check next flight has already departed or is cancelled.
 			if self.agent.aoc_flights_info[next_flight]['push_back_event'].processed \
@@ -4323,7 +4413,7 @@ class AirlinePaxHandler(Role):
 
 	def wait_for_process_arrival_pax_request(self, msg):
 		flight_uid = msg['body']['flight_uid']
-		mprint(self.agent, 'is considering arrival pax request for flight', flight_str(flight_uid))
+		print(self.agent, 'is considering arrival pax request for flight', flight_str(flight_uid))
 		connecting_pax_other_company = []
 		own_connecting_pax = []
 
@@ -4343,7 +4433,13 @@ class AirlinePaxHandler(Role):
 				else:
 					# Find the company operating the next flight
 					connecting_pax_other_company.append(pax)
+			elif pax.get_rail()['rail_post'] is not None:
+				print(pax, 'pax has rail_post', pax.get_rail()['rail_post'],'at active_airport',pax.active_airport)
+				self.request_pax_rail_connection_handling(pax)
+				#self.arrive_pax(pax)
 			else:
+				print(pax, 'arriving at', self.agent.reference_dt+dt.timedelta(minutes=self.agent.env.now))
+
 				self.arrive_pax(pax)
 
 		mprint(self.agent, 'handles his own connecting paxs', own_connecting_pax, 'from', flight_str(flight_uid))
@@ -4353,3 +4449,13 @@ class AirlinePaxHandler(Role):
 		mprint(self.agent, 'will request connection handling for the paxs', connecting_pax_other_company, 'from', flight_str(flight_uid))
 		if len(connecting_pax_other_company) > 0:
 			self.request_pax_connection_handling(connecting_pax_other_company)
+
+	def wait_for_time_at_gate_update_in_aoc_request(self, msg):
+		flight_uid = msg['body']['flight_uid']
+		time_at_gate = msg['body']['time_at_gate']
+		pax_id = msg['body']['pax_id']
+		print(self.agent, 'is updating time_at_gate for pax', pax_id, 'going to flight', flight_str(flight_uid))
+		print([pax.id for pax in self.agent.aoc_flights_info[flight_uid]['pax_to_board']],self.agent.aoc_flights_info[flight_uid])
+		idx = [pax.id for pax in self.agent.aoc_flights_info[flight_uid]['pax_to_board']].index(pax_id)
+		self.agent.aoc_flights_info[flight_uid]['pax_to_board'][idx].time_at_gate = time_at_gate
+		self.agent.aoc_flights_info[flight_uid]['pax_to_board'][idx].in_transit_to = self.agent.aoc_flights_info[flight_uid]['pax_to_board'][idx].get_next_flight()

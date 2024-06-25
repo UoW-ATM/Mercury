@@ -22,8 +22,8 @@ from Mercury.libs.db_access_functions import (read_fp_pool, read_dict_fp_ac_icao
 										read_airports_modif_data, read_turnaround_data, read_eamans_data, read_compensation_data, \
 										read_doc_data, read_non_pax_cost_data, read_non_pax_cost_fit_data, read_nonpax_cost_curfews, \
 										read_estimated_avg_costs_curfews, read_airlines_data, read_extra_cruise_if_dci, \
-										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports
-										)
+										read_flight_uncertainty, read_soft_cost_date, read_itineraries_data, read_ATFM_at_airports, \
+										read_gtfs_data)
 from Mercury.libs.db_ac_performance_provider import get_data_access_performance
 
 data_to_load = ['dict_ac_model_perf',
@@ -120,7 +120,6 @@ class ScenarioLoader:
 
 		# This dictionary is for all other parameters
 		self.paras = paras_scenario
-
 		self.loaded_data = {}
 
 		global mprint
@@ -417,6 +416,14 @@ class ScenarioLoader:
 							oneline=True, print_function=mprint):
 				self.compute_list_flight_can_propagate_to_curfew()
 				# mprint("Number of flights that can propagate to curfew:",len(self.l_ids_propagate_to_curfew))
+
+			with clock_time(message_before='Getting GTFS data...',
+							oneline=True, print_function=mprint):
+				self.load_gtfs_data(connection=connection)
+
+			with clock_time(message_before='Getting ground mobility data...',
+							oneline=True, print_function=mprint):
+				self.load_ground_mobility_connection_times(connection=connection)
 
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
@@ -740,6 +747,22 @@ class ScenarioLoader:
 												table=self.paras_paths['input_itinerary'],
 												flights=self.flight_list,
 												scenario=self.scenario)
+
+	def load_gtfs_data(self, connection):
+		print(self.df_pax_data)
+		if 'rail_pre' in self.df_pax_data.columns and 'rail_post' in self.df_pax_data.columns:
+
+			filenames = pd.unique(self.df_pax_data[['gtfs_pre', 'gtfs_post']].values.ravel('K')).tolist()
+
+			filenames = [x for x in filenames if not pd.isna(x)]
+			self.df_gtfs,self.df_airport_stations = read_gtfs_data(connection,
+													directory=self.paras_paths['input_gtfs'],
+													filenames=filenames,
+													scenario=self.scenario)
+
+	def load_ground_mobility_connection_times(self, connection):
+		self.df_ground_mobility_connection_times = read_data(connection=connection,
+												query="""SELECT * FROM {}""".format(self.paras_paths['input_ground_mobility_connection_times']), scenario=self.scenario)
 
 	def load_atfm_at_airports(self, connection=None):
 		# TODO: rename things here, it's quite confusing...

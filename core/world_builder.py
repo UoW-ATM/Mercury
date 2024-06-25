@@ -24,6 +24,7 @@ from Mercury.libs.uow_tool_belt.general_tools import scale_and_s_from_quantile_s
 from Mercury.libs.uow_tool_belt.general_tools import scale_and_s_from_mean_sigma_lognorm, build_col_print_func
 from Mercury.libs.uow_tool_belt.connection_tools import write_data
 from Mercury.libs.performance_tools.unit_conversions import *
+from Mercury.libs.other_tools import gtfs_time_to_datetime, get_stop_times
 
 from Mercury.agents.airline_operating_centre import AirlineOperatingCentre
 from Mercury.agents.airport_operating_centre import AirportOperatingCentre
@@ -32,6 +33,10 @@ from Mercury.agents.eaman import EAMAN
 from Mercury.agents.aman import AMAN
 from Mercury.agents.dman import DMAN
 from Mercury.agents.flight import Flight
+from Mercury.agents.train import Train
+from Mercury.agents.train_operator import TrainOperator
+from Mercury.agents.pax_handler import PaxHandler
+from Mercury.agents.ground_mobility import GroundMobility
 from Mercury.agents.network_manager import NetworkManager
 from Mercury.agents.radar import Radar
 from Mercury.agents.commodities.central_registry import CentralRegistry
@@ -271,6 +276,10 @@ class World:
 
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
+		with clock_time(message_before='Creating ground mobility...',
+						oneline=True, print_function=mmprint):
+			self.create_ground_mobility_agent()
+
 		with clock_time(message_before='Creating unique agents...',
 						oneline=True, print_function=mmprint):
 			self.create_unique_agents()
@@ -295,7 +304,7 @@ class World:
 		with clock_time(message_before='Creating EAMANs...',
 						oneline=True, print_function=mmprint):
 			self.create_AMANs()  # needs to be after the creation of airports
-		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes 
+		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
 		with clock_time(message_before='Creating DMANs...',
 						oneline=True, print_function=mmprint):
@@ -317,6 +326,16 @@ class World:
 			self.create_flights()
 		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
+		with clock_time(message_before='Creating Train Operators...',
+						oneline=True, print_function=mmprint):
+			self.create_train_opeators()
+		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
+
+		with clock_time(message_before='Creating Trains...',
+						oneline=True, print_function=mmprint):
+			self.create_trains()
+		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
+
 		with clock_time(message_before='Creating Pax...',
 						oneline=True, print_function=mmprint):
 			self.create_pax()
@@ -326,10 +345,10 @@ class World:
 			with clock_time(message_before='Creating Notifier...',
 							oneline=True, print_function=mmprint):
 				self.create_Notifiers()
+		mmprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 		# self.check_consistency()
 
 		# Put all agents in a list for easy access
-
 		self.agents = list(self.airports.values())
 		self.agents += list(self.airport_terminals.values())
 		self.agents += list(self.eamans.values())
@@ -368,7 +387,6 @@ class World:
 		self.env = simpy.Environment()
 
 		trace(self.env, self.monitor_f) # to trace environment
-
 		self.postman = Postman(count_messages=self.paras['debug__count_messages'],
 								env=self.env,
 								hmi=self.paras['hmi__hmi'],
@@ -504,6 +522,35 @@ class World:
 					print('The origin airport of', f2, 'is:', f2.origin_airport_uid)
 					raise
 
+	def create_ground_mobility_agent(self):
+		self.ground_mobility = GroundMobility(self.postman,
+										env=self.env,
+										uid=self.uid,
+										mcolor=self.paras['print_colors__aoc'],
+										acolor=self.paras['print_colors__alert'],
+										verbose=self.paras['computation__verbose'],
+										log_file=self.log_file_it,
+										rs=self.rs,
+										module_agent_modif=self.module_agent_modif.get('GroundMobility', {}),
+										delay_dist = norm(loc=self.sc.paras['ground_mobility__delay_mean'], scale=self.sc.paras['ground_mobility__delay_std']),
+										reference_dt=self.sc.reference_dt,
+										)
+		#initiate ground_mobility_connection_times dists
+		#print(self.sc.df_ground_mobility_connection_times.dtypes)
+		for i,row in self.sc.df_ground_mobility_connection_times.iterrows():
+			dist = norm(loc=row['mean'], scale=row['std'])
+			dist_add = norm(loc=0, scale=row['estimation_scale'])
+			self.ground_mobility.set_connection(origin=row['origin'], destination=row['destination'], dist=dist, dist_add=dist_add)
+			if row['origin'].isnumeric():
+				self.ground_mobility.set_connection(origin=float(row['origin']), destination=row['destination'], dist=dist, dist_add=dist_add)
+			if row['destination'].isnumeric():
+				self.ground_mobility.set_connection(origin=row['origin'], destination=float(row['destination']), dist=dist, dist_add=dist_add)
+			print('ground_mobility', row['origin'], row['destination'])
+
+
+
+		self.uid += 1
+
 	def create_unique_agents(self):
 		self.nm = NetworkManager(self.postman,
 								env=self.env,
@@ -538,6 +585,19 @@ class World:
 							module_agent_modif=self.module_agent_modif.get('Radar', {}))
 		self.uid += 1
 
+		self.pax_handler = PaxHandler(self.postman,
+										env=self.env,
+										uid=self.uid,
+										mcolor=self.paras['print_colors__aoc'],
+										acolor=self.paras['print_colors__alert'],
+										verbose=self.paras['computation__verbose'],
+										log_file=self.log_file_it,
+										rs=self.rs,
+										module_agent_modif=self.module_agent_modif.get('PaxHandler', {}),
+										reference_dt=self.sc.reference_dt,
+										ground_mobility_uid=self.ground_mobility.uid,
+										)
+		self.uid += 1
 		self.nm.register_radar(radar=self.radar)
 
 		# This is not an agent
@@ -545,6 +605,8 @@ class World:
 
 		# ONLY FOR TESTING
 		self.cr.register_network_manager(self.nm)
+		self.cr.register_pax_handler(self.pax_handler)
+
 
 	def define_regulations_airport(self, dregs_airports, regulations_day):
 		self.regulations_day_dt = (dt.datetime.strptime(regulations_day[1:-1], '%Y-%m-%d'))  # [1:-1] to remove the ' '
@@ -629,7 +691,7 @@ class World:
 										  verbose=self.paras['computation__verbose'],
 										  log_file=self.log_file_it,  # TODO: remove
 										  rs=self.rs,
-										  module_agent_modif=self.module_agent_modif.get('AirportTerminal', {}))
+										  module_agent_modif=self.module_agent_modif.get('airport_terminal', {}))
 
 			self.uid += 1
 
@@ -647,6 +709,26 @@ class World:
 				dists['flex'][k] = lognorm(loc=0., scale=scale, s=s)
 
 			airport_terminal.set_connecting_time_dist(dists, mct_q=mct_q)
+
+			# Gate 2 Kerb time
+			dists = {'economy': {}, 'flex': {}}
+			dist = norm(loc=row['gate2kerb_mean'], scale=row['gate2kerb_std'])
+			dists['economy'] = dist
+			dists['flex'] = dist
+			airport_terminal.set_gate2kerb_time_dists(dists)
+
+			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
+			airport_terminal.set_gate2kerb_add_dists(dists)
+
+			#Kerb 2 Gate time
+			dists = {'economy': {}, 'flex': {}}
+			dist = norm(loc=row['kerb2gate_mean'], scale=row['kerb2gate_std'])
+			dists['economy'] = dist
+			dists['flex'] = dist
+			airport_terminal.set_kerb2gate_time_dists(dists)
+
+			dists = norm(loc=0., scale=self.sc.paras['airports__taxi_estimation_scale'])
+			airport_terminal.set_kerb2gate_add_dists(dists)
 
 			self.airport_terminals_per_icao[row['icao_id']] = airport_terminal
 
@@ -753,6 +835,14 @@ class World:
 			self.cr.register_mcts(airport_apoc.uid, self.airport_terminals_per_icao[airport_apoc.icao].mcts)
 
 		self.airports = {airport.uid: airport for airport in self.airports_per_icao.values()}
+
+		#pairing of airport and gtfs stop_id
+		#TODO airport_stations should be read from file
+		airport_stations = {x['stop_id']:x['icao_id'] for x in self.sc.df_airport_stations.to_dict('records')}
+		#airport_stations = {62102:'EDDB',318333:'EDDB'}
+		self.cr.register_airport_station(airport_stations)
+
+
 
 	def create_AMANs(self):
 		"""
@@ -904,6 +994,7 @@ class World:
 			self.aocs_uid[aoc.uid] = aoc
 
 			aoc.register_nm(self.nm)
+			aoc.register_pax_handler(self.pax_handler)
 			self.nm.register_airline(aoc)
 
 			# Duty of care
@@ -1002,6 +1093,8 @@ class World:
 							uid=self.uid,
 							origin_airport_uid=self.airports_per_icao[row['origin']].uid,
 							destination_airport_uid=self.airports_per_icao[row['destination']].uid,
+							origin_airport_terminal_uid=self.airport_terminals_per_icao[row['origin']].uid,
+							destination_airport_terminal_uid=self.airport_terminals_per_icao[row['destination']].uid,
 							nm_uid=self.nm.uid,
 							ac_uid=aircraft.uid,
 							aircraft=aircraft,
@@ -1039,6 +1132,151 @@ class World:
 		for aoc in self.aocs.values():
 			self.cr.register_airline(aoc)
 
+
+	def create_train_opeators(self):
+		self.train_operator = TrainOperator(self.postman,
+										env=self.env,
+										uid=self.uid,
+										mcolor=self.paras['print_colors__aoc'],
+										acolor=self.paras['print_colors__alert'],
+										verbose=self.paras['computation__verbose'],
+										log_file=self.log_file_it,
+										rs=self.rs,
+										module_agent_modif=self.module_agent_modif.get('TrainOperator', {}),
+										reference_dt=self.sc.reference_dt,
+										pax_handler_uid=self.pax_handler.uid,
+										postman_ref=self.postman,
+										)
+		self.uid += 1
+
+		self.cr.register_train_operator(self.train_operator)
+		self.cr.register_gtfs(self.sc.df_gtfs)
+
+
+
+	def create_trains(self):
+		print('creating trains')
+		self.trains = {}  # keys are GTFS trip ids
+		self.trains_uid = {}  # keys are uids.
+
+		pax_itineraries = self.sc.df_pax_data
+		#pax_itineraries=pd.read_csv('/home/michal/Documents/westminster/multimodx/input/scenario=9/case_studies/pax_mmx.csv',dtype={'rail_post':str,'rail_pre':str})
+		df_schedules = self.sc.df_schedules
+		#df_schedules = pd.read_parquet('/home/michal/Documents/westminster/multimodx/input/scenario=9/data/schedules/flight_schedule_old1409.parquet')
+
+		trips = {}
+		trips_gtfs = {}
+
+		#print('xxxx',pax_itineraries.dtypes)
+
+		for i, row in pax_itineraries.iterrows():
+
+			#rail_pre
+			if (row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre']):
+				continue
+			schedule = []
+			print(row['rail_pre'])
+
+			#find out sobt of the first leg
+			sobt = df_schedules[df_schedules['nid']==row['leg1']]['sobt'].iloc[0]
+			print(sobt)
+
+			#origin1
+			stop = get_stop_times(stop_id=row['origin1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			#destination1
+			stop = get_stop_times(stop_id=row['destination1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			if row['rail_pre'] not in trips:
+				trips[row['rail_pre']] = schedule
+				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
+			else:
+				print('schedule',trips[row['rail_pre']],row['rail_pre'],trips)
+				trips[row['rail_pre']] = trips[row['rail_pre']] + schedule
+				#sort
+				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
+				#remove duplicate stops
+				trips[row['rail_pre']] = [dict(t) for t in {tuple(d.items()) for d in trips[row['rail_pre']]}]
+				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
+			trips_gtfs[row['rail_pre']] = row['gtfs_pre']
+
+		for i, row in pax_itineraries.iterrows():
+			#rail_post
+			if (row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post']):
+				continue
+			schedule = []
+			print(row['rail_post'])
+
+			#find out sibt of the last leg
+			if 'leg4' in row:
+				legs = ['leg1','leg2','leg3','leg4']
+			else:
+				legs = ['leg1','leg2','leg3']
+			for leg in legs:
+				if (row[leg] is None) or (row[leg] == '') or pd.isnull(row[leg]):
+					continue
+				sibt = df_schedules[df_schedules['nid']==row[leg]]['sibt'].iloc[0]
+			print('sibt',sibt)
+			#origin2
+			stop = get_stop_times(stop_id=row['origin2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			#destination2
+
+			stop = get_stop_times(stop_id=row['destination2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
+			print(stop)
+			schedule.append(stop)
+
+			if row['rail_post'] not in trips:
+				trips[row['rail_post']] = schedule
+				trips[row['rail_post']].sort(key= lambda x: x['arrival_time'])
+			else:
+				#pax can take same train with different origin/destination
+				#combine schedules
+				trips[row['rail_post']] = trips[row['rail_post']] + schedule
+				#sort
+				trips[row['rail_post']].sort(key= lambda x: x['arrival_time'])
+				#remove duplicate stops
+				trips[row['rail_post']] = [dict(t) for t in {tuple(d.items()) for d in trips[row['rail_post']]}]
+				trips[row['rail_post']].sort(key= lambda x: x['arrival_time'])
+
+			trips_gtfs[row['rail_post']] = row['gtfs_post']
+
+		print('trips',trips)
+		for trip_id in trips:
+			print(trips[trip_id])
+			train = Train(self.postman,
+							first_arrival_time=(trips[trip_id][0]['arrival_time']-self.sc.reference_dt).total_seconds()/60.,
+							env=self.env,
+							trip_id=trip_id,
+							train_uid=self.uid,
+							uid=self.uid,
+							schedule=trips[trip_id],
+							times={x['stop_id']:{'arrival_time':(x['arrival_time']-self.sc.reference_dt).total_seconds()/60., 'departure_time':(x['departure_time']-self.sc.reference_dt).total_seconds()/60.} for x in trips[trip_id]},
+							delay_dist = norm(loc=self.sc.paras['trains__delay_mean'], scale=self.sc.paras['trains__delay_std']),
+							delay_prob = self.sc.paras['trains__delay_prob'],
+
+							mcolor=self.paras['print_colors__flight'],
+							acolor=self.paras['print_colors__alert'],
+							verbose=self.paras['computation__verbose'],
+							log_file=self.log_file_it,
+							train_operator_uid = self.train_operator.uid,
+							gtfs_name = trips_gtfs[trip_id],
+							rs=self.rs,
+
+							module_agent_modif=self.module_agent_modif.get('Train', {}),)
+
+			self.uid += 1
+			self.trains[trip_id] = train
+			self.trains_uid[train.uid] = train
+
+			self.train_operator.register_train(train)
+
 	def create_pax(self):
 		self.paxs = []
 		for i, row in self.sc.df_pax_data.iterrows():
@@ -1050,20 +1288,65 @@ class World:
 
 			airlines = set([self.aocs[f.aoc_info['ao_icao']] for f in it])
 
+			if not ((row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre'])):
+				rail_pre = self.trains[row['rail_pre']]
+				origin1 = row['origin1']
+				destination1 = row['destination1']
+			else:
+				rail_pre = None
+				origin1 = None
+				destination1 = None
+			if not ((row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post'])):
+				rail_post = self.trains[row['rail_post']]
+				origin2 = row['origin2']
+				destination2 = row['destination2']
+			else:
+				rail_post = None
+				origin2 = None
+				destination2 = None
+
 			ticket_type = str(row['ticket_type'])
 			pax = PaxItineraryGroup(n_pax=int(row['pax']),
 									pax_type=ticket_type,
-									idd=i,
+									idd=row['nid_x'],
 									origin_uid=it[0].origin_airport_uid,
 									destination_uid=it[-1].destination_airport_uid,
+									origin_airport_terminal_uid=it[0].origin_airport_terminal_uid,
+									destination_airport_terminal_uid=it[-1].destination_airport_terminal_uid,
+									origin_airport_icao=self.airports[it[0].origin_airport_uid].icao,
+									destination_airport_icao=self.airports[it[-1].destination_airport_uid].icao,
 									fare=row['avg_fare'],
 									dic_soft_cost=self.sc.dic_soft_cost,
-									rs=self.rs)
+									rs=self.rs,
+									rail={'rail_pre': rail_pre, 'rail_post': rail_post},
+									origin1=origin1,
+									destination1=destination1,
+									origin2=origin2,
+									destination2=destination2)
 
 			pax.give_itinerary([f.uid for f in it])
 			for airline in airlines:
 				airline.register_pax_itinerary_group(pax)
 			self.paxs.append(pax)
+
+			# Register multimodal pax in PaxHandler
+			if not ((row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre'])):
+
+				# print('register_pax_group_train2flight', row['rail_pre'], pax, pax.itinerary)
+				# if pax.id == 15326:
+				# 	print('WALLAH', pax.origin1, pax.destination1, pax.origin_airport_icao)
+
+				self.train_operator.register_pax_itinerary_group(pax,rail_pre.train_uid,origin1,destination1)
+				# Register train2flight
+				self.pax_handler.register_pax_group_train2flight(pax)
+				pax.status = 'at_platform'
+
+			if not ((row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post'])):
+				print('register_pax_group_flight2train', row['rail_post'], pax, pax.itinerary)
+				self.pax_handler.register_pax_group_flight2train(pax)
+				self.train_operator.register_pax_itinerary_group(pax,rail_post.train_uid,origin2,destination2)
+
+			# Register multimodal pax in train_operator
 
 	def create_Notifiers(self):
 		self.notifiers = {}
@@ -1627,6 +1910,24 @@ class World:
 		to_get['tot_arrival_delay'] = 'tot_arrival_delay'
 		to_get['connecting_pax'] = 'connecting_pax'
 		to_get['final_destination_reached'] = 'final_destination_reached'
+		to_get['multimodal'] = 'multimodal'
+		to_get['missed_air2rail'] = 'missed_air2rail'
+		to_get['ground_mobility_time'] = 'ground_mobility_time'
+		to_get['gate2kerb_time'] = 'gate2kerb_time'
+		to_get['kerb2gate_time'] = 'kerb2gate_time'
+		to_get['rail_pre_sobt'] = 'rail_pre_sobt'
+		to_get['rail_pre_sibt'] = 'rail_pre_sibt'
+		to_get['rail_pre_aobt'] = 'rail_pre_aobt'
+		to_get['rail_pre_aibt'] = 'rail_pre_aibt'
+		to_get['rail_pre_delay'] = 'rail_pre_delay'
+		to_get['rail_post_sobt'] = 'rail_post_sobt'
+		to_get['rail_post_sibt'] = 'rail_post_sibt'
+		to_get['rail_post_aobt'] = 'rail_post_aobt'
+		to_get['rail_post_aibt'] = 'rail_post_aibt'
+		to_get['rail_post_delay'] = 'rail_post_delay'
+		to_get['tot_journey_time'] = 'tot_journey_time'
+		to_get['tot_sch_journey_time'] = 'tot_sch_journey_time'
+
 
 		# all_paxs = self.paxs + [new_pax for pax in self.paxs for new_pax in pax.clones]
 		all_paxs = self.paxs + [new_pax for aoc in self.aocs.values() for new_pax in aoc.new_paxs]
@@ -1733,6 +2034,108 @@ class World:
 					pouet[k][j] = getattr(pax, k)
 					icao = self.airports[pax.destination_uid].icao
 					pouet['destination'][j] = icao
+				elif k == 'missed_air2rail':
+					missed_air2rail = False
+					if 'rail_post' in pax.old_multimodal_itineraries:
+						missed_air2rail = True
+
+					pouet['missed_air2rail'][j] = missed_air2rail
+				elif k == 'missed_rail2air':
+					missed_rail2air = False
+					if pax.rail['rail_pre'] is not None:
+						if pouet['leg1'][j] != pouet['leg1_sch'][j]:
+							missed_rail2air = True
+
+					pouet['missed_rail2air'][j] = missed_rail2air
+				elif k == 'rail_pre_sobt':
+					if len(pax.rail_sobts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_sobts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_sibt':
+					if len(pax.rail_sibts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_sibts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_aobt' :
+					if len(pax.rail_aobts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_aobts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_aibt':
+					if len(pax.rail_aibts) > 0 and pax.rail['rail_pre'] is not None:
+						time = pax.rail_aibts[0]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_pre_delay':
+					if pouet['rail_pre_aibt'][j] is not None and pouet['rail_pre_sibt'][j] is not None:
+						time = (pouet['rail_pre_aibt'][j] - pouet['rail_pre_sibt'][j]).total_seconds()/60.
+					else:
+						time = None
+
+					pouet[k][j] = time
+				elif k == 'rail_post_sobt':
+					if len(pax.rail_sobts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail['rail_post'].times[pax.origin2]['departure_time']
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_sibt':
+					if len(pax.rail_sibts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail['rail_post'].times[pax.destination2]['arrival_time']
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_aobt':
+					if len(pax.rail_aobts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail_aobts[-1]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_aibt':
+					if len(pax.rail_aibts) > 0 and pax.rail['rail_post'] is not None:
+						time = pax.rail_aibts[-1]
+					else:
+						time = None
+					if time is not None:
+						time = self.sc.reference_dt + dt.timedelta(minutes=time)
+					pouet[k][j] = time
+				elif k == 'rail_post_delay':
+					if pouet['rail_post_aibt'][j] is not None and pouet['rail_post_sibt'][j] is not None:
+						time = (pouet['rail_post_aibt'][j] - pouet['rail_post_sibt'][j]).total_seconds()/60.
+					else:
+						time = None
+
+					pouet[k][j] = time
+				elif k == 'tot_journey_time' :
+					try:
+						time = pax.final_aibt - pax.initial_aobt
+					except:
+						print('PAX ID:', pax.id)
+						raise
+					pouet[k][j] = time
+				elif k == 'tot_sch_journey_time' :
+
+					time = pax.final_sibt - pax.initial_sobt
+					pouet[k][j] = time
 				else:
 					pouet[k][j] = getattr(pax, k)
 

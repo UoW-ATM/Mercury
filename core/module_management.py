@@ -122,6 +122,7 @@ def load_mercury_module(path_module=None, module_name=None):
 				# In this case, this is a modification of roles.
 				# Iterate through the modifications for this role
 				for modif_name_role, modif_role in modif_agent.items():
+					print('COINCOIN', modif_name_role, modif_role)
 					if modif_name_role == 'new_methods':
 						# In this case, this is a list of new methods
 						module_specs['agent_modif'][agent][modif_name_agent][modif_name_role] = \

@@ -29,7 +29,7 @@ class Notifier(Agent):
 		self.update_interval = 1
 		self.min_time = self.min_time
 		self.max_time = self.max_time
-		self.port = 5556
+
 		self.env.process(self.spt.track_simulation())
 		self.reference_dt = self.reference_dt
 

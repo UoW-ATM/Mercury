@@ -145,7 +145,8 @@ def read_airports_data(connection, airport_table="airport_info_static", taxi_in_
 			IF(t_i.std_deviation is not NULL, t_i.std_deviation, a_s.std_taxi_in) as std_taxi_in, \
 			a_s.MCT_standard, a_s.MCT_domestic, a_s.MCT_international, \
 			a_s.ECAC, a_s.atfm_area, a_s.nas, \
-			a_s.declared_capacity, a_s.size \
+			a_s.declared_capacity, a_s.size, a_s.kerb2gate_mean, \
+			a_s.kerb2gate_std, a_s.gate2kerb_mean, a_s.gate2kerb_std \
 			FROM {} a_s \
 			LEFT JOIN {} t_i ON t_i.icao_id=a_s.icao_id \
 			LEFT JOIN {} t_o on t_o.icao_id=a_s.icao_id".format(airport_table, taxi_in_table, taxi_out_table)
@@ -337,6 +338,17 @@ def read_itineraries_data(connection, table='pax_itineraries', flights=None, sce
 
 	return df
 
+#Multimodal GTFS
+def read_gtfs_data(connection, directory='gtfs', filenames=[], scenario=None):
+	print(directory, filenames)
+	#filenames = ['gtfs_de.zip','gtfs_es.zip']
+
+	df = read_data(connection=connection, fmt='gtfs.zip', path=directory, filenames=filenames, scenario=scenario)
+	#read airport_stations (coupling between stop_id and icao_id)
+	sql = """SELECT * FROM {}""".format(directory / 'airport_stations')
+	df2 = read_data(connection=connection, query=sql, scenario=scenario)
+
+	return df,df2
 
 #Trajectories
 def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_pool_table',
@@ -370,14 +382,12 @@ def read_fp_pool(connection, scenario, trajectories_version, fp_pool_table='fp_p
 	if flight_subset_table is None:
 		sql += "FROM {} fp \
 						JOIN {} fpp on fpp.fp_pool_id=fp.id \
-						JOIN {} tp on tp.id = fp.trajectory_pool_id \
 						JOIN (select distinct fs.origin, fs.destination \
 						FROM {} fs \
 						) as origin_dest on origin_dest.origin=fp.icao_orig and origin_dest.destination=fp.icao_dest \
-						WHERE tp.version = {} \
+						WHERE fp.trajectory_version = {} \
 						ORDER BY fp.id, fpp.sequence;".format(fp_pool_table,
 															  fp_pool_point_table,
-															  trajectory_pool_table,
 															  flight_schedule_table,
 															  trajectories_version)
 	else:

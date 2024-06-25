@@ -1,11 +1,12 @@
 import zmq
-# import threading
+import threading
 import io
-import json
-import pika
 import avro.schema
 import avro.io
+import json
+import pika
 import uuid
+
 from Mercury.libs.uow_tool_belt.general_tools import TwoWayDict
 
 msg_schema = '''
@@ -68,8 +69,6 @@ class Postman:
 			self._create_socket()
 			print ('SERVER IS UP')
 		elif hmi == 'rabbitmq':
-
-
 			self.ecrr = ExternalCommunicationRequestReply(self)
 			self.ecp = ExternalCommunicationPublish(self)
 
@@ -137,13 +136,12 @@ class Letter(dict):
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
 
-
 class LetterBox:
 	def __init__(self, postman):
 		self.postman = postman
 
 	def send(self, msg):
-		if 'from' not in msg.keys():
+		if not 'from' in msg.keys():
 			msg['from'] = self.agent.uid
 		self.postman.send(msg)
 
@@ -153,17 +151,119 @@ class LetterBox:
 	def add_agent(self, agent):
 		self.agent = agent
 
+#class ExternalCommunicationRequestReply():
+	#"""
+	#ECRR
+
+	#Description: tba
+
+	#"""
+	#def __init__(self, postman):
+		#self.postman = postman
+
+	#def send(self, msg):
+		#"""
+		#Refactor that, this is far too much related to Hotspot and BEACON.
+		#"""
+		#first_msg = msg
+		#jmessage = self.postman.ms.serialise_avro(msg)
+		##jmessage = msg['body']['msg_to_hmi']
+		#if self.postman.hmi == 'client':
+			##print("MERCURY SENDS THIS MESSAGE TO SERVER:", jmessage)
+			#print("MERCURY SENDS THIS MESSAGE TYPE TO SERVER:", msg['body'])
+			#self.postman.socket.send_string(jmessage)
+
+			##reply = json.loads(self.postman.socket.recv_string())
+			#reply = self.postman.socket.recv_string()
+			#print("MODEL RECEIVES THIS MESSAGE FROM SERVER:", reply)
+			##print("MODEL RECEIVES THIS MESSAGE TYPE FROM SERVER:", reply['message_type'])
+
+			##if reply["message_type"]!="aknowledgement":
+				##msg = Letter()
+				##msg['to'] = first_msg['from']
+				##msg['from'] = first_msg['to']
+				##msg['type'] = first_msg['body']['type_message_answer']
+				##msg['body'] = {'ans':reply,
+							   ###'regulation_info':first_msg['body']['regulation_info'], # TODO: CHANGE THAT!!!
+							   ##'event':first_msg['body'].get('event', None)}
+
+				##for stuff in first_msg['body'].get('to_include_in_answer', []):
+					##msg['body'][stuff] = first_msg['body'][stuff]
+
+				##self.postman.send(msg)
+
+		#elif self.postman.hmi == 'server':
+			#"""
+			#In this case, the client (hmi) sends a first message
+			#to say that it is ready to receive the information
+			#from the model.
+
+			#The server then sends the answer to the hmi. The hmi
+			#sends the human decision to the model
+			#"""
+
+			#if first_msg['body']['msg_to_hmi']['message_type']!='finished_data':
+				#print("MODEL WAITS ON HMI READY FOR REQUEST MESSAGE")
+
+				## Wait for message from the hmi saying that it is ready
+				## to receive information from model
+				##jmsg = self.postman.socket.recv_json()
+				#jmsg = self.postman.socket.recv_string()
+				##msg =  json.loads(jmsg)
+				#print('MODEL RECEIVED THIS MESSAGE FROM HMI:', jmsg)
+
+			#if len(jmessage)<=200:
+				#print("MODEL SENDS THIS MESSAGE TO HMI:", jmessage)
+			#else:
+				#print("MODEL SENDS A (LONG) MESSAGE TO HMI")
+			## Send to hmi the information from the model
+			##self.postman.socket.send_json(jmessage)
+			#self.postman.socket.send_string(jmessage)
+
+			#if first_msg['body']['msg_to_hmi']['message_type']!='finished_data':
+
+				#print("MODEL WAITS FOR ANSWER FROM HMI")
+				## Wait for decision from human
+				##reply = self.postman.socket.recv_json()
+				#reply = self.postman.socket.recv_string()
+
+				#if len(json.loads(reply))<=10:
+					#print("MODEL RECEIVES THIS MESSAGE FROM HMI:", reply)
+				#else:
+					#print("MODEL RECEIVES THIS MESSAGE FROM HMI OF LENGTH:", len(json.loads(reply)))
+
+				## self.postman.socket.close()
+				## self.postman._create_socket()
+
+				## Send to hmi ackowledgment that data was received.
+				## print("MODEL SENDS ACKNOWLEDGEMENT MESSAGE TO HMI")
+				## msg = {'message_type':'message_received'}
+				##self.postman.socket.send_json(json.dumps("Received"))
+
+
+				## self.postman.socket.send_json(json.dumps(msg))
+
+				#msg = Letter()
+				#msg['to'] = first_msg['from']
+				#msg['from'] = first_msg['to']
+				#msg['type'] = first_msg['body']['type_message_answer']
+				#msg['body'] = {'ans':json.loads(reply),
+							   ##'regulation_info':first_msg['body']['regulation_info'], # TODO: CHANGE THAT!!!
+							   #'event':first_msg['body'].get('event', None)}
+
+				#for stuff in first_msg['body'].get('to_include_in_answer', []):
+					#msg['body'][stuff] = first_msg['body'][stuff]
+
+				#self.postman.send(msg)
+
 class ExternalCommunicationRequestReply():
 	"""
 	ECRR
 
-	Description: Sends messages via rabbitmq expecting a reply
+	Description: tba
 
 	"""
-
 	def __init__(self, postman):
-
-
 		self.postman = postman
 		self.connection = pika.BlockingConnection(
 			pika.ConnectionParameters(host=self.postman.port_hmi))
@@ -218,11 +318,10 @@ class ExternalCommunicationPublish():
 	"""
 	ECP
 
-	Description: Publish (broadcast without expecting reply) using rabbitmq
+	Description: tba
 
 	"""
 	def __init__(self, postman):
-
 		self.postman = postman
 
 	def send(self, msg):
@@ -244,11 +343,10 @@ class MessageSerialisation():
 	"""
 	MS
 
-	Description: Serialise messages using json or Avro
+	Description: tba
 
 	"""
 	def __init__(self, postman):
-
 		self.postman = postman
 	def serialise_json(self,msg):
 		return json.dumps(msg['body']['msg_to_hmi'])
