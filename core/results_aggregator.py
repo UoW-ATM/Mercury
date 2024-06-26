@@ -275,7 +275,7 @@ class ResultsAggregatorSimple(ResultsAggregator):
 		self.results = pd.concat(self.dfs_high_level).sort_index()
 		self.results.index.names = self.pm
 
-		self.results_seq = {stuff:pd.concat(self.dfs_module_seq[stuff]) for stuff in self.dfs_module_seq.keys()}
+		self.results_seq = {stuff: pd.concat(self.dfs_module_seq[stuff]) for stuff in self.dfs_module_seq.keys()}
 
 
 class ResultsAggregatorSimpleReduced(ResultsAggregatorSimple):

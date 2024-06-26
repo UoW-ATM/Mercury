@@ -337,10 +337,10 @@ class Mercury:
 				
 		if paras_simulation['computation__parallel']:
 			# TODO: check that this works
-			global connection_read_global
-			connection_read_global = connection_read
-			global connection_write_global
-			connection_write_global = connection_write
+			# global connection_read_global
+			# connection_read_global = connection_read
+			# global connection_write_global
+			# connection_write_global = connection_write
 
 			X = spread_integer(paras_simulation['computation__num_iter'], paras_simulation['computation__pc'])
 			print('Parallel computing activated on', paras_simulation['computation__pc'], 'cores')
@@ -350,16 +350,18 @@ class Mercury:
 					  case_study_conf=copy(case_study_conf),
 					  info_scenario=copy(info_scenario),
 					  data_scenario=copy(data_scenario),
-						paras_scenario=copy(paras_scenario),
-						results_aggregator=deepcopy(results_aggregator),
-						parametriser=parametriser
-						)
+					  paras_scenario=copy(paras_scenario),
+					  results_aggregator=deepcopy(results_aggregator),
+					  parametriser=parametriser,
+					  connection_read=connection_read,
+					  connection_write=connection_write
+					  )
 
 			kwargs = [kk for i in range(len(X))]
 			ras = parallelize(self._run_several_iter_seq,
 								args=args,
 								kwargs=kwargs,
-								nprocs=paras_simulation['pc'])
+								nprocs=paras_simulation['computation__pc'])
 
 			if not results_aggregator is None:
 				results_aggregator.aggregate_different_instances(ras)
@@ -441,7 +443,7 @@ class Mercury:
 				new_args.paras_simulation = str(path_simulation)
 
 				cmd = build_command(new_args)
-				print(cmd)
+				# print(cmd)
 				subprocess.run(cmd, shell=True)
 
 	def run(self, scenarios=[], case_studies=[], paras_simulation=None, paras_sc_fixed={}, paras_sc_iterated={}, args=None,

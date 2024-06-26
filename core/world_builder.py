@@ -208,14 +208,14 @@ class World:
 
 			# Here if we go through all the modifications specified in all the module files
 			for agent, role_modif in mspecs.get('agent_modif', {}).items():
-				print('MODULE:', module, agent, role_modif)
+				# print('MODULE:', module, agent, role_modif)
 				self.module_agent_paras[agent] = {'{}__{}'.format(name_base, para_name): self.sc.paras['{}__{}'.format(name_base, para_name)] for para_name in role_modif.get('new_parameters', [])}
 
 				if agent not in self.module_agent_modif.keys():
 					self.module_agent_modif[agent] = {}
 
 				for role, modif in role_modif.items():
-					print('ROLE MODIF:', role, modif)
+					# print('ROLE MODIF:', role, modif)
 					if role == 'on_init':
 						# Case where one needs to apply some stuff at the initialisation of the AGENT.
 						self.module_agent_modif[agent]['on_init'] = self.module_agent_modif[agent].get('on_init',
@@ -548,9 +548,6 @@ class World:
 				self.ground_mobility.set_connection(origin=float(row['origin']), destination=row['destination'], dist=dist, dist_add=dist_add)
 			if row['destination'].isnumeric():
 				self.ground_mobility.set_connection(origin=row['origin'], destination=float(row['destination']), dist=dist, dist_add=dist_add)
-			print('ground_mobility', row['origin'], row['destination'])
-
-
 
 		self.uid += 1
 
@@ -1159,7 +1156,7 @@ class World:
 
 
 	def create_trains(self):
-		print('creating trains')
+		# print('creating trains')
 		self.trains = {}  # keys are GTFS trip ids
 		self.trains_uid = {}  # keys are uids.
 
@@ -1179,27 +1176,27 @@ class World:
 			if (row['rail_pre'] is None) or (row['rail_pre'] == '') or pd.isnull(row['rail_pre']):
 				continue
 			schedule = []
-			print(row['rail_pre'])
+			# print(row['rail_pre'])
 
 			#find out sobt of the first leg
 			sobt = df_schedules[df_schedules['nid']==row['leg1']]['sobt'].iloc[0]
-			print(sobt)
+			# print(sobt)
 
 			#origin1
 			stop = get_stop_times(stop_id=row['origin1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
-			print(stop)
+			# print(stop)
 			schedule.append(stop)
 
 			#destination1
 			stop = get_stop_times(stop_id=row['destination1'],trip_id=row['rail_pre'],gtfs_name=row['gtfs_pre'],flight_time_before=sobt,flight_time_after=None,gtfs_data=self.sc.df_gtfs)
-			print(stop)
+			# print(stop)
 			schedule.append(stop)
 
 			if row['rail_pre'] not in trips:
 				trips[row['rail_pre']] = schedule
 				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
 			else:
-				print('schedule',trips[row['rail_pre']],row['rail_pre'],trips)
+				# print('schedule',trips[row['rail_pre']],row['rail_pre'],trips)
 				trips[row['rail_pre']] = trips[row['rail_pre']] + schedule
 				#sort
 				trips[row['rail_pre']].sort(key= lambda x: x['arrival_time'])
@@ -1213,7 +1210,7 @@ class World:
 			if (row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post']):
 				continue
 			schedule = []
-			print(row['rail_post'])
+			# print(row['rail_post'])
 
 			#find out sibt of the last leg
 			if 'leg4' in row:
@@ -1224,16 +1221,16 @@ class World:
 				if (row[leg] is None) or (row[leg] == '') or pd.isnull(row[leg]):
 					continue
 				sibt = df_schedules[df_schedules['nid']==row[leg]]['sibt'].iloc[0]
-			print('sibt',sibt)
+			# print('sibt',sibt)
 			#origin2
 			stop = get_stop_times(stop_id=row['origin2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
-			print(stop)
+			# print(stop)
 			schedule.append(stop)
 
 			#destination2
 
 			stop = get_stop_times(stop_id=row['destination2'],trip_id=row['rail_post'],gtfs_name=row['gtfs_post'],flight_time_before=None,flight_time_after=sibt,gtfs_data=self.sc.df_gtfs)
-			print(stop)
+			# print(stop)
 			schedule.append(stop)
 
 			if row['rail_post'] not in trips:
@@ -1251,9 +1248,9 @@ class World:
 
 			trips_gtfs[row['rail_post']] = row['gtfs_post']
 
-		print('trips',trips)
+		# print('trips',trips)
 		for trip_id in trips:
-			print(trips[trip_id])
+			# print(trips[trip_id])
 			train = Train(self.postman,
 							first_arrival_time=(trips[trip_id][0]['arrival_time']-self.sc.reference_dt).total_seconds()/60.,
 							env=self.env,
@@ -1346,7 +1343,7 @@ class World:
 				pax.status = 'at_platform'
 
 			if not ((row['rail_post'] is None) or (row['rail_post'] == '') or pd.isnull(row['rail_post'])):
-				print('register_pax_group_flight2train', row['rail_post'], pax, pax.itinerary)
+				# print('register_pax_group_flight2train', row['rail_post'], pax, pax.itinerary)
 				self.pax_handler.register_pax_group_flight2train(pax)
 				self.train_operator.register_pax_itinerary_group(pax,rail_post.train_uid,origin2,destination2)
 
@@ -1916,6 +1913,7 @@ class World:
 		to_get['final_destination_reached'] = 'final_destination_reached'
 		to_get['multimodal'] = 'multimodal'
 		to_get['missed_air2rail'] = 'missed_air2rail'
+		# to_get['missed_air2air'] = 'missed_air2air'
 		to_get['ground_mobility_time'] = 'ground_mobility_time'
 		to_get['gate2kerb_time'] = 'gate2kerb_time'
 		to_get['kerb2gate_time'] = 'kerb2gate_time'
@@ -2127,17 +2125,11 @@ class World:
 						time = (pouet['rail_post_aibt'][j] - pouet['rail_post_sibt'][j]).total_seconds()/60.
 					else:
 						time = None
-
 					pouet[k][j] = time
-				elif k == 'tot_journey_time' :
-					try:
-						time = pax.final_aibt - pax.initial_aobt
-					except:
-						print('PAX ID:', pax.id)
-						raise
+				elif k == 'tot_journey_time':
+					time = pax.final_aibt - pax.initial_aobt
 					pouet[k][j] = time
-				elif k == 'tot_sch_journey_time' :
-
+				elif k == 'tot_sch_journey_time':
 					time = pax.final_sibt - pax.initial_sobt
 					pouet[k][j] = time
 				else:

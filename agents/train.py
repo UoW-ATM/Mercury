@@ -238,26 +238,26 @@ class OperateTrajectory(Role):
 		yield self.agent.schedule_submission_event
 
 
-		print('starting schedule',self.agent.env.now)
+		# print('starting schedule',self.agent.env.now)
 		self.agent.env.process(self.operate_schedule())
-		print('xxx')
+		# print('xxx')
 
 	def operate_schedule(self):
 		"""
 		Iterate over stations in schedule and move the train.
 		"""
 		#wait for actual start time
-		print('waiting', self.agent.first_arrival_time,self.agent.env.now)
+		# print('waiting', self.agent.first_arrival_time,self.agent.env.now)
 		yield self.agent.env.timeout(max(0, self.agent.first_arrival_time-self.agent.env.now))
-		print('start', self.agent, self.agent.schedule, self.agent.trip_id)
+		# print('start', self.agent, self.agent.schedule, self.agent.trip_id)
 		#generate delay
 		initial_delay = 0
 		if self.agent.rs.rand() <= self.agent.delay_prob:
 			initial_delay = self.agent.delay_dist.rvs(random_state=self.agent.rs)
 			yield self.agent.env.timeout(max(0, initial_delay))
-		print('initial_delay=',initial_delay)
+		# print('initial_delay=',initial_delay)
 		for i,station in enumerate(self.agent.schedule):
-			print("station",station['stop_id'],station['arrival_time'],station['departure_time'],self.agent.env.now)
+			# print("station",station['stop_id'],station['arrival_time'],station['departure_time'],self.agent.env.now)
 			self.agent.arrival_events[i].succeed()
 			#waiting at station
 			yield self.agent.env.timeout(max(0, (station['departure_time']-station['arrival_time']).total_seconds()/60))

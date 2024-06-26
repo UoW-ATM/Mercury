@@ -106,7 +106,7 @@ def get_stop_times(stop_id='',trip_id='',gtfs_name='',flight_time_before=None,fl
 		sch = df[(df['trip_id']==trip_id) & (df['gtfs']==gtfs_name)]
 		#print(gtfs_data['stop_times'][['gtfs']])
 		#print('xxx',trip_id,gtfs_name,sch, gtfs_data['stop_times'][['trip_id']])
-		print('sch', sch[['stop_id', 'parent_station', 'arrival_time','departure_time']])
+		# print('sch', sch[['stop_id', 'parent_station', 'arrival_time','departure_time']])
 
 
 
@@ -117,10 +117,10 @@ def get_stop_times(stop_id='',trip_id='',gtfs_name='',flight_time_before=None,fl
 		else:
 			origin_stop_id =  gtfs_data['stops'][ gtfs_data['stops']['stop_id']==stop_id]['parent_station'].iloc[0]
 
-			print(origin_stop_id, sch[sch['parent_station']==origin_stop_id][['arrival_time','departure_time']])
+			# print(origin_stop_id, sch[sch['parent_station']==origin_stop_id][['arrival_time','departure_time']])
 			times = sch[sch['parent_station']==origin_stop_id][['arrival_time','departure_time']]
 
-		print(stop_id,times)
+		# print(stop_id,times)
 		if flight_time_before is not None:
 			sobt = flight_time_before
 			stop = {'stop_id':stop_id,'arrival_time':gtfs_time_to_datetime(sobt,times.iloc[0,0]),'departure_time':gtfs_time_to_datetime(sobt,times.iloc[0,1])}

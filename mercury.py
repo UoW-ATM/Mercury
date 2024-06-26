@@ -100,6 +100,16 @@ if __name__=='__main__':
 								help='enables loading from compiled data',
 								required=False,
 								action='store_true')
+	parser.add_argument('-scr', '--skip_computation_if_results_exists',
+								help='If true, skips computation if already exists',
+								required=False,
+								action='store_true')
+	parser.add_argument('-agg', '--results_aggregated_file',
+								help='Saving path to aggregated results',
+								required=False,
+								default='default',
+								nargs='?')
+
 
 	# Initialise a parametriser
 	parametriser = ParametriserSelector().select(parametriser_name)()
@@ -228,6 +238,9 @@ if __name__=='__main__':
 	if args.no_notifications != 'not_given':
 		paras_simulation['notification__notifications'] = False
 
+	if args.skip_computation_if_results_exists is not None:
+		paras_simulation['skip_computation_if_results_exists'] = True
+
 	try:
 		import notify2 # Here because issue with MacOS
 		notify2.init('Mercury')
@@ -240,14 +253,32 @@ if __name__=='__main__':
 	if args.logging != 'no_log':
 		paras_simulation['logging'] = True
 
+	if args.results_aggregated_file != 'default':
+		if args.results_aggregated_file in ['None', 'none']:
+			paras_simulation['outputs_handling__file_aggregated_results'] = None
+		else:
+			paras_simulation['outputs_handling__file_aggregated_results'] = args.results_aggregated_file
+
+	paras_simulation['computation__parallel'] = paras_simulation['computation__pc'] > 1
+
+	if paras_simulation['computation__num_iter'] == 1:
+		paras_simulation['computation__parallel'] = False
+
+	if paras_simulation['computation__parallel']:
+		# If there are parallel computations, don't use the aggregator
+		results_aggregator = None
+		paras_simulation['outputs_handling__file_aggregated_results'] = None
+	else:
+		# If a file for aggregated results is given as known, don't use the aggregator
+		if paras_simulation['outputs_handling__file_aggregated_results'] is None:
+			results_aggregator = None
+			paras_simulation['outputs_handling__file_aggregated_results'] = None
+		else:
+			results_aggregator = 'default'
+
 	# if paras_simulation['email']:
 	# 	from email_credentials import address, password, address_to
 	# 	yag = yagmail.SMTP(address, password)
-
-	paras_simulation['computation__parallel'] = paras_simulation['computation__pc']>1
-	
-	if paras_simulation['computation__num_iter'] == 1:
-		paras_simulation['computation__parallel'] = False
 
 	# Initialise simulations
 	mercury = Mercury()
@@ -259,22 +290,24 @@ if __name__=='__main__':
 											args=args,
 											paras_sc_iterated=paras_sc_it,
 											paras_simulation=paras_simulation,
-										   parametriser=parametriser)
+										   parametriser=parametriser,
+										   results_aggregator=results_aggregator)
 
 	with generic_connection(profile=profile_write_agg['connection'],
 							typ=profile_write_agg['type'],
 							base_path=profile_write_agg.get('path')) as connection:
 
-		file_name_agg = paras_simulation['outputs_handling__file_aggregated_results'] # 'results.csv'
+		file_name_agg = paras_simulation['outputs_handling__file_aggregated_results']
 
-		print('Saving summarised results here: {}'.format((Path(connection['base_path']) / file_name_agg).resolve()))
+		if file_name_agg is not None:
+			print('Saving summarised results here: {}'.format((Path(connection['base_path']) / file_name_agg).resolve()))
 
-		write_data(data=results,
-					fmt=profile_write_agg['fmt'],
-					path=profile_write_agg['path'],
-					file_name=file_name_agg,
-					connection=connection,
-					how=profile_write_agg['mode'])
+			write_data(data=results,
+						fmt=profile_write_agg['fmt'],
+						path=profile_write_agg['path'],
+						file_name=file_name_agg,
+						connection=connection,
+						how=profile_write_agg['mode'])
 
 	if results_seq is not None:
 		for stuff, res in results_seq.items():
