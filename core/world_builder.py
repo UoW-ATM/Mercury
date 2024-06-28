@@ -1154,7 +1154,6 @@ class World:
 		self.cr.register_gtfs(self.sc.df_gtfs)
 
 
-
 	def create_trains(self):
 		# print('creating trains')
 		self.trains = {}  # keys are GTFS trip ids
@@ -1913,7 +1912,7 @@ class World:
 		to_get['final_destination_reached'] = 'final_destination_reached'
 		to_get['multimodal'] = 'multimodal'
 		to_get['missed_air2rail'] = 'missed_air2rail'
-		# to_get['missed_air2air'] = 'missed_air2air'
+		to_get['missed_rail2air'] = 'missed_rail2air'
 		to_get['ground_mobility_time'] = 'ground_mobility_time'
 		to_get['gate2kerb_time'] = 'gate2kerb_time'
 		to_get['kerb2gate_time'] = 'kerb2gate_time'

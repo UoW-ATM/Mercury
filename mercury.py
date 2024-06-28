@@ -100,11 +100,11 @@ if __name__=='__main__':
 								help='enables loading from compiled data',
 								required=False,
 								action='store_true')
-	parser.add_argument('-scr', '--skip_computation_if_results_exists',
+	parser.add_argument('-norecompute', '--skip_computation_if_results_exists',
 								help='If true, skips computation if already exists',
 								required=False,
 								action='store_true')
-	parser.add_argument('-agg', '--results_aggregated_file',
+	parser.add_argument('-results', '--results_aggregated_file',
 								help='Saving path to aggregated results',
 								required=False,
 								default='default',
@@ -238,8 +238,8 @@ if __name__=='__main__':
 	if args.no_notifications != 'not_given':
 		paras_simulation['notification__notifications'] = False
 
-	if args.skip_computation_if_results_exists is not None:
-		paras_simulation['skip_computation_if_results_exists'] = True
+	#if args.skip_computation_if_results_exists is not None:
+	paras_simulation['outputs_handling__skip_computation_if_results_exists'] = args.skip_computation_if_results_exists
 
 	try:
 		import notify2 # Here because issue with MacOS
