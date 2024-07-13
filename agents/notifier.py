@@ -48,19 +48,15 @@ class Notifier(Agent):
 		# mprint("EAMAN message")
 
 		if msg['type']=='response':
-			print(msg)
-
+			# print(msg)
+			pass
 		elif msg['type']=='request':
 			self.ip.wait_for_request(msg)
-
-
 		else:
 			aprint ('WARNING: unrecognised message type received by', self, ':', msg['type'])
 
 	def __repr__(self):
 		return "Notifier " + str(self.uid)
-
-
 
 
 class SimulationProgressTracker(Role):
@@ -104,7 +100,7 @@ class InformationProvider(Role):
 		return result
 
 	def wait_for_request(self,msg):
-		print('request',msg)
+		# print('request', msg)
 		if msg['function'] in self.agent.cr_functions:
 			fn = getattr(self.agent.cr, msg['function'])
 			info = self.fn_caller(fn,msg['body'])

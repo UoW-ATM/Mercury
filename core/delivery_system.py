@@ -304,7 +304,7 @@ class ExternalCommunicationRequestReply():
 		print('Mercury received response')
 
 		response = self.postman.ms.deserialise_avro(self.response)
-		print(response)
+		# print(response)
 
 		msg = Letter()
 		msg['to'] = int(response['to'])

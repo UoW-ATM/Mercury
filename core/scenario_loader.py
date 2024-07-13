@@ -752,7 +752,7 @@ class ScenarioLoader:
 												scenario=self.scenario)
 
 	def load_gtfs_data(self, connection):
-		print(self.df_pax_data)
+		# print(self.df_pax_data)
 		if 'rail_pre' in self.df_pax_data.columns and 'rail_post' in self.df_pax_data.columns:
 
 			filenames = pd.unique(self.df_pax_data[['gtfs_pre', 'gtfs_post']].values.ravel('K')).tolist()

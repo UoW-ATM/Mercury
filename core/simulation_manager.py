@@ -260,9 +260,11 @@ class Mercury:
 
 		else:
 			print('Skipping computation because files already exist (loading from disk instead)...\n')
+			# TODO: right now, skipping results still reauires to build agents on the first run. Find a way to avoid
+			#  that.
 
 			# Load data from disk.
-			for output in paras_simulation['outputs']:
+			for output in paras_simulation['outputs_handling__outputs']:
 				stuff = output.split('output_')[-1]
 
 				file_name = output + str('.csv.gz')
@@ -276,7 +278,11 @@ class Mercury:
 						)
 
 		if results_aggregator is not None:
-			results = results_aggregator.compute_results_individual_iteration(info_scenario['scenario_id'], case_study_conf['info']['case_study_id'], n_iter, world, paras_scenario)
+			results = results_aggregator.compute_results_individual_iteration(info_scenario['scenario_id'],
+																			  case_study_conf['info']['case_study_id'],
+																			  n_iter,
+																			  world,
+																			  paras_scenario)
 		else:
 			results = None
 
@@ -324,7 +330,6 @@ class Mercury:
 		parametriser=None):
 		"""
 		Wrapper of previous function to allow parallelisation.
-		TODO: fix parallelisation. Possible? What about connections?
 		Need to create global connection object (but how to detect in methods?)
 		"""
 
@@ -336,11 +341,10 @@ class Mercury:
 		paras_simulation['series_id'] = uuid.uuid4()
 				
 		if paras_simulation['computation__parallel']:
-			# TODO: check that this works
-			global connection_read_global
-			connection_read_global = connection_read
-			global connection_write_global
-			connection_write_global = connection_write
+			# global connection_read_global
+			# connection_read_global = connection_read
+			# global connection_write_global
+			# connection_write_global = connection_write
 
 			X = spread_integer(paras_simulation['computation__num_iter'], paras_simulation['computation__pc'])
 			print('Parallel computing activated on', paras_simulation['computation__pc'], 'cores')
@@ -350,16 +354,18 @@ class Mercury:
 					  case_study_conf=copy(case_study_conf),
 					  info_scenario=copy(info_scenario),
 					  data_scenario=copy(data_scenario),
-						paras_scenario=copy(paras_scenario),
-						results_aggregator=deepcopy(results_aggregator),
-						parametriser=parametriser
-						)
+					  paras_scenario=copy(paras_scenario),
+					  results_aggregator=deepcopy(results_aggregator),
+					  parametriser=parametriser,
+					  connection_read=connection_read,
+					  connection_write=connection_write
+					  )
 
 			kwargs = [kk for i in range(len(X))]
 			ras = parallelize(self._run_several_iter_seq,
 								args=args,
 								kwargs=kwargs,
-								nprocs=paras_simulation['pc'])
+								nprocs=paras_simulation['computation__pc'])
 
 			if not results_aggregator is None:
 				results_aggregator.aggregate_different_instances(ras)
@@ -441,7 +447,7 @@ class Mercury:
 				new_args.paras_simulation = str(path_simulation)
 
 				cmd = build_command(new_args)
-				print(cmd)
+				# print(cmd)
 				subprocess.run(cmd, shell=True)
 
 	def run(self, scenarios=[], case_studies=[], paras_simulation=None, paras_sc_fixed={}, paras_sc_iterated={}, args=None,

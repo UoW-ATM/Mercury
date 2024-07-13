@@ -113,7 +113,6 @@ def load_mercury_module(path_module=None, module_name=None):
 	for agent, d in module_specs['agent_modif'].items():
 		# Iteration through all modifications planned for the agent
 		for modif_name_agent, modif_agent in d.items():
-			# print('MODIF NAME AGENT:', modif_name_agent)
 			if modif_name_agent == 'on_init':
 				# In this case, a method of the agent itself is modified. This should
 				# happen with the on_init_agent.
@@ -122,7 +121,6 @@ def load_mercury_module(path_module=None, module_name=None):
 				# In this case, this is a modification of roles.
 				# Iterate through the modifications for this role
 				for modif_name_role, modif_role in modif_agent.items():
-					print('COINCOIN', modif_name_role, modif_role)
 					if modif_name_role == 'new_methods':
 						# In this case, this is a list of new methods
 						module_specs['agent_modif'][agent][modif_name_agent][modif_name_role] = \

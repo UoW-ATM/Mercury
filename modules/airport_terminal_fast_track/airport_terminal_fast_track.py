@@ -28,13 +28,12 @@ def on_init(self):
 
 
 def wait_for_move_kerb2gate_times_request_NEW(self, msg):
-	print(self.agent, 'receives move kerb to gate times request from PAX handler', msg['from'],
-			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated kerb2gate_time_estimation ', msg['body']['kerb2gate_time_estimation'], 'late:', msg['body']['late'])
+	# print(self.agent, 'receives move kerb to gate times request from PAX handler', msg['from'],
+	# 		   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated kerb2gate_time_estimation ', msg['body']['kerb2gate_time_estimation'], 'late:', msg['body']['late'])
 
 	start_time = self.agent.env.now
 	if msg['body']['late'] == True: #missing connection
 		fast_track_speed_up = 0.9
-		print('fast_track_speed_up:', fast_track_speed_up)
 	else:
 		fast_track_speed_up = 1
 	#self.move_gate2kerb_times(msg['body']['pax'], msg['body']['gate2kerb_time_estimation'])

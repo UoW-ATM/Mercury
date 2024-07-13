@@ -1128,7 +1128,7 @@ class PotentialDelayRecoveryProvider(Role):
 			# Manually change this boolean to get plots of delay recovery vs fuel
 			plot_tfsc = False
 			if plot_tfsc:
-				print(tfsc)
+				# print(tfsc)
 				if tfsc['time_fuel_func'] is not None:
 					x_cont = np.linspace(tfsc['min_time'], tfsc['max_time'], 100)
 					plt.plot(x_cont, tfsc['time_fuel_func'](x_cont))
@@ -1298,11 +1298,6 @@ class PotentialDelayRecoveryProvider(Role):
 					else:
 						if self.agent.uid in flight_uid_DEBUG:
 							print('Entering branch 2 of trajectory of flight {}'.format(self.agent.uid))
-							print("COINCOIN",
-									points[i+1].dict_speeds['mrc_kt'],
-									points[i+1].dict_speeds['perc_selected'],
-									points[i+1].dict_speeds['max_kt'],
-									points[i+1].dict_speeds['mrc_kt'])
 
 						speed = points[i+1].dict_speeds['mrc_kt'] + \
 							points[i+1].dict_speeds['perc_selected'] * (points[i+1].dict_speeds['max_kt']-points[i+1].dict_speeds['mrc_kt'])

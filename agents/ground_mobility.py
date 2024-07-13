@@ -175,8 +175,8 @@ class ConnectingTimeProvider(Role):
 	"""
 
 	def wait_for_estimate_ground_mobility_to_platform_request(self, msg):
-		print(self.agent, 'receives estimated connecting times request from PAX handler', msg['from'],
-			   'from', msg['body']['origin'], 'to', msg['body']['destination'])
+		# print(self.agent, 'receives estimated connecting times request from PAX handler', msg['from'],
+		# 	   'from', msg['body']['origin'], 'to', msg['body']['destination'])
 
 		estimate = self.estimate_ground_mobility(msg['body']['origin'], msg['body']['destination'])
 
@@ -187,8 +187,8 @@ class ConnectingTimeProvider(Role):
 									 estimate)
 
 	def wait_for_estimate_ground_mobility_to_kerb_request(self, msg):
-		print(self.agent, 'receives estimated connecting times request from PAX handler', msg['from'],
-			   'from', msg['body']['origin'], 'to', msg['body']['destination'])
+		# print(self.agent, 'receives estimated connecting times request from PAX handler', msg['from'],
+		# 	   'from', msg['body']['origin'], 'to', msg['body']['destination'])
 
 		estimate = self.estimate_ground_mobility(msg['body']['origin'], msg['body']['destination'])
 
@@ -200,17 +200,15 @@ class ConnectingTimeProvider(Role):
 
 	def estimate_ground_mobility(self, origin, destination):
 		if origin not in self.agent.connecting_times:
-			print(origin, 'not recognised in ground_mobility_estimation')
+			# print(origin, 'not recognised in ground_mobility_estimation')
 			return 30.0
-		#print('connecting_times', self.agent.connecting_times)
-		#print((str(destination) in self.agent.connecting_times[origin]))
-		print('COICNOICN', origin, destination)
+
 		estimate = self.agent.connecting_times[origin][destination]['dist'].rvs(random_state=self.agent.rs)
 		return estimate
 
 	def return_estimated_ground_mobility_to_platform(self, pax_handler_uid, pax, estimate):
-		print(self.agent, 'sends estimated ground mobility to PAX handler', pax_handler_uid,
-			   'for pax', pax, ': ground_mobility_estimation=', estimate)
+		# print(self.agent, 'sends estimated ground mobility to PAX handler', pax_handler_uid,
+		# 	   'for pax', pax, ': ground_mobility_estimation=', estimate)
 
 		msg_back = Letter()
 		msg_back['to'] = pax_handler_uid
@@ -219,8 +217,8 @@ class ConnectingTimeProvider(Role):
 		self.send(msg_back)
 
 	def return_estimated_ground_mobility_to_kerb(self, pax_handler_uid, pax, estimate):
-		print(self.agent, 'sends estimated ground mobility to PAX handler', pax_handler_uid,
-			   'for pax', pax, ': ground_mobility_estimation=', estimate)
+		# print(self.agent, 'sends estimated ground mobility to PAX handler', pax_handler_uid,
+		# 	   'for pax', pax, ': ground_mobility_estimation=', estimate)
 
 		msg_back = Letter()
 		msg_back['to'] = pax_handler_uid
@@ -232,7 +230,7 @@ class ConnectingTimeProvider(Role):
 
 	def calculate_ground_mobility(self, origin, destination, estimate):
 		if origin not in self.agent.connecting_times:
-			print(origin, 'not recognised in ground_mobility')
+			# print(origin, 'not recognised in ground_mobility')
 			return 31.0
 		actual_ground_mobility = estimate + self.agent.connecting_times[origin][destination]['dist_add'].rvs(random_state=self.agent.rs)+self.agent.delay_dist.rvs(random_state=self.agent.rs)
 		return actual_ground_mobility
@@ -250,8 +248,8 @@ class MobilityProvider(Role):
 	Description: estimated connecting_times between airport and train station for multimodal Pax
 	"""
 	def wait_for_ground_mobility_to_kerb_request(self, msg):
-		print(self.agent, 'receives connecting times request from PAX handler', msg['from'],
-			   'from', msg['body']['origin'], 'to', msg['body']['destination'])
+		# print(self.agent, 'receives connecting times request from PAX handler', msg['from'],
+		# 	   'from', msg['body']['origin'], 'to', msg['body']['destination'])
 
 		estimate = msg['body']['ground_mobility_estimation']
 		actual_ground_mobility = self.agent.ctp.calculate_ground_mobility(msg['body']['origin'], msg['body']['destination'], estimate)
@@ -263,8 +261,8 @@ class MobilityProvider(Role):
 									 actual_ground_mobility, 'ground_mobility_to_kerb_time')
 
 	def return_ground_mobility(self, pax_handler_uid, pax, actual_ground_mobility, direction):
-		print(self.agent, 'sends', direction, 'to PAX handler', pax_handler_uid,
-			   'for pax', pax, ': ground_mobility=', actual_ground_mobility)
+		# print(self.agent, 'sends', direction, 'to PAX handler', pax_handler_uid,
+		# 	   'for pax', pax, ': ground_mobility=', actual_ground_mobility)
 
 		msg_back = Letter()
 		msg_back['to'] = pax_handler_uid
@@ -273,8 +271,8 @@ class MobilityProvider(Role):
 		self.send(msg_back)
 
 	def wait_for_ground_mobility_to_platform_request(self, msg):
-		print(self.agent, 'receives connecting times request from PAX handler', msg['from'],
-			   'from', msg['body']['origin'], 'to', msg['body']['destination'])
+		# print(self.agent, 'receives connecting times request from PAX handler', msg['from'],
+		# 	   'from', msg['body']['origin'], 'to', msg['body']['destination'])
 
 		estimate = msg['body']['ground_mobility_estimation']
 		actual_ground_mobility = self.agent.ctp.calculate_ground_mobility(msg['body']['origin'], msg['body']['destination'], estimate)
