@@ -440,7 +440,8 @@ class Air2RailHandler(Role):
 		msg = Letter()
 		msg['to'] = self.agent.ground_mobility_uid
 		msg['type'] = 'estimate_ground_mobility_to_platform_request'
-		msg['body'] = {'pax': pax, 'origin': airport_icao, 'destination': origin2}
+		hour = (self.agent.reference_dt+dt.timedelta(minutes=self.agent.env.now)).hour + (self.agent.reference_dt+dt.timedelta(minutes=self.agent.env.now)).minute/60.0
+		msg['body'] = {'pax': pax, 'origin': airport_icao, 'destination': origin2, 'hour':hour}
 
 		self.send(msg)
 
@@ -670,7 +671,8 @@ class Rail2AirHandler(Role):
 		msg = Letter()
 		msg['to'] = self.agent.ground_mobility_uid
 		msg['type'] = 'estimate_ground_mobility_to_kerb_request'
-		msg['body'] = {'pax': pax, 'origin': origin1, 'destination': airport_icao}
+		hour = (self.agent.reference_dt+dt.timedelta(minutes=self.agent.env.now)).hour + (self.agent.reference_dt+dt.timedelta(minutes=self.agent.env.now)).minute/60.0
+		msg['body'] = {'pax': pax, 'origin': origin1, 'destination': airport_icao, 'hour':hour}
 
 		self.send(msg)
 

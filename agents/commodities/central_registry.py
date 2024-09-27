@@ -33,6 +33,14 @@ class CentralRegistry:
 		else:
 			return aoc.aoc_flights_info[flight_uid]['sibt']
 
+	def get_schedules(self):
+		schedules = {}
+		for nid,flight_uid in self.flight_uids.items():
+			obt = self.get_obt(flight_uid)
+			ibt = self.get_ibt(flight_uid)
+			schedules[nid] = {'sobt':obt,'sibt':ibt, 'nid':nid}
+		return schedules.values()
+
 	def get_eta_wo_atfm(self, flight_uid):
 		aoc = self.airlines[self.registry[flight_uid]]['aoc']
 

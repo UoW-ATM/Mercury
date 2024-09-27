@@ -3,6 +3,8 @@ import pika
 import io
 import avro.schema
 import avro.io
+from ast import literal_eval
+import pandas as pd
 
 """
 Simple code to receive messages from rabbitmq server and send responses back to Mercury.
@@ -49,6 +51,15 @@ def fib(n):
 		return 1
 	else:
 		return fib(n - 1) + fib(n - 2)
+def process_msg(msg):
+	data = []
+	for x in msg['body']:
+		print('xxx',x, x.replace('Timestamp(','').replace(')',''))
+		data.append(literal_eval(x.replace('Timestamp(','').replace(')','')))
+	df = pd.DataFrame(data)
+	df['sobt'] = pd.to_datetime(df['sobt'])
+	df['sibt'] = pd.to_datetime(df['sibt'])
+	print('df',df)
 
 def on_request(ch, method, props, body):
 
@@ -60,8 +71,9 @@ def on_request(ch, method, props, body):
 	print(f" [x] {msg}")
 	if msg['type'] == 'information':
 		response = {'to': str(msg['from']), 'from': 0, 'type': 'response', 'function':'', 'body': ['-1']}
+		process_msg(msg)
 	else:
-		response = {'to': str(msg['from']), 'from': 0, 'type': 'request', 'function':'get_ibt', 'body': ['39136']}
+		response = {'to': str(msg['from']), 'from': 0, 'type': 'request', 'function':'get_schedules', 'body': []}
 
 
 	writer = avro.io.DatumWriter(schema)

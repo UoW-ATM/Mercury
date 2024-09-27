@@ -69,10 +69,10 @@ class SimulationProgressTracker(Role):
 
 	def track_simulation(self):
 		#print('SimulationProgressTracker-',self.agent.env.now, self.agent.min_time, self.agent.max_time)
-		for i in range(round((self.agent.max_time-self.agent.min_time)/60)+round((self.agent.min_time)/60)):
+		for i in range(round((self.agent.max_time-self.agent.min_time)/(6*60))+round((self.agent.min_time)/(6*60))):
 			#print('SimulationProgressTracker+',self.agent.env.now)
 			self.send_notification(self.agent.env.now)
-			yield self.agent.env.timeout(60)
+			yield self.agent.env.timeout(6*60)
 
 	def send_notification(self, simulation_time):
 		msg = Letter()
@@ -101,13 +101,19 @@ class InformationProvider(Role):
 
 	def wait_for_request(self,msg):
 		# print('request', msg)
-		if msg['function'] in self.agent.cr_functions:
+		if msg['function'] == 'get_schedules':
+
+			info = self.agent.cr.get_schedules()
+		elif msg['function'] in self.agent.cr_functions:
 			fn = getattr(self.agent.cr, msg['function'])
 			info = self.fn_caller(fn,msg['body'])
 		else:
 			info = ''
 		#print(msg['function'] in self.agent.cr_functions)
 		#info = self.agent.reference_dt+dt.timedelta(minutes=self.agent.cr.get_ibt(self.agent.cr.flight_uids[39136]))
+		for x in info:
+			x['sobt'] = self.agent.reference_dt+dt.timedelta(minutes=x['sobt'])
+			x['sibt'] = self.agent.reference_dt+dt.timedelta(minutes=x['sibt'])
 		self.send_notification([str(x) for x in info])
 
 

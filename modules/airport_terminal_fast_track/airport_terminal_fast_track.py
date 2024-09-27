@@ -28,17 +28,17 @@ def on_init(self):
 
 
 def wait_for_move_kerb2gate_times_request_NEW(self, msg):
-	# print(self.agent, 'receives move kerb to gate times request from PAX handler', msg['from'],
-	# 		   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated kerb2gate_time_estimation ', msg['body']['kerb2gate_time_estimation'], 'late:', msg['body']['late'])
+	print(self.agent, 'receives move kerb to gate times request from PAX handler', msg['from'],
+			   'for pax', msg['body']['pax'], '(pax type', msg['body']['pax'].pax_type, ' with estimated kerb2gate_time_estimation ', msg['body']['kerb2gate_time_estimation'], 'late:', msg['body']['late'])
 
 	start_time = self.agent.env.now
 	if msg['body']['late'] == True: #missing connection
-		fast_track_speed_up = 0.9
+		fast_track_speed_up = self.agent.fast_track_speed_up
 	else:
-		fast_track_speed_up = 1
+		fast_track_speed_up = 0
 	#self.move_gate2kerb_times(msg['body']['pax'], msg['body']['gate2kerb_time_estimation'])
-	kerb2gate_time = (max(0,msg['body']['kerb2gate_time_estimation'] + self.agent.kerb2gate_add_dists.rvs(random_state=self.agent.rs)))*fast_track_speed_up
-	# print ('Actual gate2kerb times:',gate2kerb_time)
+	kerb2gate_time = (max(0,msg['body']['kerb2gate_time_estimation'] + self.agent.kerb2gate_add_dists.rvs(random_state=self.agent.rs)))*(1-fast_track_speed_up)
+	print ('Actual kerb2gate_time times:',kerb2gate_time, fast_track_speed_up)
 	self.agent.env.process(self.move_gate2kerb_times(msg['body']['pax'], kerb2gate_time, msg['body']['event']))
 	self.return_times(msg['from'],
 									 msg['body']['pax'],

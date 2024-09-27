@@ -3,8 +3,9 @@ import uuid
 import simpy
 import numpy as np
 import matplotlib.pyplot as plt
+import bisect
 from itertools import compress
-
+from scipy.stats import norm, uniform
 from Mercury.core.delivery_system import Letter
 from Mercury.libs.other_tools import clone_pax, flight_str
 from Mercury.libs.uow_tool_belt.general_tools import keep_time, build_col_print_func
@@ -115,8 +116,32 @@ class GroundMobility(Agent):
 									'dist_add': dist_add,
 									}
 
+	def set_connection_interval(self, origin='', destination='', hour=0, interval=15, mean=30, std=0, dist_add=None):
+		"""
+		Register a connection between two points.
+		"""
+		if origin not in self.connecting_times:
+			self.connecting_times[origin] = {}
 
+		if destination not in self.connecting_times[origin]:
+			self.connecting_times[origin][destination] = {'hours':[],'interval':[],'dist_add':None, 'mean':[], 'std':[]}
 
+		self.connecting_times[origin][destination]['hours'].append(hour)
+		self.connecting_times[origin][destination]['interval'].append(interval)
+		self.connecting_times[origin][destination]['dist_add'] = dist_add
+		self.connecting_times[origin][destination]['mean'].append(mean)
+		self.connecting_times[origin][destination]['std'].append(std)
+
+	def get_connecting_time(self,origin,destination,hour):
+
+		idx = bisect.bisect_right(self.connecting_times[origin][destination]['hours'], hour)
+
+		try:
+			interval_dist = uniform(loc=0,scale=self.connecting_times[origin][destination]['interval'][idx-1])
+			dist = norm(loc=self.connecting_times[origin][destination]['mean'][idx-1], scale=self.connecting_times[origin][destination]['std'][idx-1])
+			return dist, interval_dist
+		except IndexError:
+			raise ValueError(origin, destination, hour)
 
 
 		# Using wait_until allows to wait for a time and then succeed the event.
@@ -178,9 +203,9 @@ class ConnectingTimeProvider(Role):
 		# print(self.agent, 'receives estimated connecting times request from PAX handler', msg['from'],
 		# 	   'from', msg['body']['origin'], 'to', msg['body']['destination'])
 
-		estimate = self.estimate_ground_mobility(msg['body']['origin'], msg['body']['destination'])
+		estimate = self.estimate_ground_mobility(msg['body']['origin'], msg['body']['destination'],msg['body']['hour'])
 
-		# print ('Estimated gate2kerb times:',estimate)
+		print ('Estimated gate2kerb times:',estimate)
 
 		self.return_estimated_ground_mobility_to_platform(msg['from'],
 									 msg['body']['pax'],
@@ -190,20 +215,20 @@ class ConnectingTimeProvider(Role):
 		# print(self.agent, 'receives estimated connecting times request from PAX handler', msg['from'],
 		# 	   'from', msg['body']['origin'], 'to', msg['body']['destination'])
 
-		estimate = self.estimate_ground_mobility(msg['body']['origin'], msg['body']['destination'])
+		estimate = self.estimate_ground_mobility(msg['body']['origin'], msg['body']['destination'],msg['body']['hour'])
 
-		# print ('Estimated gate2kerb times:',estimate)
+		print ('Estimated gate2kerb times:',estimate)
 
 		self.return_estimated_ground_mobility_to_kerb(msg['from'],
 									 msg['body']['pax'],
 									 estimate)
 
-	def estimate_ground_mobility(self, origin, destination):
+	def estimate_ground_mobility(self, origin, destination, hour):
 		if origin not in self.agent.connecting_times:
 			# print(origin, 'not recognised in ground_mobility_estimation')
 			return 30.0
-
-		estimate = self.agent.connecting_times[origin][destination]['dist'].rvs(random_state=self.agent.rs)
+		dist, interval_dist = self.agent.get_connecting_time(origin,destination,hour)
+		estimate = dist.rvs(random_state=self.agent.rs)+interval_dist.rvs(random_state=self.agent.rs)
 		return estimate
 
 	def return_estimated_ground_mobility_to_platform(self, pax_handler_uid, pax, estimate):

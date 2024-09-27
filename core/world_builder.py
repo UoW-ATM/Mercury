@@ -540,14 +540,29 @@ class World:
 										)
 		#initiate ground_mobility_connection_times dists
 		#print(self.sc.df_ground_mobility_connection_times.dtypes)
-		for i,row in self.sc.df_ground_mobility_connection_times.iterrows():
-			dist = norm(loc=row['mean'], scale=row['std'])
-			dist_add = norm(loc=0, scale=row['estimation_scale'])
-			self.ground_mobility.set_connection(origin=row['origin'], destination=row['destination'], dist=dist, dist_add=dist_add)
-			if row['origin'].isnumeric():
-				self.ground_mobility.set_connection(origin=float(row['origin']), destination=row['destination'], dist=dist, dist_add=dist_add)
-			if row['destination'].isnumeric():
-				self.ground_mobility.set_connection(origin=row['origin'], destination=float(row['destination']), dist=dist, dist_add=dist_add)
+		if 'interval' in self.sc.df_ground_mobility_connection_times.columns:
+
+			for i,row in self.sc.df_ground_mobility_connection_times.iterrows():
+				dist_add = norm(loc=0, scale=row['estimation_scale'])
+				orig = row['origin']
+				dest = row['destination']
+				if row['origin'].isnumeric():
+					orig = float(row['origin'])
+				if row['destination'].isnumeric():
+					dest = float(row['destination'])
+				self.ground_mobility.set_connection_interval(origin=orig, destination=dest, hour=float(row['hour_start']), interval=float(row['interval']), mean=float(row['mean']), std=float(row['std']), dist_add=dist_add)
+
+
+		else:
+
+			for i,row in self.sc.df_ground_mobility_connection_times.iterrows():
+				dist = norm(loc=row['mean'], scale=row['std'])
+				dist_add = norm(loc=0, scale=row['estimation_scale'])
+				self.ground_mobility.set_connection(origin=row['origin'], destination=row['destination'], dist=dist, dist_add=dist_add)
+				if row['origin'].isnumeric():
+					self.ground_mobility.set_connection(origin=float(row['origin']), destination=row['destination'], dist=dist, dist_add=dist_add)
+				if row['destination'].isnumeric():
+					self.ground_mobility.set_connection(origin=row['origin'], destination=float(row['destination']), dist=dist, dist_add=dist_add)
 
 		self.uid += 1
 
