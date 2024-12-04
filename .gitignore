@@ -135,3 +135,10 @@ docs/source/generated
 # bada performance files
 libs/performance_models/bada3/data
 libs/performance_models/bada4_2/
+
+# IDE folders & misc
+.idea
+apm
+input
+results
+docs/generated
