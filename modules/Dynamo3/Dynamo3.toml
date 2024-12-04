@@ -1,0 +1,18 @@
+# Specify the modifications to existing agents, roles, and methods.
+# Use the [agent_modif] section to map your new functions to existing classes and methods.
+# Define any initialization functions with on_init keys.
+
+[info]
+name = "Dynamo3" # This is the name of the module
+description = "Dynamo3 module" # Short description, just for info
+incompatibilities = [] # known incompatibilities with other modules
+requirements = []  # required modules to run this one
+get_metric = "None" # method to gather information during simulation.
+
+[agent_modif]
+    [agent_modif.EAMAN]
+    on_init = "on_init_agent"
+    apply_to = []
+    new_parameters = [
+        "optimiser",
+    ]
