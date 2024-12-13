@@ -103,7 +103,7 @@ insert_time_stamp = false
 save_all_hotspot_data = false
 hotspot_save_folder = "../results" # Save all regulation information
 
-file_aggregated_results = "results_test.csv"
+file_aggregated_results = "results.csv"  # Put 'None' if you want no aggregation
 
 skip_results = false # will skip computation of the results at the end. Good for testing quickly
 

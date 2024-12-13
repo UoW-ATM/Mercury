@@ -10,20 +10,30 @@ def func(x, k, k_p, a, b, c):
 
 class PaxItineraryGroup:
 	def __init__(self, n_pax=None, pax_type=None, idd=None, origin_uid=None,
-		destination_uid=None, fare=None, dic_soft_cost=None, rs=None):
+		destination_uid=None, origin_airport_terminal_uid=None,
+		destination_airport_terminal_uid=None, origin_airport_icao=None, destination_airport_icao=None, fare=None, dic_soft_cost=None, rs=None, rail=None, origin1=None, destination1=None, origin2=None, destination2=None):
 		self.id = idd
 		self.original_id = idd
 		self.n_pax = n_pax
 		self.original_n_pax = n_pax
 		self.pax_type = pax_type
 		self.fare = fare
+		self.rail = rail
+		self.origin1 = origin1
+		self.origin2 = origin2
+		self.destination1 = destination1
+		self.destination2 = destination2
 
 		self.idx_last_flight = -1
 		self.itinerary = None
+		self.multimodal_itinerary = None
+		self.old_multimodal_itineraries = {}
 		self.initial_sobt = None
 		self.final_sibt = None
 		self.sobts = []
 		self.sibts = []
+		self.origin_airport_icao = origin_airport_icao
+		self.destination_airport_icao = destination_airport_icao
 		self.origin_airport = None
 		self.destination_airport = None
 		self.distance = None
@@ -37,8 +47,11 @@ class PaxItineraryGroup:
 		self.on_board = None
 		self.active_airport = None
 		self.time_at_gate = -10  # to be sure first pax are at gate when flight departs.
+		self.time_at_platform = -10  # to be sure first pax are at gate when flight departs.
 		self.origin_uid = origin_uid
 		self.destination_uid = destination_uid
+		self.origin_airport_terminal_uid = origin_airport_terminal_uid
+		self.destination_airport_terminal_uid = destination_airport_terminal_uid
 		self.old_itineraries = []
 		self.compensation = 0.
 		self.duty_of_care = 0.
@@ -53,6 +66,18 @@ class PaxItineraryGroup:
 		self.missed_flights = []
 		self.aobts = []
 		self.aibts = []
+		self.multimodal = False
+		self.ct = -10
+		self.mct = -10
+		self.split_pax = []
+		#multimodal kpis
+		self.ground_mobility_time = 0
+		self.gate2kerb_time = 0
+		self.kerb2gate_time = 0
+		self.rail_aobts = []
+		self.rail_aibts = []
+		self.rail_sobts = []
+		self.rail_sibts = []
 		
 		self.rs = rs
 
@@ -77,6 +102,15 @@ class PaxItineraryGroup:
 		self.aibts.append(aibt)
 		self.on_board = None
 		
+	def board_next_train(self, aobt):
+
+		self.rail_aobts.append(aobt)
+
+
+	def unboard_from_train(self, aibt):
+		self.rail_aibts.append(aibt)
+		self.on_board = None
+
 	def give_itinerary(self, itinerary):
 		"""
 		itinerary must be a list of flight_uids
@@ -90,6 +124,14 @@ class PaxItineraryGroup:
 
 		self.itinerary = itinerary
 
+	def give_new_train(self, new_train, where='rail_post'):
+		if where not in self.old_multimodal_itineraries:
+			self.old_multimodal_itineraries[where] = []
+		self.old_multimodal_itineraries[where].append(self.rail[where].uid)
+
+		self.rail[where] = new_train
+		self.modified_itinerary = True
+
 	def get_original_itinerary(self):
 		if len(self.old_itineraries) > 0:
 			return self.old_itineraries[0]
@@ -98,6 +140,9 @@ class PaxItineraryGroup:
 
 	def get_itinerary(self):
 		return self.itinerary
+
+	def get_rail(self):
+		return self.rail
 
 	def get_itinerary_so_far(self):
 		"""
@@ -137,7 +182,7 @@ class PaxItineraryGroup:
 		first_flight = flights[self.itinerary[0]]
 		last_flight = flights[self.itinerary[-1]]
 
-		# self.active_airport = first_flight.origin_airport_uid
+		self.active_airport = first_flight.origin_airport_uid
 		self.initial_sobt = first_flight.sobt
 
 		self.final_sibt = last_flight.sibt
@@ -145,8 +190,24 @@ class PaxItineraryGroup:
 		self.sobts = [flights[flight].sobt for flight in self.itinerary]
 		self.sibts = [flights[flight].sibt for flight in self.itinerary]
 
-		self.in_transit_to = self.itinerary[0]
+		if self.rail['rail_pre'] is None:
+			self.in_transit_to = self.itinerary[0]
+		else:
+			self.in_transit_to = None#self.itinerary[0]#self.rail['rail_pre'].uid
+			self.initial_sobt = self.rail['rail_pre'].times[self.origin1]['departure_time']
+			self.multimodal = True
+			self.time_at_gate = 9999999
+			self.rail_sobts.append(self.rail['rail_pre'].times[self.origin1]['departure_time'])
+			self.rail_sibts.append(self.rail['rail_pre'].times[self.destination1]['arrival_time'])
 		
+		if self.rail['rail_post'] is None:
+			self.final_sibt = last_flight.sibt
+		else:
+			self.final_sibt = self.rail['rail_post'].times[self.destination2]['arrival_time']
+			self.multimodal = True
+			self.rail_sobts.append(self.rail['rail_post'].times[self.origin2]['departure_time'])
+			self.rail_sibts.append(self.rail['rail_post'].times[self.destination2]['arrival_time'])
+
 		self.origin_airport = first_flight.origin_airport_uid
 		self.destination_airport = last_flight.destination_airport_uid
 		self.distance = distance_func(airports[self.origin_airport].coords,

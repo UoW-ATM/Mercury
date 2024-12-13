@@ -34,9 +34,23 @@ class ResultsAggregator:
 
 
 class ResultsAggregatorSimple(ResultsAggregator):
-	#def __init__(self, paras_to_monitor, metrics=None, stats=['mean', 'std', percentile_custom(10), percentile_custom(90)], # not used because of multiprocesseing
-	# percentiles are super long to copute (30s). See function compute_percentile_with_weight in general_tools
-	#def __init__(self, paras_to_monitor, metrics=None, stats=['mean', 'std', percentile_10, percentile_90],
+	# This dictionary is used to cast types before aggregation. If your metrics does not appear in the final dataframe,
+	# add its type here
+	# TODO: for flights and other df.
+	# TODO: automatic type discovery.
+	mets_pax_cast = {'fare':float,
+					'compensation':float ,
+					'duty_of_care':float,
+					'tot_arrival_delay':float,
+					'missed_air2rail':float,
+					'missed_rail2air':float,
+					 'scenario_id':int,
+					 'n_iter':int,
+					 'n_pax':int,
+					 'original_n_pax':int,
+					 'connecting_pax':int,
+					 'modified_itinerary':bool,
+					'final_destination_reached':bool}
 	def __init__(self, paras_to_monitor, metrics=None, stats=['mean', 'std'],
 				no_percentile_for_pax=False):
 		self.paras_to_monitor = paras_to_monitor
@@ -118,20 +132,24 @@ class ResultsAggregatorSimple(ResultsAggregator):
 
 		mask_con = df_pax['connecting_pax'].astype(bool)
 
-		float_cast = ['fare', 'compensation', 'duty_of_care',
-					'tot_arrival_delay'] + [paras for paras in self.paras_to_monitor if not paras in ['hotspot_solver', 'optimiser', 'solution', 'mechanism']]
+		float_cast = [met for met, typ in self.mets_pax_cast.items() if typ is float] + [paras for paras in
+																					self.paras_to_monitor if
+																					not paras in ['hotspot_solver',
+																								  'optimiser',
+																								  'solution',
+																								  'mechanism']]
+
 		#string_cast = [paras for paras in self.paras_to_monitor if paras in ['hotspot_solver', 'optimiser']]
-		# TODO: detect para type above.
 
 		for stuff in float_cast:
 			df_pax[stuff] = df_pax[stuff].astype(float)
 
-		int_cast = ['scenario_id', 'n_iter', 'n_pax', 'original_n_pax', 'connecting_pax']
+		int_cast = [met for met, typ in self.mets_pax_cast.items() if typ is int]
 
 		for stuff in int_cast:
 			df_pax[stuff] = df_pax[stuff].astype(int)
 
-		boolean_cast = ['modified_itinerary', 'final_destination_reached']
+		boolean_cast = [met for met, typ in self.mets_pax_cast.items() if typ is bool]
 
 		for stuff in boolean_cast:
 			df_pax[stuff] = df_pax[stuff].astype(int)
@@ -275,7 +293,7 @@ class ResultsAggregatorSimple(ResultsAggregator):
 		self.results = pd.concat(self.dfs_high_level).sort_index()
 		self.results.index.names = self.pm
 
-		self.results_seq = {stuff:pd.concat(self.dfs_module_seq[stuff]) for stuff in self.dfs_module_seq.keys()}
+		self.results_seq = {stuff: pd.concat(self.dfs_module_seq[stuff]) for stuff in self.dfs_module_seq.keys()}
 
 
 class ResultsAggregatorSimpleReduced(ResultsAggregatorSimple):
@@ -314,7 +332,9 @@ class ResultsAggregatorSimpleReduced(ResultsAggregatorSimple):
 				'pax_p2p_tot_arrival_delay', 'pax_p2p_modified_itinerary',
 				'pax_con_tot_arrival_delay', 'pax_con_modified_itinerary',
 				'ratio_cost', 'ratio_cost_approx', 'n_flights_reg',
-				'equity', 'equity2']
+				'equity', 'equity2',
+				'pax_missed_air2rail',
+				'pax_missed_rail2air']
 		mets = [met for met in mets if met in self.results.columns]
 		self.results = self.results.loc[:, mets]
 

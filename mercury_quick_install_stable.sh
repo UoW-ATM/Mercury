@@ -1,4 +1,6 @@
 echo 'Quick install and test run for Mercury, master branch\n\n'
+echo ''
+echo ''
 
 git clone https://github.com/UoW-ATM/Mercury
 
@@ -30,4 +32,6 @@ rm ../mercury_public_dataset.zip
 
 ./mercury.py -id -1 -cs -1
 
+echo ''
+echo ''
 echo '\n\nInstallation and test run went well. Test virtual environment is mercury-install-test'
