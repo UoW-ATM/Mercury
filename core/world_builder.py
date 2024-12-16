@@ -731,8 +731,8 @@ class World:
 
 			# Gate 2 Kerb time
 			dists = {'economy': {}, 'flex': {}}
-			if 'gate2kerb_mean' in row:
-				dist = norm(loc=row['gate2kerb_mean'], scale=row['gate2kerb_std'])
+			if 'g2k' in row:
+				dist = norm(loc=row['g2k'], scale=row['g2k_std'])
 			else:
 				dist = None
 			dists['economy'] = dist
@@ -744,8 +744,8 @@ class World:
 
 			#Kerb 2 Gate time
 			dists = {'economy': {}, 'flex': {}}
-			if 'kerb2gate_mean' in row:
-				dist = norm(loc=row['kerb2gate_mean'], scale=row['kerb2gate_std'])
+			if 'k2g' in row:
+				dist = norm(loc=row['k2g'], scale=row['k2g_std'])
 			else:
 				dist = None
 			dists['economy'] = dist

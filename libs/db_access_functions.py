@@ -145,16 +145,18 @@ def read_airports_data(connection, airport_table="airport_info_static", taxi_in_
 			IF(t_i.std_deviation is not NULL, t_i.std_deviation, a_s.std_taxi_in) as std_taxi_in, \
 			a_s.MCT_standard, a_s.MCT_domestic, a_s.MCT_international, \
 			a_s.ECAC, a_s.atfm_area, a_s.nas, \
-			a_s.declared_capacity, a_s.size \
-			FROM {} a_s \
+			a_s.declared_capacity, a_s.size "
+	if airport_processes_table is not None:
+		sql = sql + ", a_p.pax_type, a_p.k2g, a_p.g2k, a_p.k2g_multimodal, a_p.g2k_multimodal, a_p.icao_id, a_p.k2g_std, a_p.g2k_std "
+	sql = sql +"FROM {} a_s \
 			LEFT JOIN {} t_i ON t_i.icao_id=a_s.icao_id \
 			LEFT JOIN {} t_o on t_o.icao_id=a_s.icao_id".format(airport_table, taxi_in_table, taxi_out_table)
 	if airport_processes_table is not None:
-		sql = sql + " LEFT JOIN {} a_p on a_p.icao_id=a_s.icao_id".format(airport_table, airport_processes_table)
+		sql = sql + " LEFT JOIN {} a_p on a_p.icao_id=a_s.icao_id".format(airport_processes_table)
 
 	if airports is not None:
 		sql = sql + " WHERE a_s.icao_id IN ("+str(airports)[1:-1]+")"
-	print(sql)
+
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df
