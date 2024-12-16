@@ -136,7 +136,7 @@ def read_ATFM_at_airports_manual(connection, regulation_at_airport_table='regula
 
 #Airports
 def read_airports_data(connection, airport_table="airport_info_static", taxi_in_table="taxi_in_static",
-	taxi_out_table="taxi_out_static", airports=None, scenario=None):
+	taxi_out_table="taxi_out_static", airport_processes_table= None,airports=None, scenario=None):
 
 	sql = "SELECt a_s.icao_id, a_s.altitude, a_s.tis, a_s.trs, a_s.taxi_time, a_s.lat AS lat, a_s.lon AS lon, a_s.time_zone, \
 			IF(t_o.mean_txo is not NULL, t_o.mean_txo, a_s.mean_taxi_out) as mean_taxi_out, \
@@ -145,15 +145,16 @@ def read_airports_data(connection, airport_table="airport_info_static", taxi_in_
 			IF(t_i.std_deviation is not NULL, t_i.std_deviation, a_s.std_taxi_in) as std_taxi_in, \
 			a_s.MCT_standard, a_s.MCT_domestic, a_s.MCT_international, \
 			a_s.ECAC, a_s.atfm_area, a_s.nas, \
-			a_s.declared_capacity, a_s.size, a_s.kerb2gate_mean, \
-			a_s.kerb2gate_std, a_s.gate2kerb_mean, a_s.gate2kerb_std \
+			a_s.declared_capacity, a_s.size \
 			FROM {} a_s \
 			LEFT JOIN {} t_i ON t_i.icao_id=a_s.icao_id \
 			LEFT JOIN {} t_o on t_o.icao_id=a_s.icao_id".format(airport_table, taxi_in_table, taxi_out_table)
+	if airport_processes_table is not None:
+		sql = sql + " LEFT JOIN {} a_p on a_p.icao_id=a_s.icao_id".format(airport_table, airport_processes_table)
 
 	if airports is not None:
 		sql = sql + " WHERE a_s.icao_id IN ("+str(airports)[1:-1]+")"
-
+	print(sql)
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 
 	return df

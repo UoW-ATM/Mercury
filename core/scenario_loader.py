@@ -624,10 +624,15 @@ class ScenarioLoader:
 			# print('Airports with curfews:', len(df_cf))
 
 	def load_airport_data(self, connection=None):
+
+		if 'input_airport_processes' not in self.paras_paths:
+			self.paras_paths['input_airport_processes'] = None
+
 		self.df_airport_data = read_airports_data(connection,
 												airport_table=self.paras_paths['input_airport'],
 												taxi_in_table=self.paras_paths['input_taxi_in'],
 												taxi_out_table=self.paras_paths['input_taxi_out'],
+												airport_processes_table=self.paras_paths['input_airport_processes'],
 												airports=self.airport_list,
 												  scenario=self.scenario)
 
@@ -753,6 +758,9 @@ class ScenarioLoader:
 
 	def load_gtfs_data(self, connection):
 		# print(self.df_pax_data)
+		if 'input_gtfs' not in self.paras_paths:
+			self.df_gtfs = None
+			self.df_airport_stations = None
 		if 'rail_pre' in self.df_pax_data.columns and 'rail_post' in self.df_pax_data.columns:
 
 			filenames = pd.unique(self.df_pax_data[['gtfs_pre', 'gtfs_post']].values.ravel('K')).tolist()
@@ -764,8 +772,11 @@ class ScenarioLoader:
 													scenario=self.scenario)
 
 	def load_ground_mobility_connection_times(self, connection):
-		self.df_ground_mobility_connection_times = read_data(connection=connection,
+		if 'input_ground_mobility_connection_times' in self.paras_paths:
+			self.df_ground_mobility_connection_times = read_data(connection=connection,
 												query="""SELECT * FROM {}""".format(self.paras_paths['input_ground_mobility_connection_times']), scenario=self.scenario)
+		else:
+			self.df_ground_mobility_connection_times = None
 
 	def load_atfm_at_airports(self, connection=None):
 		# TODO: rename things here, it's quite confusing...
