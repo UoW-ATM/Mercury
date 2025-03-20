@@ -428,6 +428,10 @@ class ScenarioLoader:
 							oneline=True, print_function=mprint):
 				self.load_ground_mobility_connection_times(connection=connection)
 
+			with clock_time(message_before='Getting rail stations processes...',
+							oneline=True, print_function=mprint):
+				self.load_rail_stations_processes(connection=connection)
+
 		mprint('Memory of process:', int(self.process.memory_info().rss/10**6), 'MB')  # in bytes
 
 	def load_flight_plan_pool(self, connection=None):
@@ -777,6 +781,13 @@ class ScenarioLoader:
 												query="""SELECT * FROM {}""".format(self.paras_paths['input_ground_mobility_connection_times']), scenario=self.scenario)
 		else:
 			self.df_ground_mobility_connection_times = None
+
+	def load_rail_stations_processes(self, connection):
+		if 'input_rail_stations_processes' in self.paras_paths:
+			self.df_rail_stations_processes = read_data(connection=connection,
+												query="""SELECT * FROM {}""".format(self.paras_paths['input_rail_stations_processes']), scenario=self.scenario)
+		else:
+			self.df_rail_stations_processes = None
 
 	def load_atfm_at_airports(self, connection=None):
 		# TODO: rename things here, it's quite confusing...
