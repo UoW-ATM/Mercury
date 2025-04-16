@@ -700,10 +700,15 @@ class PassengerReallocation(Role):
 		services_for_day = calendar[(calendar[day_of_week_name]==True) & (date_string>=calendar['start_date']) & (date_string<=calendar['end_date'])]
 		services_for_day2 = calendar[(calendar[day_of_week_name2]==True) & (date_string2>=calendar['start_date']) & (date_string2<=calendar['end_date'])]
 		# print(services_for_day, day_of_week_name, day_of_week_name2, date_string, date_string2)
+
 		df1 = df[df['service_id'].isin(services_for_day['service_id'])]
 		# print(df[['trip_id','arrival_time','departure_time', 'service_id']])
 		df2 = df[df['service_id'].isin(services_for_day2['service_id'])]
-
+		if len(df1)+len(df2)<1:
+			#no services, we assume for mmx gtfs all services run
+			df1 = df.copy()
+			df2 = df.copy()
+		# print('df1',df1,services_for_day,day_of_week_name,date_string,df)
 		df1['sim_time'] = df1.apply(lambda row: (gtfs_time_to_datetime(timestamp,row['departure_time']) - self.agent.reference_dt).total_seconds()/60.,axis=1)
 		df2['sim_time'] = df2.apply(lambda row: (gtfs_time_to_datetime(timestamp+dt.timedelta(days=1),row['departure_time']) - self.agent.reference_dt).total_seconds()/60.,axis=1)
 		df = pd.concat([df1,df2])

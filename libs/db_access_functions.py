@@ -330,12 +330,12 @@ def read_doc_data(connection, table='duty_of_care_static', scenario=None):
 def read_itineraries_data(connection, table='pax_itineraries', flights=None, scenario=None):
 	sql = """SELECT * FROM {}""".format(table)
 	
-	if flights is not None:
-		sql += " WHERE leg1 IN ({})".format(str(flights)[1:-1])
-		sql += " AND (leg2 IN ({}) OR leg2 is NULL)".format(str(flights)[1:-1])
-		sql += " AND (leg3 IN ({}) OR leg3 is NULL)".format(str(flights)[1:-1])
+	# if flights is not None:
+	# 	sql += " WHERE leg1 IN ({})".format(str(flights)[1:-1])
+	# 	sql += " AND (leg2 IN ({}) OR leg2 is NULL)".format(str(flights)[1:-1])
+	# 	sql += " AND (leg3 IN ({}) OR leg3 is NULL)".format(str(flights)[1:-1])
 
-	sql += " AND pax!=0"
+	# sql += " AND pax!=0"
 
 	df = read_data(connection=connection, query=sql, scenario=scenario)
 

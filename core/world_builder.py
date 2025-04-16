@@ -1137,7 +1137,7 @@ class World:
 							sobt=(row['sobt']-self.sc.reference_dt).total_seconds()/60.,
 							sibt=(row['sibt']-self.sc.reference_dt).total_seconds()/60.,
 							env=self.env,
-							idd=int(row['nid']),
+							idd=row['nid'],
 							uid=self.uid,
 							origin_airport_uid=self.airports_per_icao[row['origin']].uid,
 							destination_airport_uid=self.airports_per_icao[row['destination']].uid,
@@ -1161,14 +1161,14 @@ class World:
 							default_holding_altitude=self.sc.paras['flights__default_holding_altitude'],
 							default_holding_ff=self.sc.paras['flights__default_holding_ff'],
 							curfew=curfew_flight,
-							can_propagate_to_curfew=(int(row['nid']) in self.sc.l_ids_propagate_to_curfew),
+							can_propagate_to_curfew=(row['nid'] in self.sc.l_ids_propagate_to_curfew),
 							exclude=row.get('exclude', None),
 							rs=self.rs,
 							thisone=thisone,
 							module_agent_modif=self.module_agent_modif.get('Flight', {}),
 							callsign=row.get('callsign', None))
 			self.uid += 1
-			self.flights[int(row['nid'])] = flight
+			self.flights[row['nid']] = flight
 			self.flights_uid[flight.uid] = flight
 
 			aoc = self.aocs[row['airline']]
@@ -1329,11 +1329,11 @@ class World:
 	def create_pax(self):
 		self.paxs = []
 		for i, row in self.sc.df_pax_data.iterrows():
-			it = [self.flights[int(row['leg1'])]]
+			it = [self.flights[row['leg1']]]
 			if not pd.isnull(row['leg2']):
-				it += [self.flights[int(row['leg2'])]]
+				it += [self.flights[row['leg2']]]
 			if not pd.isnull(row['leg3']):
-				it += [self.flights[int(row['leg3'])]]
+				it += [self.flights[row['leg3']]]
 
 			airlines = set([self.aocs[f.aoc_info['ao_icao']] for f in it])
 

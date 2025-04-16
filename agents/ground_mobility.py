@@ -134,31 +134,17 @@ class GroundMobility(Agent):
 
 	def get_connecting_time(self,origin,destination,hour):
 
-		idx = bisect.bisect_right(self.connecting_times[origin][destination]['hours'], hour)
+		if 'hours' in self.connecting_times[origin][destination]:
+			idx = bisect.bisect_right(self.connecting_times[origin][destination]['hours'], hour)
 
-		try:
-			interval_dist = uniform(loc=0,scale=self.connecting_times[origin][destination]['interval'][idx-1])
-			dist = norm(loc=self.connecting_times[origin][destination]['mean'][idx-1], scale=self.connecting_times[origin][destination]['std'][idx-1])
-			return dist, interval_dist
-		except IndexError:
-			raise ValueError(origin, destination, hour)
-
-
-		# Using wait_until allows to wait for a time and then succeed the event.
-		# The event should not be the process itself, because if a reschedule
-		# happens, one needs to cancel the wait_until process but keep the pointer
-		# to the event itself, since it is likely to be shared with other agents.
-		# This procedure should be used for anything with a waiting time (which may be rescheduled).
-		# There is no need for this in the case of the event happens at the end of a given process
-		# (e.g. flying a segment).
-		#self.trains_info[train.uid]['wait_until_schedule_submission_proc'] = self.env.process(self.tro.wait_until_schedule_submission(train.uid, train.first_arrival_time))
-		#self.aoc_flights_info[flight.uid]['wait_until_delay_estimation_proc'] = self.env.process(self.afp.wait_until_delay_estimation(flight.uid, flight.fpip.get_eobt()))
-		#self.aoc_flights_info[flight.uid]['wait_until_pax_check_proc'] = self.env.process(self.afp.wait_until_pax_check(flight.uid, flight.fpip.get_eobt()))
-		#self.aoc_flights_info[flight.uid]['wait_until_push_back_ready_proc'] = self.env.process(self.afp.wait_until_push_back_ready(flight.uid, flight.fpip.get_eobt()))
-
-
-		#self.env.process(self.tro.check_arrival(train.uid, train.arrival_events))
-
+			try:
+				interval_dist = uniform(loc=0,scale=self.connecting_times[origin][destination]['interval'][idx-1])
+				dist = norm(loc=self.connecting_times[origin][destination]['mean'][idx-1], scale=self.connecting_times[origin][destination]['std'][idx-1])
+				return dist, interval_dist
+			except IndexError:
+				raise ValueError(origin, destination, hour)
+		else:
+			return self.connecting_times[origin][destination]['dist'], uniform(loc=0,scale=0)
 
 
 	def receive(self, msg):

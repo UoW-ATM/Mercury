@@ -914,6 +914,7 @@ class FlightPlan:
 		"""
 		Note: coordinates are lat/lon in the objects.
 		"""
+
 		if typ == 'radius':
 			found = False
 			r = geom['radius']
@@ -930,11 +931,12 @@ class FlightPlan:
 				# from the cartopy projection, which leads to errors.
 				x, y = proj_forward(dic.coords[1], dic.coords[0])
 				d = distance_euclidean((0., 0.), (x, y))
+				# print(x,y,d,r,dic.coords)
 				# d = haversine(geom['coords_center'][1], geom['coords_center'][0], dic.coords[1], dic.coords[0])
 				if d < r:
 					found = True
 					break
-
+			# print('FIP', found)
 			if found:
 				if idx == 0:
 					idx += 1
