@@ -160,7 +160,7 @@ class Mercury:
 				return path
 
 	def post_process_paras(self, paras):
-		if paras['network_manager__ATFM_regulation_mechanism'] is not None:
+		if (paras['network_manager__ATFM_regulation_mechanism'] is not None) and (paras['network_manager__ATFM_regulation_mechanism']!='FPFS') :
 			if paras['network_manager__ATFM_regulation_mechanism'] == 'UDPP':
 				paras['network_manager__hotspot_solver'] = {'global': 'udpp_merge', 'local': 'udpp_local'}
 			elif paras['network_manager__ATFM_regulation_mechanism'] == 'UDPP+ISTOP':
