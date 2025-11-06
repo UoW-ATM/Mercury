@@ -16,11 +16,29 @@ with a strong agent-based paradigm.
 
 .. inclusion-marker-do-not-remove
 
+Table of Contents
+=================
+
+- `Quickstart <#quickstart>`_
+   - `Docker <#docker>`_
+   - `Installation <#installation>`_
+   - `Running the CLI version <#cli>`_
+   - `Programmatic use of Mercury <#programmatic>`_
+   - `Graphical interface <#gui>`_
+- `Manual and references <#manual>`_
+- `Software Architecture <#soa>`_
+- `About <#about>`_
+   - `Authorship <#authors>`_
+   - `Licence and copyright <#licence>`_
+
+
 Quickstart
 ==========
+.. _quickstart:
 
 Docker
 ------
+.. _docker:
 
 NEW! Docker versions are now available for:
 
@@ -29,7 +47,7 @@ NEW! Docker versions are now available for:
 - the GUI version: (coming soon).
 
 Docker allows you to use the model on any OS without installing anything except a docker environment (see https://www.docker.com/get-started/).
-With a terminal (e.g. powershell in windows), you can download the docker images like this:
+With a terminal (e.g. PowerShell in Windows), you can download the docker images like this:
 
 .. code:: bash
 
@@ -38,7 +56,7 @@ With a terminal (e.g. powershell in windows), you can download the docker images
     docker pull ghcr.io/uow-atm/mercury/mercury_cli:latest
     docker tag ghcr.io/uow-atm/mercury/mercury_cli:latest mercury_cli
 
-In a terminal you can then use the docker image like this:
+In a terminal, you can then use the docker image like this:
 
 - for the CLI:
 
@@ -52,7 +70,7 @@ In a terminal you can then use the docker image like this:
 
     docker run -p 8888:8888 mercury_nb
 
-You probably need to copy the url appearing in the terminal after this command and copy/paste it into your browser.
+You probably need to copy the URL appearing in the terminal after this command and copy/paste it into your browser.
 
 - for the GUI: (coming soon)
 
@@ -60,7 +78,9 @@ You probably need to copy the url appearing in the terminal after this command a
 
 Installation
 ------------
-Mercury has been tested on ubuntu-like machines and to a lesser extent Windows, using minicoonda/anaconda. Python 3.10 is
+.. _installation:
+
+Mercury has been tested on Ubuntu-like machines and, to a lesser extent, Windows, using minicoonda/anaconda. Python 3.10 is
 recommended, Python 3.12 will raise issues.
 
 Quick install
@@ -75,8 +95,8 @@ need to download them first and then run them in a terminal like this:
 
     ./mercury_quick_install_dev.sh
 
-This might or might not work depending on your specific environment, in particular your virtual environment setting. If
-it fails, you can follow the steps below.
+This might or might not work depending on your specific environment, particularly your virtual environment setting.
+If it fails, you can follow the steps below.
 
 Full install
 ^^^^^^^^^^^^
@@ -87,14 +107,14 @@ Full install
 
     git clone https://github.com/UoW-ATM/Mercury
 
--  Use this to download the third party libraries:
+-  Use this to download the third-party libraries:
 
 .. code:: bash
 
    cd Mercury
    git submodule update --recursive --remote --init
 
--  In a fresh python environment, install all the required packages:
+-  In a fresh Python environment, install all the required packages:
 
 In Linux, use:
 
@@ -110,10 +130,10 @@ In Windows, you need to install the requirements in the dedicated environment:
 
     pip install -r requirements.txt
 
-You may also need to install Visual studio C++ built tools if it's not the case already.
+You may also need to install Visual Studio C++-built tools if that's not the case already.
 
 -  Download the sample data here:
-   https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1. Extract the data. Put the results "input" folder outside of the main Mercury root folder (side by side). You can also use the following commands from inside the Mercury root folder to achieve the same result:
+   https://zenodo.org/records/11384379/files/Mercury_data_sample.zip?download=1. Extract the data. Put the results "input" folder outside the main Mercury root folder (side by side). You can also use the following commands from inside the Mercury root folder to achieve the same result:
 
 .. code:: bash
 
@@ -125,7 +145,7 @@ You may also need to install Visual studio C++ built tools if it's not the case 
 By default, Mercury uses the `OpenAP <https://github.com/TUDelft-CNS-ATM/openap>`_ model for aircraft performance.
 However, Mercury also supports the BADA models developed by EUROCONTROL. If you want to use it, you can request a licence
 from EUROCONTROL (here: https://www.eurocontrol.int/model/bada), then use the script ``generate_bada3_input.py`` to
-transform the AFP, OFP and PTD files from BADA3 into tables (parquet files) that will be read by Mercury.
+transform the AFP, OFP and PTD files from BADA3 into tables (parquet files) that Mercury will read.
 In the following command, replace ``BADA3_FILES_PATH`` with the location of the downloaded bada files:
 
 .. code:: bash
@@ -134,11 +154,12 @@ In the following command, replace ``BADA3_FILES_PATH`` with the location of the 
 
 Ensure you copy the generated parquet files into ``Mercury/libs/performance_models/bada3/data/``.
 
-If you want to use BADA4, please contact us directly and we'll offer general guidance. We are also working on a support
+If you want to use BADA4, please contact us directly, and we'll offer general guidance. We are also working on a support
 for EUROCONTROL's pyBADA library.
 
 Running the CLI version
 -----------------------
+.. _cli:
 
 You can test the model by running:
 
@@ -150,6 +171,7 @@ Use ``-h`` to have list of all the possible arguments.
 
 Programmatic use of Mercury
 ---------------------------
+.. _programmatic:
 
 Mercury can be used as an object. An example of its use and some
 examples to run can be found in the ``Mercury.ipynb`` Jupyter notebook.
@@ -158,6 +180,7 @@ setting, scenarios, case study, etc.
 
 Graphical interface
 -------------------
+.. _gui:
 
 You can use a GUI to explore the data input and output structure, create
 new scenarios, case studies, etc. Use the following command to start it:
@@ -170,6 +193,7 @@ new scenarios, case studies, etc. Use the following command to start it:
 
 Manual and references
 =====================
+.. _manual:
 
 A more complete manual is in construction and can be found here_.
 
@@ -185,22 +209,49 @@ Mercury:
 
 .. inclusion-marker-do-not-remove3
 
+Software Architecture
+=====================
+.. _soa:
+
+
+Mercury is organised in three packages:
+
+1.	agents: This is the main package containing the implementation of different agents in Mercury. The agents are developed following an object-oriented approach. Each agent type is a Class containing its memory (attributes) and Roles. The Roles are independent Classes contained within the Agents. All agent types inherit from a generic Agent class, which provides the shared functionalities of initialisation, mailbox and functionalities required to modify their behaviour through the application of Modules. Two sub-packages are located inside the agents' package:
+
+* Modules: 
+   This package stores different modules that can be loaded into Mercury. A Module is composed of three files:
+
+   * the Python code implementing the functionalities that need to be added and/or replaced in the different Roles,
+   * a configuration file indicating which functions need to be added/replaced for which roles, and
+   * an optional configuration file with any additional parameters needed for the new functionalities implemented in the module.
+
+* Commodities:
+   Contains different objects used and manipulated by the agents, such as the definition of aircraft, alliance, slots, etc. Each one of these concepts will be represented by one or several classes.
+
+2.	libs: The libs package contains functionalities required by Mercury, such as the implementation of the Delivery system, World builder (to create the agents at the instantiation of a simulation), Simulation manager (to manage the execution of Mercury), Case study loader, etc. Functionalities to manage the input and output of Mercury are also provided here (Input and Output managers). Finally, external libraries are also included here.
+
+3.	config: The config package contains the configuration files of Mercury and the simulations.
+
+
 About
 =====
+.. _about:
 
 Authorship
 ----------
+.. _authors:
 
-Up to the open source release, all Mercury code has been written by
+Up to the open-source release, all Mercury code has been written by
 Gérald Gurtner and Luis Delgado, to the exception of:
 
 -  The Dynamic Cost Indexing module, written by Damir Valput
 -  The GUI, written by Michal Weiszer
 
-We thank also Tanja Bolic for many waves of testing.
+We also thank Tanja Bolic for many waves of testing.
 
 Licence and copyright
 ---------------------
+.. _licence:
 
 Mercury is released under the GPL v3 licence. The licence can be found
 in LICENCE.TXT
