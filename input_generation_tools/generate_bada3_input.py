@@ -685,5 +685,5 @@ if __name__ == "__main__":
     ptf_ac_info.to_parquet(Path(output_folder) / 'ptf_ac_info.parquet')
     ptf_operations.to_parquet(Path(output_folder) / 'ptf_operations.parquet')
 
-    print('ALL DONE -- Ensure that BADA3 parquet files (now in ', output_folder,
-          'are stored for the scenarios into data/ac_performance/bada/bada3/ in your input folder')
+    print(f'ALL DONE -- Ensure that BADA3 parquet files (just delivered at {output_folder})'
+          f'Remember to set the mercury_config.toml at "performance_model" to "bada3" and have the parquet files at: Mercury/libs/performance_models/bada3/data/')

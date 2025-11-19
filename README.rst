@@ -150,7 +150,10 @@ In the following command, replace ``BADA3_FILES_PATH`` with the location of the 
 
 .. code:: bash
 
-   python generate_bada3_input.py -s BADA3_FILES_PATH -d .
+   # Assuming that we are in the root folder of Mercury
+   cd input_generation_tools/ # The bada3 script is in the input_generation_tool/
+   mkdir -p ../libs/performance_models/bada3/data/ # Output folder must exist
+   python generate_bada3_input.py -s BADA3_FILES_PATH -d ../libs/performance_models/bada3/data/
 
 Ensure you copy the generated parquet files into ``Mercury/libs/performance_models/bada3/data/``.
 
