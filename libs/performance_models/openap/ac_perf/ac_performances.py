@@ -43,7 +43,7 @@ class AircraftPerformance(AircraftPerformanceGeneric):
 
         # mass should be in kg, tas in kt, alt in ft, path_angle in degree
         # Output from openAP is in kg/s
-        ff = 60*self.fuel.enroute(mass=mass, tas=v_tas, alt=fl, path_angle=bank)
+        ff = 60*self.fuel.enroute(mass=mass, tas=v_tas, alt=fl)
 
         return ff
 
